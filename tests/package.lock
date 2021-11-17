@@ -1,0 +1,12 @@
+prefixes:
+  antecedent: ..
+  composition: ..
+  consequent: ..
+  fuzzy_input: ..
+  fuzzy_model: ..
+  fuzzy_output: ..
+  fuzzy_rule: ..
+  fuzzy_set: ..
+packages:
+  ..:
+    path: ..

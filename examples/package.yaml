@@ -1,0 +1,17 @@
+dependencies:
+  antecedent:
+    path: ..
+  consequent:
+    path: ..
+  fuzzy_input:
+    path: ..
+  fuzzy_logic:
+    path: ..
+  fuzzy_model:
+    path: ..
+  fuzzy_output:
+    path: ..
+  fuzzy_rule:
+    path: ..
+  fuzzy_set:
+    path: ..

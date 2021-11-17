@@ -1,0 +1,5 @@
+name: simple_01
+entrypoint: advanced_01.toit
+triggers:
+  on_boot: true
+  on_install: true
