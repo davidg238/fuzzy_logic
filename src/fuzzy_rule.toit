@@ -9,8 +9,9 @@ class FuzzyRule:
     fired := false
     antecedent_/Antecedent 
     consequent_/Consequent 
+    name/string
 
-    constructor .index .antecedent_ .consequent_:
+    constructor .index .antecedent_ .consequent_ .name="":
 
     evaluate -> bool:
         if (antecedent_!=null) and (consequent_!=null):
@@ -19,4 +20,5 @@ class FuzzyRule:
             consequent_.evaluate antecedent_power
         return fired
 
+    stringify -> string: return "    $index: if $antecedent_ then $consequent_"
 

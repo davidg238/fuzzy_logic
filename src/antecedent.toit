@@ -110,3 +110,23 @@ class Antecedent:
             else:
                 return 0.0
     return 0.0
+
+  stringify -> string:
+    if mode_==MODE_FS:
+        return fuzzy_set_1_.name
+    else if mode_==MODE_FS_FS:
+        if op_== OP_AND:      
+            return "($fuzzy_set_1_.name and $fuzzy_set_2_.name)"
+        else if op_== OP_OR:  
+            return "($fuzzy_set_1_.name or $fuzzy_set_2_.name)"
+    else if mode_== MODE_FS_FRA:
+        if op_== OP_AND:        
+            return "($fuzzy_set_1_.name and $antecedent_1_)"
+        else if op_== OP_OR:    
+            return "($fuzzy_set_1_.name or $antecedent_1_)"
+    else if mode_ == MODE_FRA_FRA:
+        if op_ == OP_AND:         
+            return "($antecedent_1_ and $antecedent_2_)"
+        else if op_ == OP_OR:     
+            return "($antecedent_1_ or $antecedent_2_)"
+    return "<error>"

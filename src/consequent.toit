@@ -15,3 +15,9 @@ class Consequent:
     evaluate power/float -> none:
         fuzzy_set_outputs.do:
             it.pertinence power
+
+    stringify -> string:
+        str := "("
+        fuzzy_set_outputs.do:
+            str = str + it.name + ", "
+        return str + ")"

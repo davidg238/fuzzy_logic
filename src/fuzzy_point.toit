@@ -7,6 +7,8 @@ class FuzzyPoint:
 
     constructor .point .pert:
 
+    stringify: return "$point/$pert"
+
 class NoPoint extends FuzzyPoint:
 
     constructor:

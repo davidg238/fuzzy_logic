@@ -5,9 +5,9 @@ class InputOutput:
     crisp_in := 0.0
     index_/int := 0
     fuzzy_sets_/List := []
+    name/string
 
-    constructor an_index:
-        index_ = an_index
+    constructor .index_ .name="":
 
     add_set a_set -> none:
         fuzzy_sets_.add a_set

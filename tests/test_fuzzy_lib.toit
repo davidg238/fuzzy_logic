@@ -11,6 +11,11 @@ import fuzzy_rule show FuzzyRule
 import antecedent show Antecedent
 import consequent show Consequent
 
+import set_triangular show TriangularSet
+import set_trapezoidal show TrapezoidalSet
+import set_trapezoidal_l show LTrapezoidalSet
+import set_trapezoidal_r show RTrapezoidalSet
+
 import expect show *
 
 main:
@@ -21,7 +26,7 @@ main:
 
     TEST "FuzzySet" "getPoints":
 
-        fuzzySet := FuzzySet 0.0 10.0 20.0 30.0
+        fuzzySet := FuzzySet 0.0 10.0 20.0 30.0 "set"
         ASSERT_FLOAT_EQ 0.0 fuzzySet.a
         ASSERT_FLOAT_EQ 10.0 fuzzySet.b
         ASSERT_FLOAT_EQ 20.0 fuzzySet.c
@@ -29,7 +34,9 @@ main:
 
     TEST "FuzzySet" "calculateAndGetPertinence":
 
-        fuzzySet1 := FuzzySet 0.0 10.0 10.0 20.0
+        fuzzySet1 := FuzzySet 0.0 10.0 10.0 20.0 "set1"
+
+        ASSERT_TRUE fuzzySet1 is TriangularSet
 
         fuzzySet1.calculate_pertinence -5.0
         ASSERT_FLOAT_EQ 0.0 fuzzySet1.pertinence
@@ -47,12 +54,16 @@ main:
         fuzzySet1.calculate_pertinence 25.0
         ASSERT_FLOAT_EQ 0.0 fuzzySet1.pertinence
 
-        fuzzySet2 := FuzzySet 0.0 0.0 20.0 30.0
+        fuzzySet2 := FuzzySet  0.0 0.0 20.0 30.0
+
+        ASSERT_TRUE fuzzySet2 is LTrapezoidalSet
 
         fuzzySet2.calculate_pertinence -5.0
         ASSERT_FLOAT_EQ 1.0 fuzzySet2.pertinence
 
         fuzzySet3 := FuzzySet 0.0 10.0 20.0 20.0
+
+        ASSERT_TRUE fuzzySet3 is RTrapezoidalSet
 
         fuzzySet3.calculate_pertinence 25.0
         ASSERT_FLOAT_EQ 1.0 fuzzySet3.pertinence
@@ -61,6 +72,8 @@ main:
     TEST "FuzzyInput" "addFuzzySet":
         fuzzyInput := FuzzyInput 0
         fuzzySet := FuzzySet 0.0 10.0 10.0 20.0
+
+        ASSERT_TRUE fuzzySet is TriangularSet
 
         ASSERT_RUNS: // deleted bool return of C functions, since in usual code, unchecked?
             fuzzyInput.add_set fuzzySet
@@ -75,9 +88,11 @@ main:
     TEST "FuzzyInput" "calculateFuzzySetPertinences":
 
         fuzzyInput := FuzzyInput 0
-        fuzzySet1 := FuzzySet 0.0 10.0 10.0 20.0
+        fuzzySet1 := FuzzySet 0.0 10.0 10.0 20.0 "set1"
         fuzzyInput.add_set fuzzySet1
-        fuzzySet2 := FuzzySet 10.0 20.0 20.0 30.0
+        fuzzySet2 := FuzzySet 10.0 20.0 20.0 30.0 "set2"
+
+        ASSERT_TRUE fuzzySet2 is TriangularSet
         fuzzyInput.add_set fuzzySet2
         fuzzyInput.crisp_in = 5.0
 
@@ -197,15 +212,18 @@ main:
 
         ASSERT_EQ 0 fuzzyOutput.index
 
-        fuzzySetTest0 := FuzzySet 0.0 10.0 10.0 20.0
+        fuzzySetTest0 := FuzzySet 0.0 10.0 10.0 20.0 "set0"
+        ASSERT_TRUE fuzzySetTest0 is TriangularSet
         fuzzySetTest0.pertinence 1.0
         fuzzyOutput.add_set fuzzySetTest0
 
         fuzzySetTest1 := FuzzySet 10.0 20.0 20.0 30.0
+        ASSERT_TRUE fuzzySetTest1 is TriangularSet
         fuzzySetTest1.pertinence 1.0
         fuzzyOutput.add_set fuzzySetTest1
 
-        fuzzySetTest2 := FuzzySet 20.0 30.0 30.0 40.0
+        fuzzySetTest2 := FuzzySet 20.0 30.0 30.0 40.0 "set2"
+        ASSERT_TRUE fuzzySetTest2 is TriangularSet
         fuzzySetTest2.pertinence 1.0
         fuzzyOutput.add_set fuzzySetTest2
 
@@ -289,13 +307,13 @@ main:
 
 
     TEST "Antecedent" "joinTwoFuzzyAntecedentAndEvaluate":
-        fuzzySet1 := FuzzySet 0.0 10.0 10.0 20.0
+        fuzzySet1 := FuzzySet  0.0 10.0 10.0 20.0 "set1"
         fuzzySet1.pertinence 0.25
         antecedent1 := Antecedent.join_set fuzzySet1
 
-        fuzzySet2 := FuzzySet 10.0 20.0 20.0 30.0
+        fuzzySet2 := FuzzySet  10.0 20.0 20.0 30.0 "set2"
         fuzzySet2.pertinence 0.75
-        fuzzySet3 := FuzzySet 30.0 40.0 40.0 50.0
+        fuzzySet3 := FuzzySet  30.0 40.0 40.0 50.0 "set3"
         fuzzySet3.pertinence 0.5
         antecedent2 := Antecedent.join_sets_OR fuzzySet2 fuzzySet3
 
@@ -308,8 +326,8 @@ main:
 
 
     TEST "Consequent" "addOutputAndEvaluate":
-        fuzzySet1 := FuzzySet 0.0 10.0 10.0 20.0
-        fuzzySet2 := FuzzySet 10.0 20.0 20.0 30.0
+        fuzzySet1 := FuzzySet 0.0 10.0 10.0 20.0 "set1"
+        fuzzySet2 := FuzzySet 10.0 20.0 20.0 30.0 "set2"
 
         fuzzyRuleConsequent := null
         ASSERT_RUNS: fuzzyRuleConsequent = Consequent.output fuzzySet1
@@ -403,6 +421,7 @@ main:
         low := FuzzySet 0.0 10.0 10.0 20.0
         temperature.add_set low
         mean := FuzzySet 10.0 20.0 30.0 40.0
+        ASSERT_TRUE mean is TrapezoidalSet
         temperature.add_set mean
         high := FuzzySet 30.0 40.0 40.0 50.0
         temperature.add_set high
@@ -444,7 +463,7 @@ main:
 
         ASSERT_RUNS: fuzzy.set_input 0 15.0
 
-        ASSERT_RUNS: fuzzy.fuzzify
+        fuzzy.fuzzify  // was ASSERT_RUNS //todo
 
         ASSERT_TRUE  (fuzzy.is_fired 0)
         ASSERT_TRUE  (fuzzy.is_fired 1)

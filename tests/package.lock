@@ -7,6 +7,13 @@ prefixes:
   fuzzy_output: ..
   fuzzy_rule: ..
   fuzzy_set: ..
+  set_singleton: ..
+  set_trapezoidal: ..
+  set_trapezoidal_l: ..
+  set_trapezoidal_r: ..
+  set_triangular: ..
+  set_triangular_lra: ..
+  set_triangular_rra: ..
 packages:
   ..:
     path: ..
