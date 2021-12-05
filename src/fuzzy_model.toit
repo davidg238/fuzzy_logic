@@ -36,7 +36,6 @@ class FuzzyModel:
             in_str = in_str + it.stringify + "\n"
         print in_str
         rules_.do: it.evaluate
-        print ".... about to truncate outputs"
         outputs_.do: it.truncate
 
     is_fired index/int -> bool:

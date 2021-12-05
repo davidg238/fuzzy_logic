@@ -1,5 +1,5 @@
 // Copyright (c) 2021 Ekorau LLC
-
+import math
 import .fuzzy_set show FuzzySet
 
 // possible logic operators
@@ -43,7 +43,10 @@ class Antecedent:
         antecedent_1_ = antecedent
 
   constructor.join_ante_set_AND antecedent/Antecedent fuzzy_set/FuzzySet:
-        Antecedent.join_set_ante_AND fuzzy_set antecedent
+        op_ = OP_AND
+        mode_ = MODE_FS_FRA
+        fuzzy_set_1_ = fuzzy_set
+        antecedent_1_ = antecedent
 
   constructor.join_set_ante_OR fuzzy_set/FuzzySet antecedent/Antecedent:
         op_ = OP_OR
@@ -52,7 +55,10 @@ class Antecedent:
         antecedent_1_ = antecedent
 
   constructor.join_ante_set_OR antecedent/Antecedent fuzzy_set/FuzzySet:
-        Antecedent.join_set_ante_OR fuzzy_set antecedent
+        op_ = OP_OR
+        mode_ = MODE_FS_FRA
+        fuzzy_set_1_ = fuzzy_set
+        antecedent_1_ = antecedent
 
   constructor.join_ante_ante_AND antecedent_1/Antecedent antecedent_2/Antecedent:
         op_ = OP_AND;
@@ -81,19 +87,24 @@ class Antecedent:
                 return max fuzzy_set_1_.pertinence fuzzy_set_2_.pertinence
             else:
                 return 0.0
+        else:
+            return 0.0
     else if mode_== MODE_FS_FRA: // if a join of one FuzzySet and one FuzzyRuleAntecedent, switch by the operator
+        val1 := antecedent_1_.evaluate
         if op_== OP_AND:            // the operator is AND, check if both has pertinence bigger then 0.0
-            val1 := antecedent_1_.evaluate
             if (fuzzy_set_1_.pertinence > 0.0) and (val1 > 0.0):  // return the small pertinence between two FuzzySet
-                return min fuzzy_set_1_.pertinence val1
+                val2 := fuzzy_set_1_.pertinence
+                return min val1 val2
             else:
                 return 0.0
         else if op_== OP_OR:        // the operator is OR, check if one has pertinence bigger then 0.0
-            val1 := antecedent_1_.evaluate
             if (fuzzy_set_1_.pertinence > 0.0) or (val1 > 0.0):  // return the one pertinence is bigger
-                return max fuzzy_set_1_.pertinence val1
+                val2 := fuzzy_set_1_.pertinence
+                return (max val2 val1)
             else:
                 return 0.0
+        else:
+            return 0.0
     else if mode_ == MODE_FRA_FRA: // a join of two FuzzyRuleAntecedent, switch by the operator
         if op_ == OP_AND:               // the operator is AND, check if both has pertinence bigger then 0.0
             val1 := antecedent_1_.evaluate
@@ -109,9 +120,13 @@ class Antecedent:
                 return max val1 val2
             else:
                 return 0.0
-    return 0.0
+        else:
+            return 0.0
+    else:
+        return 0.0
 
   stringify -> string:
+
     if mode_==MODE_FS:
         return fuzzy_set_1_.name
     else if mode_==MODE_FS_FS:

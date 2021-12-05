@@ -12,6 +12,9 @@ class InputOutput:
     add_set a_set -> none:
         fuzzy_sets_.add a_set
 
+    add_all_sets sets/List-> none:
+        fuzzy_sets_.add_all sets
+
     index -> int:
         return index_
 

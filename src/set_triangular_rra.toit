@@ -1,4 +1,5 @@
 import .fuzzy_set show *
+import .geometry show intersection Point2f
 
 class RraTriangularSet extends FuzzySet:
 
@@ -7,9 +8,15 @@ class RraTriangularSet extends FuzzySet:
 
     stype: return "tri.rra"
 
-    copy_points_to_ composition/Composition -> none:
-        composition.add_point (FuzzyPoint a_ 0.0)
-        composition.add_point (FuzzyPoint b_ pertinence_ )
-
-    union composition/Composition -> none:
+    truncated -> List: //Answer the point geometry, truncated to the current pertinence
+        return pertinence_== 1.0?
+            [ Point2f a_ 0.0, 
+              Point2f d_ 1.0,
+              Point2f d_ 0.0
+            ] :
+            [ Point2f a_ 0.0, 
+              intersection (Point2f a_ 0.0) (Point2f d_ 1.0) truncator_a truncator_b,
+              intersection (Point2f d_ 1.0) (Point2f d_ 0.0) truncator_a truncator_b,
+              Point2f d_ 0.0
+            ]
 

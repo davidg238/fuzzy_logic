@@ -1,4 +1,5 @@
 import .fuzzy_set show *
+import .geometry show intersection Point2f
 
 class LTrapezoidalSet extends FuzzySet:
 
@@ -7,7 +8,13 @@ class LTrapezoidalSet extends FuzzySet:
 
     stype: return "trap.l"
 
-    copy_points_to_ composition/Composition -> none:
-        composition.add_point (FuzzyPoint a_ pertinence_)
-        composition.add_point (FuzzyPoint c_ pertinence_)
-        composition.add_point (FuzzyPoint d_ 0.0 )
+    truncated -> List: //Answer the point geometry, truncated to the current pertinence
+        return pertinence_== 1.0?
+            [ Point2f a_ 1.0, 
+              Point2f c_ 1.0,
+              Point2f d_ 0.0
+            ] :
+            [ Point2f a_ pertinence, 
+              intersection (Point2f c_ 1.0) (Point2f d_ 0.0) truncator_a truncator_b,
+              Point2f d_ 0.0
+            ]

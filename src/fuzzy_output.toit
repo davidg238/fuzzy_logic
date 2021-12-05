@@ -2,7 +2,7 @@
 
 import .composition show Composition
 import .input_output show InputOutput
-import .fuzzy_point show FuzzyPoint NoPoint
+import .geometry show Point2f NoPoint
 
 seg idx/int list/List -> List:
     return [list[idx] list[idx + 1]]
@@ -15,13 +15,13 @@ class FuzzyOutput extends InputOutput:
         super index name
 
     crisp_out -> float:
-        return composition_.calculate
+        return composition_.calculate_centroid
 
     composition -> Composition:
         return composition_
 
     order -> none:
-        fuzzy_sets_.sort --in_place=true: | a b | a.a_.compare_to b.a_
+        fuzzy_sets_.sort --in_place=true: | a b | a.compare_to b
 
     stringify -> string:
         out_str := "out: $name\n"
@@ -30,25 +30,15 @@ class FuzzyOutput extends InputOutput:
         return "$out_str"        
 
     truncate -> none:
-        composition_.empty
-        populate_composition
-//        composition.build
-
-    truncate_2 -> none:
         sublist := List
         fuzzy_sets_.do:
             if (it.is_pertinent): sublist.add it
         sublist.sort --in_place=true: | a b | (a.a_.compare_to b.a_)
-        
-        composition_.empty
-        composition_.seed sublist[0]
-        sublist[1..].do: |set|
-            union_ composition_.segments set.segments
-
-    union_ c_segs/List s_segs/List -> none:
-
-
-
+        composition_.clear
+        sublist.do: |set|
+            composition_.union (set.truncated) /// truncate the set shape to the pertinence
+        composition.simplify
+/*
     populate_composition -> none:  // split out temporarily for understanding
         print "populate the composition"
         fuzzy_sets_.do:
@@ -117,5 +107,32 @@ class FuzzyOutput extends InputOutput:
                 if (it.c != it.d):
                     print ".... if it is not a trapeze without its right triangle or singleton, before include the point D"
                     composition.add_point it.d 0.0    
+*/
 
+/*
+    // Method to rebuild some point, the new point is calculated finding the intersection between two lines
+intersection x1/float y1/float x2/float y2/float x3/float y3/float x4/float y4/float -> FuzzyPoint:
 
+    print "find intersection $x1,$y1 - $x2,$y2 and $x3,$y3 - $x4,$y4"
+    // calculate the denominator and numerator
+    denom  := (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1)
+    numera := (x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)
+    numerb := (x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)
+    
+    if denom < 0.0:             // if negative, convert to positive
+        denom = denom * -1.0
+    // If the denominator is zero or close to it, it means that the lines are parallels, so return false for intersection
+    //EPSILON_VALUE = 0.001
+    if denom < 0.001: return NoPoint
+    if (numera < 0.0):          // if negative, convert to positive
+        numera = numera * -1.0
+    if (numerb < 0.0):          // if negative, convert to positive
+        numerb = numerb * -1.0
+    // verify if has intersection between the segments
+    mua := numera / denom
+    mub := numerb / denom
+    if (mua < 0.0) or (mua > 1.0) or (mub < 0.0) or (mub > 1.0):
+        return NoPoint
+    else:
+        return FuzzyPoint (x1 + mua * (x2 - x1)) (y1 + mua * (y2 - y1))
+*/

@@ -10,10 +10,11 @@ import .set_trapezoidal show TrapezoidalSet
 import .set_trapezoidal_l show LTrapezoidalSet
 import .set_trapezoidal_r show RTrapezoidalSet
 
-import .fuzzy_point show FuzzyPoint NoPoint
+import .geometry show Point2f NoPoint intersection
 
+/*
     // Method to rebuild some point, the new point is calculated finding the intersection between two lines
-intersection x1/float y1/float x2/float y2/float x3/float y3/float x4/float y4/float -> FuzzyPoint:
+intersection x1/float y1/float x2/float y2/float x3/float y3/float x4/float y4/float -> Point2f:
 
     print "find intersection $x1,$y1 - $x2,$y2 and $x3,$y3 - $x4,$y4"
     // calculate the denominator and numerator
@@ -36,10 +37,10 @@ intersection x1/float y1/float x2/float y2/float x3/float y3/float x4/float y4/f
     if (mua < 0.0) or (mua > 1.0) or (mub < 0.0) or (mub > 1.0):
         return NoPoint
     else:
-        return FuzzyPoint (x1 + mua * (x2 - x1)) (y1 + mua * (y2 - y1))
+        return Point2f (x1 + mua * (x2 - x1)) (y1 + mua * (y2 - y1))
+*/
 
-
-class FuzzySet:
+abstract class FuzzySet:
 
     a_/float 
     b_/float
@@ -85,6 +86,12 @@ class FuzzySet:
     c -> float: return c_
     d -> float: return d_
 
+    compare_to other/FuzzySet -> any:
+        if (a_ < other.a_): return -1
+        if (a_ > other.a_): return 1
+        if ((a_== other.a) and (b_==other.b_) and (c_==other.c_) and (d_==other.d)): return 0
+        return (pertinence_ < other.pertinence_)? -1: 1
+
     is_pertinent -> bool:
         return pertinence_ > 0.0
 
@@ -94,15 +101,17 @@ class FuzzySet:
     pertinence val/float -> none:
         if (pertinence_ < val): pertinence_ = val
 
+    abstract truncated
+
+    truncator_a -> Point2f:  ///For now, set geometries x-values are defined between 0.0 - 100.0
+        return Point2f 0.0 pertinence_
+        
+    truncator_b -> Point2f:
+        return Point2f 100.0 pertinence_
+
     reset -> none:
         pertinence_ = 0.0
 
     stype: return ""
 
     stringify: return "$name/$(stype):[$a_, $b_, $c_, $d_]/$(%.3f pertinence_)"
-
-    copy_points_to_ composition/Composition -> none:
-
-    seed composition/Composition -> none:
-        copy_points_to_ composition
-
