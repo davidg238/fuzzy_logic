@@ -26,23 +26,31 @@ class FuzzyModel:
         return outputs_[index].crisp_out
 
     fuzzify -> none:
-        print "in fuzzify ..."
+        // print "in model.fuzzify ..."
         inputs_.do: it.reset_sets
         outputs_.do: it.reset_sets
 
         inputs_.do: it.calculate_set_pertinences
-        in_str := ""
+        /* in_str := ""
         inputs_.do:
             in_str = in_str + it.stringify + "\n"
         print in_str
+        print "... evaluate rules"
+        */
         rules_.do: it.evaluate
-        outputs_.do: it.truncate
+        // print "... truncate outputs"
+        outputs_.do: 
+            it.truncate
 
     is_fired index/int -> bool:
         return rules_[index].fired
 
     set_input index/int crisp_value/float -> none:
         inputs_[index].crisp_in = crisp_value
+
+    set_inputs list/List -> none:
+        for i:=0; i<list.size; i+= 1:
+            set_input i list[i]
 
     stringify -> string:
 

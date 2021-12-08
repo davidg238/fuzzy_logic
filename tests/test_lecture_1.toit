@@ -60,26 +60,26 @@ main:
         fuzzy.add_output quality
 
         // Building FuzzyRule
-        if_SizeSmallAndWeightSmall := Antecedent.join_sets_AND smallSize smallWeight
+        if_SizeSmallAndWeightSmall := Antecedent.AND_sets smallSize smallWeight
         then_QualityBad := Consequent.output bad
         
         fuzzyRule0 := FuzzyRule 0 if_SizeSmallAndWeightSmall then_QualityBad
         fuzzy.add_rule fuzzyRule0
 
         // Building FuzzyRule
-        if_SizeSmallAndWeightLarge := Antecedent.join_sets_AND smallSize largeWeight
+        if_SizeSmallAndWeightLarge := Antecedent.AND_sets smallSize largeWeight
         then_QualityMedium1 := Consequent.output medium
         fuzzyRule1 := FuzzyRule 1 if_SizeSmallAndWeightLarge then_QualityMedium1
         fuzzy.add_rule fuzzyRule1
 
         // Building FuzzyRule
-        if_SizeLargeAndWeightSmall := Antecedent.join_sets_AND largeSize smallWeight
+        if_SizeLargeAndWeightSmall := Antecedent.AND_sets largeSize smallWeight
         then_QualityMedium2 := Consequent.output medium
         fuzzyRule2 := FuzzyRule 2 if_SizeLargeAndWeightSmall then_QualityMedium2
         fuzzy.add_rule fuzzyRule2
 
         // Building FuzzyRule
-        if_SizeLargeAndWeightLarge := Antecedent.join_sets_AND largeSize largeWeight
+        if_SizeLargeAndWeightLarge := Antecedent.AND_sets largeSize largeWeight
         then_QualityGood := Consequent.output good
         fuzzyRule3 := FuzzyRule 3 if_SizeLargeAndWeightLarge then_QualityGood
         fuzzy.add_rule fuzzyRule3

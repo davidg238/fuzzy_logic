@@ -1,3 +1,5 @@
+// Copyright (c) 2021 Ekorau LLC
+
 import .fuzzy_set show *
 import .geometry show intersection Point2f
 

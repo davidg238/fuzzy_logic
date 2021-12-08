@@ -30,9 +30,13 @@ class FuzzyOutput extends InputOutput:
         return "$out_str"        
 
     truncate -> none:
+        // print "truncate output $index_, which looks like: "
+        // print "$this"
         sublist := List
         fuzzy_sets_.do:
-            if (it.is_pertinent): sublist.add it
+            if (it.is_pertinent): 
+                // print "output $index_, add set: " + it.stringify + "\n"
+                sublist.add it
         sublist.sort --in_place=true: | a b | (a.a_.compare_to b.a_)
         composition_.clear
         sublist.do: |set|

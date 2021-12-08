@@ -1,3 +1,6 @@
+// Copyright (c) 2021 Ekorau LLC
+
+
 import expect show *
 
 main:

@@ -19,7 +19,7 @@ class Composition:
 
     points/List := []
 
-    add_point x/float pertinence/float -> none:  // only used by test harness
+    add_point x/float pertinence/float -> none:  // only used by test harness, so no return
         points.add (Point2f x pertinence)
 
     any_point point/float pertinence/float -> bool:     /// was checkPoint, to resemble set operator
@@ -28,7 +28,7 @@ class Composition:
 
     calculate_centroid -> float:
 
-        print "$this"
+        // print "$this"
         a := null
         b := null
         tot_area := 0.0
@@ -77,19 +77,19 @@ class Composition:
                     intersect := intersection set[i] set[i+1] points[j] points[j+1]
                     if (not intersect is NoPoint):
                         temp.add intersect
-                        // print "add interesect: $intersect"
+                //        print "add interesect: $intersect"
             temp.add set.last
             // print "adding set last $set.last"
             points = temp
 
     simplify -> none:
         /// https://en.wikibooks.org/wiki/Algorithm_Implementation/Geometry/Convex_hull/Monotone_chain
-        print "$this"
+        // print "$this"
         if points.size < 3:
             if points.size == 2:
                 if forms_singleton points[0] points[1]: return  // no need to simplify further
             else:
-                throw "unknown geometry"
+                throw "attempt to simplify unknown geometry, with $(points.size) points"
 
         temp := xy_sort points
         // this simplification will only work for a limited subset of intersecting triangular and trapezoidal fuzzy sets, 

@@ -30,68 +30,7 @@ intersection a1/Point2f a2/Point2f b3/Point2f b4/Point2f -> Point2f:
         return Point2f (a1.x + mua * (a2.x - a1.x)) (a1.y + mua * (a2.y - a1.y))
 
 concave_hull points/List k/int -> List:
-    return []
-/*
-    kk := max k 3
-    dataset := remove_duplicates points
-    if dataset.size<3: return []
-    if dataset.size==3: return dataset
-    kk = min kk (dataset.size-1)             // make sure that k neighbours can be found
-    firstPoint := leftmost_lowest dataset
-9: hull ← {firstPoint} ► initialize the hull with the first point
-10: currentPoint ← firstPoint
-11: dataset ← RemovePoint[dataset,firstPoint] ► remove the first point
-12: previousAngle ← 0
-13: step ← 2
-14: While ((currentPoint≠firstPoint)or(step=2))and(Length[dataset]>0)
-15: If step=5
-16:
-dataset ← AddPoint[dataset,firstPoint] ► add the firstPoint again
-17: kNearestPoints ← NearestPoints[dataset,currentPoint,kk] ► find the nearest neighbours
-18: cPoints ← SortByAngle[kNearestPoints,currentPoint,prevAngle] ► sort the candidates
-(neighbours) in descending order of right-hand turn
-19: its ← True
-20: i ← 0
-21: While (its=True)and(i<Length[cPoints]) ► select the first candidate that does not intersects any
-of the polygon edges
-22:
-i++
-23:
-If cPoints i =firstPoint
-24:
-lastPoint ← 1
-25:
-else
-26:
-lastPoint ← 0
-27:
-j ← 2
-28:
-its ← False
-29:
-While (its=False)and(j<Length[hull]-lastPoint)
-30:
-its ← IntersectsQ[{hull step-1 ,cPoints i },{hull step-1-j ,hull step-j }]
-31:
-j++
-32: If its=True ► since all candidates intersect at least one edge, try again with a higher number of neighbours
-33:
-Return[ConcaveHull[pointsList,kk+1]]
-34: currentPoint ← cPoints i
-35: hull ← AddPoint[hull,currentPoint] ► a valid candidate was found
-36: prevAngle ← Angle[hull step ,hull step-1 ]
-37: dataset ← RemovePoint[dataset,currentPoint]
-38: step++
-39: allInside ← True
-40: i ← Length[dataset]
-41: While (allInside=True)and(i>0) ► check if all the given points are inside the computed polygon
-42: allInside ← PointInPolygonQ[dataset i ,hull]
-43: i--
-44: If allInside=False
-45: Return[ConcaveHull[pointsList,kk+1]] ► since at
-*/
-
-
+    return []  //todo
 
 convex_hull points/List -> List:
     /// https://en.wikipedia.org/wiki/Graham_scan
@@ -112,23 +51,20 @@ upper_convex_hull points/List -> List:
     if points.size < 3:
         throw "unknown geometry"
 
-    val := null
+    val := null // only used debug prints
     temp := xy_sort points
-    // print "after sort: $temp"
     stack := Stack
     temp.do --reversed=true:
         while stack.size > 1 and (ccw stack.next_to_top stack.top it) <= 0:
             val = stack.pop
-            // print "for $it, pop $val"
         stack.push it
-        // print "push $it"
     return stack.to_list
 
 ccw a/Point2f b/Point2f c/Point2f -> any:
 // ccw > 0 if three points make a counter-clockwise turn, clockwise if ccw < 0, and collinear if ccw = 0
 
     val := ((b.x-a.x)*(c.y-a.y))-((b.y-a.y)*(c.x-a.x))
-    return (val.abs < 0.001)? 0.0 : val
+    return (val.abs < 0.001)? 0.0 : val  //todo, floats
 
 xy_sort points/List -> List:
     return points.sort: | a b |

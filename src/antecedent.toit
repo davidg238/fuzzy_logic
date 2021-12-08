@@ -1,4 +1,5 @@
 // Copyright (c) 2021 Ekorau LLC
+
 import math
 import .fuzzy_set show FuzzySet
 
@@ -20,53 +21,53 @@ class Antecedent:
   antecedent_1_ := null
   antecedent_2_ := null
 
-  constructor.join_set fuzzy_set/FuzzySet:
+  constructor.set fuzzy_set/FuzzySet:
         mode_ = MODE_FS
         fuzzy_set_1_ = fuzzy_set
 
-  constructor.join_sets_AND fuzzy_set_1/FuzzySet fuzzy_set_2/FuzzySet:
+  constructor.AND_sets fuzzy_set_1/FuzzySet fuzzy_set_2/FuzzySet:
         op_ = OP_AND
         mode_ = MODE_FS_FS
         fuzzy_set_1_ = fuzzy_set_1
         fuzzy_set_2_ = fuzzy_set_2
 
-  constructor.join_sets_OR fuzzy_set_1/FuzzySet fuzzy_set_2/FuzzySet:
+  constructor.OR_sets fuzzy_set_1/FuzzySet fuzzy_set_2/FuzzySet:
         op_ = OP_OR
         mode_ = MODE_FS_FS
         fuzzy_set_1_ = fuzzy_set_1
         fuzzy_set_2_ = fuzzy_set_2
 
-  constructor.join_set_ante_AND fuzzy_set/FuzzySet antecedent/Antecedent:
+  constructor.AND_set_ante fuzzy_set/FuzzySet antecedent/Antecedent:
         op_ = OP_AND
         mode_ = MODE_FS_FRA
         fuzzy_set_1_ = fuzzy_set
         antecedent_1_ = antecedent
 
-  constructor.join_ante_set_AND antecedent/Antecedent fuzzy_set/FuzzySet:
+  constructor.AND_ante_set antecedent/Antecedent fuzzy_set/FuzzySet:
         op_ = OP_AND
         mode_ = MODE_FS_FRA
         fuzzy_set_1_ = fuzzy_set
         antecedent_1_ = antecedent
 
-  constructor.join_set_ante_OR fuzzy_set/FuzzySet antecedent/Antecedent:
+  constructor.OR_set_ante fuzzy_set/FuzzySet antecedent/Antecedent:
         op_ = OP_OR
         mode_ = MODE_FS_FRA
         fuzzy_set_1_ = fuzzy_set
         antecedent_1_ = antecedent
 
-  constructor.join_ante_set_OR antecedent/Antecedent fuzzy_set/FuzzySet:
+  constructor.OR_ante_set antecedent/Antecedent fuzzy_set/FuzzySet:
         op_ = OP_OR
         mode_ = MODE_FS_FRA
         fuzzy_set_1_ = fuzzy_set
         antecedent_1_ = antecedent
 
-  constructor.join_ante_ante_AND antecedent_1/Antecedent antecedent_2/Antecedent:
+  constructor.AND_ante_ante antecedent_1/Antecedent antecedent_2/Antecedent:
         op_ = OP_AND;
         mode_ = MODE_FRA_FRA;
         antecedent_1_ = antecedent_1
         antecedent_2_ = antecedent_2
 
-  constructor.join_ante_ante_OR antecedent_1/Antecedent  antecedent_2/Antecedent:
+  constructor.OR_ante_ante antecedent_1/Antecedent  antecedent_2/Antecedent:
         op_ = OP_OR;
         mode_ = MODE_FRA_FRA;
         antecedent_1_ = antecedent_1

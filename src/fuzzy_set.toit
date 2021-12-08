@@ -12,34 +12,6 @@ import .set_trapezoidal_r show RTrapezoidalSet
 
 import .geometry show Point2f NoPoint intersection
 
-/*
-    // Method to rebuild some point, the new point is calculated finding the intersection between two lines
-intersection x1/float y1/float x2/float y2/float x3/float y3/float x4/float y4/float -> Point2f:
-
-    print "find intersection $x1,$y1 - $x2,$y2 and $x3,$y3 - $x4,$y4"
-    // calculate the denominator and numerator
-    denom  := (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1)
-    numera := (x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)
-    numerb := (x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)
-    
-    if denom < 0.0:             // if negative, convert to positive
-        denom = denom * -1.0
-    // If the denominator is zero or close to it, it means that the lines are parallels, so return false for intersection
-    //EPSILON_VALUE = 0.001
-    if denom < 0.001: return NoPoint
-    if (numera < 0.0):          // if negative, convert to positive
-        numera = numera * -1.0
-    if (numerb < 0.0):          // if negative, convert to positive
-        numerb = numerb * -1.0
-    // verify if has intersection between the segments
-    mua := numera / denom
-    mub := numerb / denom
-    if (mua < 0.0) or (mua > 1.0) or (mub < 0.0) or (mub > 1.0):
-        return NoPoint
-    else:
-        return Point2f (x1 + mua * (x2 - x1)) (y1 + mua * (y2 - y1))
-*/
-
 abstract class FuzzySet:
 
     a_/float 

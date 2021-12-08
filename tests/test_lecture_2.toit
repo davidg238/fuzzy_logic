@@ -54,22 +54,22 @@ main:
         fuzzy.add_output speed
 
         // Building FuzzyRules
-        fuzzy.add_rule (FuzzyRule 0  (Antecedent.join_sets_AND veryLow dry)          (Consequent.output off))
-        fuzzy.add_rule (FuzzyRule 1  (Antecedent.join_sets_AND veryLow comfortable)  (Consequent.output off))
-        fuzzy.add_rule (FuzzyRule 2  (Antecedent.join_sets_AND veryLow humid)        (Consequent.output off))
-        fuzzy.add_rule (FuzzyRule 3  (Antecedent.join_sets_AND veryLow sticky)       (Consequent.output lowHumidity))
-        fuzzy.add_rule (FuzzyRule 4  (Antecedent.join_sets_AND low dry)              (Consequent.output off))
-        fuzzy.add_rule (FuzzyRule 5  (Antecedent.join_sets_AND low comfortable)      (Consequent.output off))
-        fuzzy.add_rule (FuzzyRule 6  (Antecedent.join_sets_AND low humid)            (Consequent.output lowHumidity))
-        fuzzy.add_rule (FuzzyRule 7  (Antecedent.join_sets_AND low sticky)           (Consequent.output medium))
-        fuzzy.add_rule (FuzzyRule 8  (Antecedent.join_sets_AND high dry)             (Consequent.output lowHumidity))
-        fuzzy.add_rule (FuzzyRule 9  (Antecedent.join_sets_AND high comfortable)     (Consequent.output medium))
-        fuzzy.add_rule (FuzzyRule 10 (Antecedent.join_sets_AND high humid)           (Consequent.output fast))
-        fuzzy.add_rule (FuzzyRule 11 (Antecedent.join_sets_AND high sticky)          (Consequent.output fast))
-        fuzzy.add_rule (FuzzyRule 12 (Antecedent.join_sets_AND veryHigh dry)         (Consequent.output medium))
-        fuzzy.add_rule (FuzzyRule 13 (Antecedent.join_sets_AND veryHigh comfortable) (Consequent.output fast))
-        fuzzy.add_rule (FuzzyRule 14 (Antecedent.join_sets_AND veryHigh humid)       (Consequent.output fast))
-        fuzzy.add_rule (FuzzyRule 15 (Antecedent.join_sets_AND veryHigh sticky)      (Consequent.output fast))
+        fuzzy.add_rule (FuzzyRule 0  (Antecedent.AND_sets veryLow dry)          (Consequent.output off))
+        fuzzy.add_rule (FuzzyRule 1  (Antecedent.AND_sets veryLow comfortable)  (Consequent.output off))
+        fuzzy.add_rule (FuzzyRule 2  (Antecedent.AND_sets veryLow humid)        (Consequent.output off))
+        fuzzy.add_rule (FuzzyRule 3  (Antecedent.AND_sets veryLow sticky)       (Consequent.output lowHumidity))
+        fuzzy.add_rule (FuzzyRule 4  (Antecedent.AND_sets low dry)              (Consequent.output off))
+        fuzzy.add_rule (FuzzyRule 5  (Antecedent.AND_sets low comfortable)      (Consequent.output off))
+        fuzzy.add_rule (FuzzyRule 6  (Antecedent.AND_sets low humid)            (Consequent.output lowHumidity))
+        fuzzy.add_rule (FuzzyRule 7  (Antecedent.AND_sets low sticky)           (Consequent.output medium))
+        fuzzy.add_rule (FuzzyRule 8  (Antecedent.AND_sets high dry)             (Consequent.output lowHumidity))
+        fuzzy.add_rule (FuzzyRule 9  (Antecedent.AND_sets high comfortable)     (Consequent.output medium))
+        fuzzy.add_rule (FuzzyRule 10 (Antecedent.AND_sets high humid)           (Consequent.output fast))
+        fuzzy.add_rule (FuzzyRule 11 (Antecedent.AND_sets high sticky)          (Consequent.output fast))
+        fuzzy.add_rule (FuzzyRule 12 (Antecedent.AND_sets veryHigh dry)         (Consequent.output medium))
+        fuzzy.add_rule (FuzzyRule 13 (Antecedent.AND_sets veryHigh comfortable) (Consequent.output fast))
+        fuzzy.add_rule (FuzzyRule 14 (Antecedent.AND_sets veryHigh humid)       (Consequent.output fast))
+        fuzzy.add_rule (FuzzyRule 15 (Antecedent.AND_sets veryHigh sticky)      (Consequent.output fast))
         // run it
         fuzzy.set_input 0 20.0
         fuzzy.set_input 1 65.0
@@ -81,82 +81,82 @@ main:
 
 
     /*
-        if_VeryLowAndDry := Antecedent.join_sets_AND veryLow dry
+        if_VeryLowAndDry := Antecedent.AND_sets veryLow dry
         then_Off1 := Consequent.output off
         fuzzyRule0 := FuzzyRule 0 if_VeryLowAndDry then_Off1
         fuzzy.add_rule fuzzyRule0
 
-        if_VeryLowAndComfortable := Antecedent.join_sets_AND veryLow comfortable
+        if_VeryLowAndComfortable := Antecedent.AND_sets veryLow comfortable
         then_Off2 := Consequent.output off
         fuzzyRule1 := FuzzyRule 1 if_VeryLowAndComfortable then_Off2
         fuzzy.add_rule fuzzyRule1
 
-        if_VeryLowAndHumid := Antecedent.join_sets_AND veryLow humid
+        if_VeryLowAndHumid := Antecedent.AND_sets veryLow humid
         then_Off3 := Consequent.output off
         fuzzyRule2 := FuzzyRule 2 if_VeryLowAndHumid then_Off3
         fuzzy.add_rule fuzzyRule2
 
-        if_VeryLowAndSticky := Antecedent.join_sets_AND veryLow sticky
+        if_VeryLowAndSticky := Antecedent.AND_sets veryLow sticky
         then_Low1 := Consequent.output lowHumidity
         fuzzyRule3 := FuzzyRule 3 if_VeryLowAndSticky then_Low1
         fuzzy.add_rule fuzzyRule3
 
-        if_LowAndDry := Antecedent.join_sets_AND low dry
+        if_LowAndDry := Antecedent.AND_sets low dry
         then_Off4 := Consequent.output off
         fuzzyRule4 := FuzzyRule 4 if_LowAndDry then_Off4
         fuzzy.add_rule fuzzyRule4
 
-        if_LowAndComfortable := Antecedent.join_sets_AND low comfortable
+        if_LowAndComfortable := Antecedent.AND_sets low comfortable
         then_Off5 := Consequent.output off
         fuzzyRule5 := FuzzyRule 5 if_LowAndComfortable then_Off5
         fuzzy.add_rule fuzzyRule5
 
-        if_LowAndHumid := Antecedent.join_sets_AND low humid
+        if_LowAndHumid := Antecedent.AND_sets low humid
         then_Low2 := Consequent.output lowHumidity
         fuzzyRule6 := FuzzyRule 6 if_LowAndHumid then_Low2
         fuzzy.add_rule fuzzyRule6
 
-        if_LowAndSticky := Antecedent.join_sets_AND low sticky
+        if_LowAndSticky := Antecedent.AND_sets low sticky
         then_Medium1 := Consequent.output medium
         fuzzyRule7 := FuzzyRule 7 if_LowAndSticky then_Medium1
         fuzzy.add_rule fuzzyRule7
 
-        if_HighAndDry := Antecedent.join_sets_AND high dry
+        if_HighAndDry := Antecedent.AND_sets high dry
         then_Low3 := Consequent.output lowHumidity
         fuzzyRule8 := FuzzyRule 8 if_HighAndDry then_Low3
         fuzzy.add_rule fuzzyRule8
 
-        if_HighAndComfortable := Antecedent.join_sets_AND high comfortable
+        if_HighAndComfortable := Antecedent.AND_sets high comfortable
         then_Medium2 := Consequent.output medium
         fuzzyRule9 := FuzzyRule 9 if_HighAndComfortable then_Medium2
         fuzzy.add_rule fuzzyRule9
 
-        if_HighAndHumid := Antecedent.join_sets_AND high humid
+        if_HighAndHumid := Antecedent.AND_sets high humid
         then_Fast1 := Consequent.output fast
         fuzzyRule10 := FuzzyRule 10 if_HighAndHumid then_Fast1
         fuzzy.add_rule fuzzyRule10
 
-        if_HighAndSticky := Antecedent.join_sets_AND high sticky
+        if_HighAndSticky := Antecedent.AND_sets high sticky
         then_Fast2 := Consequent.output fast
         fuzzyRule11 := FuzzyRule 11 if_HighAndSticky then_Fast2
         fuzzy.add_rule fuzzyRule11
 
-        if_VeryHighAndDry := Antecedent.join_sets_AND veryHigh dry
+        if_VeryHighAndDry := Antecedent.AND_sets veryHigh dry
         then_Medium3 := Consequent.output medium
         fuzzyRule12 := FuzzyRule 12 if_VeryHighAndDry then_Medium3
         fuzzy.add_rule fuzzyRule12
 
-        if_VeryHighAndComfortable := Antecedent.join_sets_AND veryHigh comfortable
+        if_VeryHighAndComfortable := Antecedent.AND_sets veryHigh comfortable
         then_Fast3 := Consequent.output fast
         fuzzyRule13 := FuzzyRule 13 if_VeryHighAndComfortable then_Fast3
         fuzzy.add_rule fuzzyRule13
   
-        if_VeryHighAndHumid := Antecedent.join_sets_AND veryHigh humid
+        if_VeryHighAndHumid := Antecedent.AND_sets veryHigh humid
         then_Fast4 := Consequent.output fast
         fuzzyRule14 := FuzzyRule 14 if_VeryHighAndHumid then_Fast4
         fuzzy.add_rule fuzzyRule14
 
-        if_VeryHighAndSticky := Antecedent.join_sets_AND veryHigh sticky
+        if_VeryHighAndSticky := Antecedent.AND_sets veryHigh sticky
         then_Fast5 := Consequent.output fast
         fuzzyRule15 := FuzzyRule 15 if_VeryHighAndSticky then_Fast5
         fuzzy.add_rule fuzzyRule15

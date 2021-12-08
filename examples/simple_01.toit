@@ -26,9 +26,9 @@ main:
     speed.add_set average
     speed.add_set fast
 
-    rule_01 := FuzzyRule 0 (Antecedent.join_set small) (Consequent.output slow)     // "IF distance = small THEN speed = slow"
-    rule_02 := FuzzyRule 1 (Antecedent.join_set safe) (Consequent.output average)   // "IF distance = safe THEN speed = average"
-    rule_03 := FuzzyRule 2 (Antecedent.join_set big) (Consequent.output fast)       // "IF distance = big THEN speed = high"
+    rule_01 := FuzzyRule 0 (Antecedent.set small) (Consequent.output slow)     // "IF distance = small THEN speed = slow"
+    rule_02 := FuzzyRule 1 (Antecedent.set safe) (Consequent.output average)   // "IF distance = safe THEN speed = average"
+    rule_03 := FuzzyRule 2 (Antecedent.set big) (Consequent.output fast)       // "IF distance = big THEN speed = high"
 
     model := FuzzyModel "driver"
     model.add_input distance
@@ -39,10 +39,10 @@ main:
 
     print "$model"
 
-    m_input := random 0 100
+    m_input := random 0 75 //todo, test with 100
     print "real input : $m_input"
     model.set_input 0 m_input.to_float
     //print "about to fuzzify"
     model.fuzzify
     m_output := model.defuzzify 0
-    print "Distance: $m_input ---> Speed: $m_output"
+    print "Distance: $m_input ---> Speed: $(%.1f m_output)"

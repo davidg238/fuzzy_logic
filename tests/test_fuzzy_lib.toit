@@ -293,7 +293,7 @@ main:
         fuzzySet := FuzzySet 0.0 10.0 10.0 20.0
         fuzzySet.pertinence 0.25
 
-        ASSERT_RUNS: antecedent = Antecedent.join_set fuzzySet
+        ASSERT_RUNS: antecedent = Antecedent.set fuzzySet
         ASSERT_FLOAT_EQ 0.25 antecedent.evaluate     
 
 
@@ -306,11 +306,11 @@ main:
 
         antecedent1 := null
         ASSERT_RUNS:
-            antecedent1 = Antecedent.join_sets_AND fuzzySet1 fuzzySet2
+            antecedent1 = Antecedent.AND_sets fuzzySet1 fuzzySet2
         ASSERT_FLOAT_EQ 0.25 antecedent1.evaluate   
 
         antecedent2 := null
-        ASSERT_RUNS: antecedent2 = Antecedent.join_sets_OR fuzzySet1 fuzzySet2
+        ASSERT_RUNS: antecedent2 = Antecedent.OR_sets fuzzySet1 fuzzySet2
         ASSERT_FLOAT_EQ 0.75 antecedent2.evaluate   
 
 
@@ -320,38 +320,38 @@ main:
 
         fuzzySet2 := FuzzySet 10.0 20.0 20.0 30.0
         fuzzySet2.pertinence 0.75
-        antecedent1 := Antecedent.join_set fuzzySet2
+        antecedent1 := Antecedent.set fuzzySet2
 
-        antecedent2 := Antecedent.join_set_ante_AND fuzzySet1 antecedent1
+        antecedent2 := Antecedent.AND_set_ante fuzzySet1 antecedent1
         ASSERT_FLOAT_EQ 0.25 antecedent2.evaluate
 
-        antecedent3 := Antecedent.join_ante_set_AND antecedent1 fuzzySet1
+        antecedent3 := Antecedent.AND_ante_set antecedent1 fuzzySet1
         ASSERT_FLOAT_EQ 0.25 antecedent3.evaluate    //4
 
-        antecedent4 := Antecedent.join_set_ante_OR fuzzySet1 antecedent1
+        antecedent4 := Antecedent.OR_set_ante fuzzySet1 antecedent1
         ASSERT_FLOAT_EQ 0.75 antecedent4.evaluate    
 
-        antecedent5 := Antecedent.join_ante_set_OR antecedent1 fuzzySet1
+        antecedent5 := Antecedent.OR_ante_set antecedent1 fuzzySet1
         ASSERT_FLOAT_EQ 0.75 antecedent5.evaluate    //8
 
 
     TEST "Antecedent" "joinTwoFuzzyAntecedentAndEvaluate":
         fuzzySet1 := FuzzySet  0.0 10.0 10.0 20.0 "set1"
         fuzzySet1.pertinence 0.25
-        antecedent1 := Antecedent.join_set fuzzySet1
+        antecedent1 := Antecedent.set fuzzySet1
 
         fuzzySet2 := FuzzySet  10.0 20.0 20.0 30.0 "set2"
         fuzzySet2.pertinence 0.75
         fuzzySet3 := FuzzySet  30.0 40.0 40.0 50.0 "set3"
         fuzzySet3.pertinence 0.5
-        antecedent2 := Antecedent.join_sets_OR fuzzySet2 fuzzySet3
+        antecedent2 := Antecedent.OR_sets fuzzySet2 fuzzySet3
 
         antecedent3 := null
-        ASSERT_RUNS: antecedent3 = Antecedent.join_ante_ante_AND antecedent1 antecedent2
+        ASSERT_RUNS: antecedent3 = Antecedent.AND_ante_ante antecedent1 antecedent2
 
         ASSERT_FLOAT_EQ 0.25 antecedent3.evaluate    
         antecedent4 := null
-        ASSERT_RUNS: antecedent4 = Antecedent.join_ante_ante_OR antecedent1 antecedent2
+        ASSERT_RUNS: antecedent4 = Antecedent.OR_ante_ante antecedent1 antecedent2
 
         ASSERT_FLOAT_EQ 0.75 antecedent4.evaluate    
 
@@ -374,13 +374,13 @@ main:
     TEST "FuzzyRule" "getIndexAndEvaluateExpressionAndIsFired":
         fuzzySet := FuzzySet 0.0 10.0 10.0 20.0
         fuzzySet.pertinence 0.75
-        antecedent1 := Antecedent.join_set fuzzySet
+        antecedent1 := Antecedent.set fuzzySet
 
         fuzzySet2 := FuzzySet 0.0 10.0 10.0 20.0
         fuzzySet2.pertinence 0.25
-        antecedent2 := Antecedent.join_set fuzzySet2
+        antecedent2 := Antecedent.set fuzzySet2
 
-        antecedent3 := Antecedent.join_ante_ante_AND antecedent1 antecedent2
+        antecedent3 := Antecedent.AND_ante_ante antecedent1 antecedent2
 
         fuzzySet3 := FuzzySet 0.0 10.0 10.0 20.0
         fuzzyRuleConsequent := Consequent.output fuzzySet3
@@ -429,13 +429,13 @@ main:
 
         fuzzySet0 := FuzzySet 0.0 10.0 10.0 20.0
         fuzzySet0.pertinence 0.25
-        antecedent0 := Antecedent.join_set fuzzySet0
+        antecedent0 := Antecedent.set fuzzySet0
 
         fuzzySet1 := FuzzySet 0.0 10.0 10.0 20.0
         fuzzySet1.pertinence 0.75
-        antecedent1 := Antecedent.join_set fuzzySet1
+        antecedent1 := Antecedent.set fuzzySet1
         
-        antecedent2 := Antecedent.join_ante_ante_AND antecedent0 antecedent1
+        antecedent2 := Antecedent.AND_ante_ante antecedent0 antecedent1
         fuzzySet2 := FuzzySet 0.0 10.0 10.0 20.0
         fuzzyRuleConsequent := Consequent.output fuzzySet2
 
@@ -472,21 +472,21 @@ main:
         fuzzy.add_output climate
 
         // Building FuzzyRule
-        if_TemperatureLow := Antecedent.join_set low
+        if_TemperatureLow := Antecedent.set low
         then_ClimateCold := Consequent.output cold
 
         fuzzyRule0 := FuzzyRule 0 if_TemperatureLow then_ClimateCold
         fuzzy.add_rule fuzzyRule0
 
         // Building FuzzyRule
-        if_TemperatureMean := Antecedent.join_set mean
+        if_TemperatureMean := Antecedent.set mean
         then_ClimateGood := Consequent.output good
 
         fuzzyRule1 := FuzzyRule 1 if_TemperatureMean then_ClimateGood
         fuzzy.add_rule fuzzyRule1
 
         // Building FuzzyRule
-        if_TemperatureHigh := Antecedent.join_set high
+        if_TemperatureHigh := Antecedent.set high
         then_ClimateHot := Consequent.output cold
 
         fuzzyRule2 := FuzzyRule 2 if_TemperatureHigh then_ClimateHot

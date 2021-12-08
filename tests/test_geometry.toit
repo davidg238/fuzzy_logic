@@ -1,4 +1,4 @@
-    // Copyright (c) 2021 Ekorau LLC
+// Copyright (c) 2021 Ekorau LLC
 
 import .test_util show *
 
@@ -19,7 +19,6 @@ main:
 
     
     TEST "Composition" "single sets":
-
         set := null
         composition := Composition
         test_centroid := : | set pert answer |
@@ -27,7 +26,7 @@ main:
             composition.clear
             composition.union set
             print "$composition"
-            ASSERT_FLOAT_EQ answer composition.calculate
+            ASSERT_FLOAT_EQ answer composition.calculate_centroid
 
         test_centroid.call (FuzzySet 0.0 10.0 10.0 20.0 "tri")  0.5 10.0
         test_centroid.call (FuzzySet 10.0 20.0 20.0 30.0 "tri") 0.5 20.0
@@ -47,11 +46,11 @@ main:
         tri1.pertinence 1.0
 
         composition.clear
-        composition.union tri1
+        
         
 
 
-    TEST "Composition" "2 sets"
+    // TEST "Composition" "2 sets"  //todo, rebuild
 
 /*
     TEST "Composition" "build":

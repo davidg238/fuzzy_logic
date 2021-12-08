@@ -1,3 +1,24 @@
+import .test_util show *
+
+import fuzzy_model show FuzzyModel
+import composition show Composition
+import fuzzy_input show FuzzyInput
+import fuzzy_output show FuzzyOutput
+import fuzzy_set show FuzzySet
+import fuzzy_rule show FuzzyRule
+import antecedent show Antecedent
+import consequent show Consequent
+
+import set_triangular show TriangularSet
+import set_trapezoidal show TrapezoidalSet
+import set_trapezoidal_l show LTrapezoidalSet
+import set_trapezoidal_r show RTrapezoidalSet
+
+main:
+
+    print "nothing here yet"  //todo
+
+/*
 TEST(Fuzzy, setInputAndFuzzifyAndDefuzzify09)
 {
     // Instantiating an object of library
@@ -329,3 +350,4 @@ TEST(Fuzzy, setInputAndFuzzifyAndDefuzzify09)
     ASSERT_NEAR(70.0, output1, 0.01);
     ASSERT_NEAR(75.0, output2, 0.01);
 }
+*/

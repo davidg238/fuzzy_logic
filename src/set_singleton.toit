@@ -1,3 +1,5 @@
+// Copyright (c) 2021 Ekorau LLC
+
 import .fuzzy_set show *
 import .geometry show Point2f
 import math show *

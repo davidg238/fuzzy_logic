@@ -70,9 +70,9 @@ main:
     speedOutput.add_set quickOutput
 
 
-    distanceNearAndSpeedQuick := Antecedent.join_sets_AND near quickInput
-    temperatureCold := Antecedent.join_set cold
-    if_DistanceNearAndSpeedQuickOrTempCold := Antecedent.join_ante_ante_OR distanceNearAndSpeedQuick temperatureCold
+    distanceNearAndSpeedQuick := Antecedent.AND_sets near quickInput
+    temperatureCold := Antecedent.set cold
+    if_DistanceNearAndSpeedQuickOrTempCold := Antecedent.OR_ante_ante distanceNearAndSpeedQuick temperatureCold
 
     then_RiskMaxAndSpeedSlow := Consequent.output maximum
     then_RiskMaxAndSpeedSlow.add_output slowOutput
@@ -80,8 +80,8 @@ main:
     rule0 := FuzzyRule 0 if_DistanceNearAndSpeedQuickOrTempCold then_RiskMaxAndSpeedSlow
     
 
-    distanceSafeAndSpeedNormal := Antecedent.join_sets_AND safe normalInput
-    if_DistanceSafeAndSpeedNormalOrTemperatureGood := Antecedent.join_ante_set_OR distanceSafeAndSpeedNormal good
+    distanceSafeAndSpeedNormal := Antecedent.AND_sets safe normalInput
+    if_DistanceSafeAndSpeedNormalOrTemperatureGood := Antecedent.OR_ante_set distanceSafeAndSpeedNormal good
 
     then_RiskAverageAndSpeedNormal := Consequent.output average
     then_RiskAverageAndSpeedNormal.add_output normalOutput
@@ -89,8 +89,8 @@ main:
     rule1 := FuzzyRule 1 if_DistanceSafeAndSpeedNormalOrTemperatureGood then_RiskAverageAndSpeedNormal
 
     
-    distanceDistantAndSpeedSlow := Antecedent.join_sets_AND distant slowInput
-    if_DistanceDistantAndSpeedSlowOrTemperatureHot := Antecedent.join_ante_set_OR distanceDistantAndSpeedSlow hot
+    distanceDistantAndSpeedSlow := Antecedent.AND_sets distant slowInput
+    if_DistanceDistantAndSpeedSlowOrTemperatureHot := Antecedent.OR_ante_set distanceDistantAndSpeedSlow hot
 
     then_RiskMinimumSpeedQuick := Consequent.output minimum
     then_RiskMinimumSpeedQuick.add_output quickOutput

@@ -29,34 +29,33 @@ TEST aclass/string afeature/string [block] ->none:
             block.call
         if exception:
             print "      Case $case threw, $exception"
+            case++ // since unwound during the exception
             case_failed
     finally:
         test_finished
 
 ASSERT_EQ expected/int val/int ->none:
     case++
-    // print "$case ------------------------------"
     if expected != val:
         print_err "expected $expected but got $val" 
         case_failed
 
 ASSERT_FLOAT_EQ expected/float val/float ->none:
     case++
-//    print "$case ------------------------------"
-    if ((expected - val).abs > 0.001):  //todo
-        print_err "expected $expected but got $val" 
+    if ((expected - val).abs > 0.001):  
+    //todo, refer https://stackoverflow.com/questions/4915462/how-should-i-do-floating-point-comparison
+    //      move comparison function to geometry + check implications there ... colinear, intersection
+        print_err "expected $(%.7f expected) but got $(%.7f val)" 
         case_failed
 
 ASSERT_NOT_NULL val/any ->none:
     case++
-    // print "$case ------------------------------"
     if val == null:
         print_err "expected non-null value" 
         case_failed
 
 ASSERT_RUNS [block] ->none:
     case++
-    // print "$case ------------------------------"
     exception := catch:
         block.call
     if exception:
@@ -65,14 +64,12 @@ ASSERT_RUNS [block] ->none:
 
 ASSERT_FALSE val/bool ->none:
     case++
-    // print "$case ------------------------------"
     if false != val:
         print_err "expected false but got $val"     
         case_failed
 
 ASSERT_TRUE val/bool ->none:
     case++
-    // print "$case ------------------------------"
     if true != val:
         print_err "expected true but got $val"     
         case_failed
