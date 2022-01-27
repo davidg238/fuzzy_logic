@@ -20,8 +20,8 @@ import set_trapezoidal_r show RTrapezoidalSet
 
 main:
 
-    TEST_START
-    TEST "Fuzzy" "testFromLibraryUsersSystemsCasco":
+    test_start
+    test "Fuzzy" "testFromLibraryUsersSystemsCasco":
 
         fuzzy := FuzzyModel
         // FuzzyInput
@@ -106,17 +106,17 @@ main:
 
         fuzzy.fuzzify
 
-        ASSERT_FLOAT_EQ 7.5 (fuzzy.defuzzify 0)
+        expect_near 7.5 (fuzzy.defuzzify 0)
 
         // TEST 02
         fuzzy.set_input 0 12.65
         fuzzy.set_input 1  1.928
         fuzzy.set_input 2  6.0
 
-        //runtime := Duration.of:
-        fuzzy.fuzzify
-        ASSERT_FLOAT_EQ 2.4226191 (fuzzy.defuzzify 0) // 2.35 on original file
-        // print "Time to solve model: $(%.3f runtime)"
+        runtime := Duration.of:
+          fuzzy.fuzzify
+          expect_near 2.4226191 (fuzzy.defuzzify 0) // 2.35 on original file
+        print "Time to solve a model: $(%.3f runtime)"
 
         // TEST 03
         fuzzy.set_input 0 25.9
@@ -125,7 +125,7 @@ main:
 
         fuzzy.fuzzify
 
-        ASSERT_FLOAT_EQ 6.4175873 (fuzzy.defuzzify 0) // 6.21 on original file
+        expect_near 6.4175873 (fuzzy.defuzzify 0) // 6.21 on original file
 
         // TEST 04
         fuzzy.set_input 0 71.69
@@ -134,7 +134,7 @@ main:
 
         fuzzy.fuzzify
 
-        ASSERT_FLOAT_EQ 4.2093439 (fuzzy.defuzzify 0) // 4.12 on original file
+        expect_near 4.2093439 (fuzzy.defuzzify 0) // 4.12 on original file
 
         // TEST 05
         fuzzy.set_input 0 71.69
@@ -143,7 +143,7 @@ main:
 
         fuzzy.fuzzify
 
-        ASSERT_FLOAT_EQ 15.478251 (fuzzy.defuzzify 0) // 15.5 on original file
+        expect_near 15.478251 (fuzzy.defuzzify 0) // 15.5 on original file
 
         // TEST 06
         fuzzy.set_input 0 16.27
@@ -152,7 +152,7 @@ main:
 
         fuzzy.fuzzify
 
-        ASSERT_FLOAT_EQ 16.58123  (fuzzy.defuzzify 0) // 16.6 on original file
+        expect_near 16.58123  (fuzzy.defuzzify 0) // 16.6 on original file
 
         // TEST 07
         fuzzy.set_input 0 82.53
@@ -161,7 +161,7 @@ main:
 
         fuzzy.fuzzify
 
-        ASSERT_FLOAT_EQ 2.4555054 (fuzzy.defuzzify 0) // 2.38 on original file
+        expect_near 2.4555054 (fuzzy.defuzzify 0) // 2.38 on original file
 
         // TEST 08
         fuzzy.set_input 0 7.831
@@ -170,7 +170,7 @@ main:
 
         fuzzy.fuzzify
 
-        ASSERT_FLOAT_EQ 22.5 (fuzzy.defuzzify 0)
+        expect_near 22.5 (fuzzy.defuzzify 0)
 
         // TEST 09
         fuzzy.set_input 0 7.831
@@ -179,7 +179,7 @@ main:
 
         fuzzy.fuzzify
 
-        ASSERT_FLOAT_EQ 5.0615907 (fuzzy.defuzzify 0) // 4.96 on original file
+        expect_near 5.0615907 (fuzzy.defuzzify 0) // 4.96 on original file
 
-    TEST_END
+    test_end
     

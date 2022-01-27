@@ -12,25 +12,23 @@ intersection a1/Point2f a2/Point2f b3/Point2f b4/Point2f -> Point2f:
     numera := (b4.x - b3.x) * (a1.y - b3.y) - (b4.y - b3.y) * (a1.x - b3.x)
     numerb := (a2.x - a1.x) * (a1.y - b3.y) - (a2.y - a1.y) * (a1.x - b3.x)
     
-    if denom < 0.0:             // if negative, convert to positive
-        denom = denom * -1.0
+    if denom < 0.0: denom *= -1.0             // if negative, convert to positive
+        
     // If the denominator is zero or close to it, it means that the lines are parallels, so return false for intersection
-    //EPSILON_VALUE = 0.001
+    //EPSILON_VALUE = 0.001  // todo
     if denom < 0.001: return NoPoint
-    if (numera < 0.0):          // if negative, convert to positive
-        numera = numera * -1.0
-    if (numerb < 0.0):          // if negative, convert to positive
-        numerb = numerb * -1.0
+    if numera < 0.0: numera *= -1.0  // if negative, convert to positive
+    if numerb < 0.0: numerb *= -1.0         // if negative, convert to positive
     // verify if has intersection between the segments
     mua := numera / denom
     mub := numerb / denom
-    if (mua < 0.0) or (mua > 1.0) or (mub < 0.0) or (mub > 1.0):
-        return NoPoint
+    if mua<0.0 or mua>1.0 or mub<0.0 or mub>1.0:
+      return NoPoint
     else:
-        return Point2f (a1.x + mua * (a2.x - a1.x)) (a1.y + mua * (a2.y - a1.y))
+      return Point2f (a1.x + mua * (a2.x - a1.x)) (a1.y + mua * (a2.y - a1.y))
 
 concave_hull points/List k/int -> List:
-    return []  //todo
+    return []  // todo
 
 convex_hull points/List -> List:
     /// https://en.wikipedia.org/wiki/Graham_scan
@@ -54,7 +52,7 @@ upper_convex_hull points/List -> List:
     val := null // only used debug prints
     temp := xy_sort points
     stack := Stack
-    temp.do --reversed=true:
+    temp.do --reversed:
         while stack.size > 1 and (ccw stack.next_to_top stack.top it) <= 0:
             val = stack.pop
         stack.push it
@@ -88,12 +86,12 @@ forms_triangle a/Point2f b/Point2f -> bool:
 leftmost_lowest points/List -> Point2f:
     p0 := points.first // assumes a non-empty list
     points.do:
-        if (it.x<=p0.x) and (it.y<=p0.y): p0 = it
+        if it.x<=p0.x and it.y<=p0.y: p0 = it
     return p0
 
 
 rect_area a/Point2f b/Point2f -> float:
-    return (a.y * (b.x-a.x))
+    return a.y*(b.x-a.x)
 
 rect_centroid a/Point2f b/Point2f -> float:
     return (a.x+b.x)/2
@@ -116,23 +114,20 @@ tri_centroid a/Point2f b/Point2f -> float:
 
 class Point2f:
 
-    x/float 
-    y/float
+  x/float 
+  y/float
 
-    constructor .x .y:
+  constructor .x .y:
 
-    polar_angle b/Point2f -> float:
-        return atan ((b.y - y)/(b.x - x))
+  polar_angle b/Point2f -> float:
+      return atan ((b.y - y)/(b.x - x))
 
-    stringify: return "($(%.2f x),$(%.2f y))"
-
-
+  stringify: return "($(%.2f x),$(%.2f y))"
     
 
 class NoPoint extends Point2f:
-
-    constructor:
-        super float.NAN float.NAN
+  constructor:
+      super float.NAN float.NAN
 
 
 class Stack extends Deque:
@@ -159,33 +154,3 @@ class Stack extends Deque:
 
   next_to_top -> any:
     return backing_[size-2]
-
-/*
-
-
-intersection x1/float y1/float x2/float y2/float x3/float y3/float x4/float y4/float -> Point2f:
-
-    print "find intersection $x1,$y1 - $x2,$y2 and $x3,$y3 - $x4,$y4"
-    // calculate the denominator and numerator
-    denom  := (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1)
-    numera := (x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)
-    numerb := (x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)
-    
-    if denom < 0.0:             // if negative, convert to positive
-        denom = denom * -1.0
-    // If the denominator is zero or close to it, it means that the lines are parallels, so return false for intersection
-    //EPSILON_VALUE = 0.001
-    if denom < 0.001: return NoPoint
-    if (numera < 0.0):          // if negative, convert to positive
-        numera = numera * -1.0
-    if (numerb < 0.0):          // if negative, convert to positive
-        numerb = numerb * -1.0
-    // verify if has intersection between the segments
-    mua := numera / denom
-    mub := numerb / denom
-    if (mua < 0.0) or (mua > 1.0) or (mub < 0.0) or (mub > 1.0):
-        return NoPoint
-    else:
-        return Point2f (x1 + mua * (x2 - x1)) (y1 + mua * (y2 - y1))
-
-*/

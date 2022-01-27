@@ -1,6 +1,6 @@
 // Copyright (c) 2021 Ekorau LLC
 
-import .test_util show *
+import .test_util show test_start test_end test expect_true expect_false expect_near expect_not_null expect_runs expect_equals
 
 import fuzzy_model show FuzzyModel
 import composition show Composition
@@ -20,104 +20,104 @@ import expect show *
 
 main:
 
-    TEST_START
+    test_start
 
 /// Test FuzzySet
 
-    TEST "FuzzySet" "getPoints":
+    test "FuzzySet" "getPoints":
 
         fuzzySet := FuzzySet 0.0 10.0 20.0 30.0 "set"
-        ASSERT_FLOAT_EQ 0.0 fuzzySet.a
-        ASSERT_FLOAT_EQ 10.0 fuzzySet.b
-        ASSERT_FLOAT_EQ 20.0 fuzzySet.c
-        ASSERT_FLOAT_EQ 30.0 fuzzySet.d
+        expect_near 0.0 fuzzySet.a
+        expect_near 10.0 fuzzySet.b
+        expect_near 20.0 fuzzySet.c
+        expect_near 30.0 fuzzySet.d
 
-    TEST "FuzzySet" "calculateAndGetPertinence":
+    test "FuzzySet" "calculateAndGetPertinence":
 
         fuzzySet1 := FuzzySet 0.0 10.0 10.0 20.0 "set1"
 
-        ASSERT_TRUE fuzzySet1 is TriangularSet
+        expect_true: fuzzySet1 is TriangularSet
 
         fuzzySet1.calculate_pertinence -5.0
-        ASSERT_FLOAT_EQ 0.0 fuzzySet1.pertinence
+        expect_near 0.0 fuzzySet1.pertinence
 
         fuzzySet1.calculate_pertinence 5.0
-        ASSERT_FLOAT_EQ 0.5 fuzzySet1.pertinence
+        expect_near 0.5 fuzzySet1.pertinence
 
         fuzzySet1.calculate_pertinence 10.0
-        ASSERT_FLOAT_EQ 1.0 fuzzySet1.pertinence
+        expect_near 1.0 fuzzySet1.pertinence
 
         fuzzySet1.calculate_pertinence 15.0
-        ASSERT_FLOAT_EQ 0.5 fuzzySet1.pertinence
+        expect_near 0.5 fuzzySet1.pertinence
         // expect_equals 0.4 fuzzySet1.pertinence  //usage of expect methods?
 
         fuzzySet1.calculate_pertinence 25.0
-        ASSERT_FLOAT_EQ 0.0 fuzzySet1.pertinence
+        expect_near 0.0 fuzzySet1.pertinence
 
         fuzzySet2 := FuzzySet  0.0 0.0 20.0 30.0
 
-        ASSERT_TRUE fuzzySet2 is LTrapezoidalSet
+        expect_true: fuzzySet2 is LTrapezoidalSet
 
         fuzzySet2.calculate_pertinence -5.0
-        ASSERT_FLOAT_EQ 1.0 fuzzySet2.pertinence
+        expect_near 1.0 fuzzySet2.pertinence
 
         fuzzySet3 := FuzzySet 0.0 10.0 20.0 20.0
 
-        ASSERT_TRUE fuzzySet3 is RTrapezoidalSet
+        expect_true: fuzzySet3 is RTrapezoidalSet
 
         fuzzySet3.calculate_pertinence 25.0
-        ASSERT_FLOAT_EQ 1.0 fuzzySet3.pertinence
+        expect_near 1.0 fuzzySet3.pertinence
 
 
-    TEST "FuzzyInput" "addFuzzySet":
+    test "FuzzyInput" "addFuzzySet":
         fuzzyInput := FuzzyInput 0
         fuzzySet := FuzzySet 0.0 10.0 10.0 20.0
 
-        ASSERT_TRUE fuzzySet is TriangularSet
+        expect_true: fuzzySet is TriangularSet
 
-        ASSERT_RUNS: // deleted bool return of C functions, since in usual code, unchecked?
+        expect_runs: // deleted bool return of C functions, since in usual code, unchecked?
             fuzzyInput.add_set fuzzySet
 
-    TEST "FuzzyInput" "setCrispInputAndGetCrispInput":
+    test "FuzzyInput" "setCrispInputAndGetCrispInput":
 
         fuzzyInput := FuzzyInput 1;
         fuzzyInput.crisp_in = 10.190
-        ASSERT_FLOAT_EQ 10.190 fuzzyInput.crisp_in
+        expect_near 10.190 fuzzyInput.crisp_in
 
 
-    TEST "FuzzyInput" "calculateFuzzySetPertinences":
+    test "FuzzyInput" "calculateFuzzySetPertinences":
 
         fuzzyInput := FuzzyInput 0
         fuzzySet1 := FuzzySet 0.0 10.0 10.0 20.0 "set1"
         fuzzyInput.add_set fuzzySet1
         fuzzySet2 := FuzzySet 10.0 20.0 20.0 30.0 "set2"
 
-        ASSERT_TRUE fuzzySet2 is TriangularSet
+        expect_true: fuzzySet2 is TriangularSet
         fuzzyInput.add_set fuzzySet2
         fuzzyInput.crisp_in = 5.0
 
-        ASSERT_RUNS: fuzzyInput.calculate_set_pertinences
+        expect_runs: fuzzyInput.calculate_set_pertinences
 
-        ASSERT_FLOAT_EQ 0.5 fuzzySet1.pertinence
-        ASSERT_FLOAT_EQ 0.0 fuzzySet2.pertinence
+        expect_near 0.5 fuzzySet1.pertinence
+        expect_near 0.0 fuzzySet2.pertinence
 
 
-    TEST "Composition" "addPointAndCheckPoint":
+    test "Composition" "addPointAndCheckPoint":
         composition := Composition 
 
-        ASSERT_RUNS: composition.add_point 1.0 0.1
-        ASSERT_TRUE  (composition.any_point 1.0 0.1)
+        expect_runs: composition.add_point 1.0 0.1
+        expect_true:  (composition.any_point 1.0 0.1)
 
-        ASSERT_RUNS: composition.add_point 5.0 0.5
-        ASSERT_TRUE  (composition.any_point 5.0 0.5)
+        expect_runs: composition.add_point 5.0 0.5
+        expect_true:  (composition.any_point 5.0 0.5)
 
-        ASSERT_RUNS: composition.add_point 9.0 0.9
-        ASSERT_TRUE  (composition.any_point 9.0 0.9)
+        expect_runs: composition.add_point 9.0 0.9
+        expect_true:  (composition.any_point 9.0 0.9)
 
-        ASSERT_FALSE (composition.any_point 5.0 0.1)
+        expect_false: (composition.any_point 5.0 0.1)
 
 
-    TEST "Composition" "build":
+    test "Composition" "build":
         composition := Composition
 
         tri1 := FuzzySet 0.0 10.0 10.0 20.0
@@ -141,19 +141,19 @@ main:
         composition.add_point 30.0 0.0
 */
 
-        ASSERT_RUNS: composition.simplify
+        expect_runs: composition.simplify
 
         //print "composition: $composition"
 
-        ASSERT_TRUE (composition.any_point 0.0 0.0)
-        ASSERT_TRUE (composition.any_point 10.0 1.0)
-        ASSERT_FALSE (composition.any_point 20.0 0.0)
-        ASSERT_TRUE (composition.any_point 15.0 0.5)
-        ASSERT_FALSE (composition.any_point 10.0 0.0)
-        ASSERT_TRUE (composition.any_point 20.0 1.0)
-        ASSERT_TRUE (composition.any_point 30.0 0.0)
+        expect_true: (composition.any_point 0.0 0.0)
+        expect_true: (composition.any_point 10.0 1.0)
+        expect_false: (composition.any_point 20.0 0.0)
+        expect_true: (composition.any_point 15.0 0.5)
+        expect_false: (composition.any_point 10.0 0.0)
+        expect_true: (composition.any_point 20.0 1.0)
+        expect_true: (composition.any_point 30.0 0.0)
 
-    TEST "Composition" "calculateAndEmptyAndCountPoints":
+    test "Composition" "calculateAndEmptyAndCountPoints":
         composition := Composition
 
         sing := FuzzySet 25.0 25.0 25.0 25.0
@@ -165,10 +165,10 @@ main:
         composition.add_point 25.0 1.0
         composition.add_point 25.0 0.0
 */
-        ASSERT_RUNS: composition.simplify
-        ASSERT_EQ 2 composition.size // size should be 2, not 3 ? ... check original
-        ASSERT_FLOAT_EQ 25.0 composition.calculate_centroid
-        ASSERT_RUNS: composition.clear
+        expect_runs: composition.simplify
+        expect_equals 2 composition.size // size should be 2, not 3 ? ... check original
+        expect_near 25.0 composition.calculate_centroid
+        expect_runs: composition.clear
 
 
         tri := FuzzySet 10.0 20.0 20.0 30.0
@@ -180,10 +180,10 @@ main:
         composition.add_point 20.0 1.0
         composition.add_point 30.0 0.0
 */        
-        ASSERT_RUNS: composition.simplify
-        ASSERT_EQ 3 composition.size
-        ASSERT_FLOAT_EQ 20.0 composition.calculate_centroid
-        ASSERT_RUNS: composition.clear
+        expect_runs: composition.simplify
+        expect_equals 3 composition.size
+        expect_near 20.0 composition.calculate_centroid
+        expect_runs: composition.clear
 
         trap := FuzzySet 20.0 30.0 50.0 60.0
         trap.pertinence 1.0
@@ -195,10 +195,10 @@ main:
         composition.add_point 50.0 1.0
         composition.add_point 60.0 0.0
 */
-        ASSERT_RUNS: composition.simplify
-        ASSERT_EQ 4 composition.size
-        ASSERT_FLOAT_EQ 40.0 composition.calculate_centroid
-        ASSERT_RUNS: composition.clear
+        expect_runs: composition.simplify
+        expect_equals 4 composition.size
+        expect_near 40.0 composition.calculate_centroid
+        expect_runs: composition.clear
 
 //todo
 /*
@@ -211,93 +211,93 @@ main:
         composition.add_point 20.0 0.0
         composition.add_point 30.0 1.0
         composition.add_point 40.0 0.0
-        ASSERT_RUNS: composition.simplify
-        ASSERT_EQ 7 composition.size
-        ASSERT_FLOAT_EQ 20.0 composition.calculate_centroid
+        expect_runs: composition.simplify
+        expect_equals 7 composition.size
+        expect_near 20.0 composition.calculate_centroid
 */
-    TEST "FuzzyOutput" "getIndex":
+    test "FuzzyOutput" "getIndex":
         fuzzyOutput := FuzzyOutput 0
-        ASSERT_EQ 0 fuzzyOutput.index  //check original cpp, used 0 index
+        expect_equals 0 fuzzyOutput.index  //check original cpp, used 0 index
 
 
-    TEST "FuzzyOutput" "setCrispInputAndGetCrispInput":
+    test "FuzzyOutput" "setCrispInputAndGetCrispInput":
         fuzzyOutput := FuzzyOutput 0
         fuzzyOutput.crisp_in = 10.190
-        ASSERT_FLOAT_EQ 10.190 fuzzyOutput.crisp_in
+        expect_near 10.190 fuzzyOutput.crisp_in
 
 
-    TEST "FuzzyOutput" "addFuzzySetAndResetFuzzySets":
+    test "FuzzyOutput" "addFuzzySetAndResetFuzzySets":
         fuzzyOutput := FuzzyOutput 0
         fuzzySetTest := FuzzySet 0.0 10.0 10.0 20.0
 
-        ASSERT_RUNS: fuzzyOutput.add_set fuzzySetTest
+        expect_runs: fuzzyOutput.add_set fuzzySetTest
 
         fuzzySetTest.pertinence 0.242
-        ASSERT_FLOAT_EQ 0.242 fuzzySetTest.pertinence
+        expect_near 0.242 fuzzySetTest.pertinence
 
         fuzzyOutput.reset_sets
 
-        ASSERT_FLOAT_EQ 0.0 fuzzySetTest.pertinence
+        expect_near 0.0 fuzzySetTest.pertinence
 
 
-    TEST "FuzzyOutput" "truncateAndGetCrispOutputAndGetFuzzyComposition":
+    test "FuzzyOutput" "truncateAndGetCrispOutputAndGetFuzzyComposition":
         fuzzyOutput := FuzzyOutput 0
 
-        ASSERT_EQ 0 fuzzyOutput.index
+        expect_equals 0 fuzzyOutput.index
 
         fuzzySetTest0 := FuzzySet 0.0 10.0 10.0 20.0 "set0"
-        ASSERT_TRUE fuzzySetTest0 is TriangularSet
+        expect_true: fuzzySetTest0 is TriangularSet
         fuzzySetTest0.pertinence 1.0
         fuzzyOutput.add_set fuzzySetTest0
 
         fuzzySetTest1 := FuzzySet 10.0 20.0 20.0 30.0
-        ASSERT_TRUE fuzzySetTest1 is TriangularSet
+        expect_true: fuzzySetTest1 is TriangularSet
         fuzzySetTest1.pertinence 1.0
         fuzzyOutput.add_set fuzzySetTest1
 
         fuzzySetTest2 := FuzzySet 20.0 30.0 30.0 40.0 "set2"
-        ASSERT_TRUE fuzzySetTest2 is TriangularSet
+        expect_true: fuzzySetTest2 is TriangularSet
         fuzzySetTest2.pertinence 1.0
         fuzzyOutput.add_set fuzzySetTest2
 
-        ASSERT_RUNS : fuzzyOutput.truncate
+        expect_runs : fuzzyOutput.truncate
 
         fuzzyComposition := fuzzyOutput.composition
 
-        ASSERT_NOT_NULL fuzzyComposition
+        expect_not_null fuzzyComposition
 
-        ASSERT_EQ 7 fuzzyComposition.size //todo, original .cpp test shows 8 ... pen&paper looks 7
+        expect_equals 7 fuzzyComposition.size //todo, original .cpp test shows 8 ... pen&paper looks 7
 
-        ASSERT_TRUE (fuzzyComposition.any_point 0.0 0.0)
-        ASSERT_TRUE (fuzzyComposition.any_point 10.0 1.0)
-        ASSERT_FALSE (fuzzyComposition.any_point 20.0 0.0)
+        expect_true: (fuzzyComposition.any_point 0.0 0.0)
+        expect_true: (fuzzyComposition.any_point 10.0 1.0)
+        expect_false: (fuzzyComposition.any_point 20.0 0.0)
 
-        ASSERT_TRUE (fuzzyComposition.any_point 15.0 0.5)
+        expect_true: (fuzzyComposition.any_point 15.0 0.5)
 
-        ASSERT_FALSE (fuzzyComposition.any_point 10.0 0.0)
-        ASSERT_TRUE (fuzzyComposition.any_point 20.0 1.0)
-        ASSERT_FALSE (fuzzyComposition.any_point 30.0 0.0)
+        expect_false: (fuzzyComposition.any_point 10.0 0.0)
+        expect_true: (fuzzyComposition.any_point 20.0 1.0)
+        expect_false: (fuzzyComposition.any_point 30.0 0.0)
 
-        ASSERT_TRUE (fuzzyComposition.any_point 25.0 0.5)
+        expect_true: (fuzzyComposition.any_point 25.0 0.5)
 
-        ASSERT_FALSE (fuzzyComposition.any_point 20.0 0.0)
-        ASSERT_TRUE (fuzzyComposition.any_point 30.0 1.0)
-        ASSERT_TRUE (fuzzyComposition.any_point 40.0 0.0)
+        expect_false: (fuzzyComposition.any_point 20.0 0.0)
+        expect_true: (fuzzyComposition.any_point 30.0 1.0)
+        expect_true: (fuzzyComposition.any_point 40.0 0.0)
 
-        ASSERT_FLOAT_EQ 20.0 fuzzyOutput.crisp_out
+        expect_near 20.0 fuzzyOutput.crisp_out
 
 
-    TEST "Antecedent" "joinSingleAndEvaluate":
+    test "Antecedent" "joinSingleAndEvaluate":
         antecedent := null
 
         fuzzySet := FuzzySet 0.0 10.0 10.0 20.0
         fuzzySet.pertinence 0.25
 
-        ASSERT_RUNS: antecedent = Antecedent.set fuzzySet
-        ASSERT_FLOAT_EQ 0.25 antecedent.evaluate     
+        expect_runs: antecedent = Antecedent.set fuzzySet
+        expect_near 0.25 antecedent.evaluate     
 
 
-    TEST "Antecedent" "joinTwoFuzzySetAndEvaluate":
+    test "Antecedent" "joinTwoFuzzySetAndEvaluate":
 
         fuzzySet1 := FuzzySet 0.0 10.0 10.0 20.0
         fuzzySet1.pertinence 0.25
@@ -305,16 +305,16 @@ main:
         fuzzySet2.pertinence 0.75
 
         antecedent1 := null
-        ASSERT_RUNS:
+        expect_runs:
             antecedent1 = Antecedent.AND_sets fuzzySet1 fuzzySet2
-        ASSERT_FLOAT_EQ 0.25 antecedent1.evaluate   
+        expect_near 0.25 antecedent1.evaluate   
 
         antecedent2 := null
-        ASSERT_RUNS: antecedent2 = Antecedent.OR_sets fuzzySet1 fuzzySet2
-        ASSERT_FLOAT_EQ 0.75 antecedent2.evaluate   
+        expect_runs: antecedent2 = Antecedent.OR_sets fuzzySet1 fuzzySet2
+        expect_near 0.75 antecedent2.evaluate   
 
 
-    TEST "Antecedent" "joinOneFuzzySetAndOneFuzzyAntecedentAndEvaluate":
+    test "Antecedent" "joinOneFuzzySetAndOneFuzzyAntecedentAndEvaluate":
         fuzzySet1 := FuzzySet 0.0 10.0 10.0 20.0
         fuzzySet1.pertinence 0.25
 
@@ -323,19 +323,19 @@ main:
         antecedent1 := Antecedent.set fuzzySet2
 
         antecedent2 := Antecedent.AND_set_ante fuzzySet1 antecedent1
-        ASSERT_FLOAT_EQ 0.25 antecedent2.evaluate
+        expect_near 0.25 antecedent2.evaluate
 
         antecedent3 := Antecedent.AND_ante_set antecedent1 fuzzySet1
-        ASSERT_FLOAT_EQ 0.25 antecedent3.evaluate    //4
+        expect_near 0.25 antecedent3.evaluate    //4
 
         antecedent4 := Antecedent.OR_set_ante fuzzySet1 antecedent1
-        ASSERT_FLOAT_EQ 0.75 antecedent4.evaluate    
+        expect_near 0.75 antecedent4.evaluate    
 
         antecedent5 := Antecedent.OR_ante_set antecedent1 fuzzySet1
-        ASSERT_FLOAT_EQ 0.75 antecedent5.evaluate    //8
+        expect_near 0.75 antecedent5.evaluate    //8
 
 
-    TEST "Antecedent" "joinTwoFuzzyAntecedentAndEvaluate":
+    test "Antecedent" "joinTwoFuzzyAntecedentAndEvaluate":
         fuzzySet1 := FuzzySet  0.0 10.0 10.0 20.0 "set1"
         fuzzySet1.pertinence 0.25
         antecedent1 := Antecedent.set fuzzySet1
@@ -347,31 +347,31 @@ main:
         antecedent2 := Antecedent.OR_sets fuzzySet2 fuzzySet3
 
         antecedent3 := null
-        ASSERT_RUNS: antecedent3 = Antecedent.AND_ante_ante antecedent1 antecedent2
+        expect_runs: antecedent3 = Antecedent.AND_ante_ante antecedent1 antecedent2
 
-        ASSERT_FLOAT_EQ 0.25 antecedent3.evaluate    
+        expect_near 0.25 antecedent3.evaluate    
         antecedent4 := null
-        ASSERT_RUNS: antecedent4 = Antecedent.OR_ante_ante antecedent1 antecedent2
+        expect_runs: antecedent4 = Antecedent.OR_ante_ante antecedent1 antecedent2
 
-        ASSERT_FLOAT_EQ 0.75 antecedent4.evaluate    
+        expect_near 0.75 antecedent4.evaluate    
 
 
-    TEST "Consequent" "addOutputAndEvaluate":
+    test "Consequent" "addOutputAndEvaluate":
         fuzzySet1 := FuzzySet 0.0 10.0 10.0 20.0 "set1"
         fuzzySet2 := FuzzySet 10.0 20.0 20.0 30.0 "set2"
 
         fuzzyRuleConsequent := null
-        ASSERT_RUNS: fuzzyRuleConsequent = Consequent.output fuzzySet1
+        expect_runs: fuzzyRuleConsequent = Consequent.output fuzzySet1
 
         fuzzyRuleConsequent.add_output fuzzySet2
 
-        ASSERT_RUNS: fuzzyRuleConsequent.evaluate 0.5
+        expect_runs: fuzzyRuleConsequent.evaluate 0.5
 
-        ASSERT_FLOAT_EQ 0.5 fuzzySet1.pertinence
-        ASSERT_FLOAT_EQ 0.5 fuzzySet2.pertinence
+        expect_near 0.5 fuzzySet1.pertinence
+        expect_near 0.5 fuzzySet2.pertinence
 
 
-    TEST "FuzzyRule" "getIndexAndEvaluateExpressionAndIsFired":
+    test "FuzzyRule" "getIndexAndEvaluateExpressionAndIsFired":
         fuzzySet := FuzzySet 0.0 10.0 10.0 20.0
         fuzzySet.pertinence 0.75
         antecedent1 := Antecedent.set fuzzySet
@@ -387,14 +387,14 @@ main:
 
         fuzzyRule := FuzzyRule 1 antecedent3 fuzzyRuleConsequent
 
-        ASSERT_EQ 1 fuzzyRule.index
-        ASSERT_FALSE fuzzyRule.fired
+        expect_equals 1 fuzzyRule.index
+        expect_false: fuzzyRule.fired
 
-        ASSERT_TRUE fuzzyRule.evaluate
+        expect_true: fuzzyRule.evaluate
 
-        ASSERT_TRUE fuzzyRule.fired
+        expect_true: fuzzyRule.fired
 
-    TEST "FuzzyModel" "addFuzzyInput":
+    test "FuzzyModel" "addFuzzyInput":
 
         fuzzy := FuzzyModel
         fuzzyInput := FuzzyInput 0
@@ -406,10 +406,10 @@ main:
         fuzzySet2 := FuzzySet 20.0 30.0 30.0 40.0
         fuzzyInput.add_set fuzzySet2
 
-        ASSERT_RUNS: fuzzy.add_input fuzzyInput
+        expect_runs: fuzzy.add_input fuzzyInput
 
 
-    TEST "FuzzyModel" "addFuzzyOutput":
+    test "FuzzyModel" "addFuzzyOutput":
         fuzzy := FuzzyModel
 
         fuzzyOutput := FuzzyOutput 0
@@ -421,9 +421,9 @@ main:
         fuzzySet2 := FuzzySet 20.0 30.0 30.0 40.0
         fuzzyOutput.add_set fuzzySet2
 
-        ASSERT_RUNS: fuzzy.add_output fuzzyOutput
+        expect_runs: fuzzy.add_output fuzzyOutput
 
-    TEST "FuzzyModel" "addFuzzyRule":
+    test "FuzzyModel" "addFuzzyRule":
 
         fuzzy := FuzzyModel
 
@@ -441,9 +441,9 @@ main:
 
         fuzzyRule := FuzzyRule 0 antecedent2 fuzzyRuleConsequent
 
-        ASSERT_RUNS: fuzzy.add_rule fuzzyRule
+        expect_runs: fuzzy.add_rule fuzzyRule
 
-    TEST "FuzzyModel" "setInputAndFuzzifyAndIsFiredRuleAndDefuzzify":
+    test "FuzzyModel" "setInputAndFuzzifyAndIsFiredRuleAndDefuzzify":
         fuzzy := FuzzyModel
 
         // FuzzyInput
@@ -452,7 +452,7 @@ main:
         low := FuzzySet 0.0 10.0 10.0 20.0
         temperature.add_set low
         mean := FuzzySet 10.0 20.0 30.0 40.0
-        ASSERT_TRUE mean is TrapezoidalSet
+        expect_true: mean is TrapezoidalSet
         temperature.add_set mean
         high := FuzzySet 30.0 40.0 40.0 50.0
         temperature.add_set high
@@ -492,14 +492,14 @@ main:
         fuzzyRule2 := FuzzyRule 2 if_TemperatureHigh then_ClimateHot
         fuzzy.add_rule fuzzyRule2
 
-        ASSERT_RUNS: fuzzy.set_input 0 15.0
+        expect_runs: fuzzy.set_input 0 15.0
 
-        fuzzy.fuzzify  // was ASSERT_RUNS //todo
+        fuzzy.fuzzify  // was expect_runs //todo
 
-        ASSERT_TRUE  (fuzzy.is_fired 0)
-        ASSERT_TRUE  (fuzzy.is_fired 1)
-        ASSERT_FALSE (fuzzy.is_fired 2)
+        expect_true:  (fuzzy.is_fired 0)
+        expect_true:  (fuzzy.is_fired 1)
+        expect_false: (fuzzy.is_fired 2)
 
-        ASSERT_FLOAT_EQ 19.375 (fuzzy.defuzzify 0)
+        expect_near 19.375 (fuzzy.defuzzify 0)
 
-    TEST_END
+    test_end

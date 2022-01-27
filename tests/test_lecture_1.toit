@@ -22,9 +22,9 @@ import set_trapezoidal_r show RTrapezoidalSet
 
 main:
 
-    TEST_START
+    test_start
 
-    TEST "Fuzzy" "testFromLectureSystemsOne":
+    test "Fuzzy" "testFromLectureSystemsOne":
         fuzzy := FuzzyModel
 
         // FuzzyInput
@@ -89,11 +89,11 @@ main:
         fuzzy.set_input 1 25.0
         fuzzy.fuzzify
 
-        ASSERT_FLOAT_EQ 0.75 if_SizeSmallAndWeightSmall.evaluate
-        ASSERT_FLOAT_EQ 0.25 if_SizeSmallAndWeightLarge.evaluate
-        ASSERT_FLOAT_EQ 0.2 if_SizeLargeAndWeightSmall.evaluate
-        ASSERT_FLOAT_EQ 0.2 if_SizeLargeAndWeightLarge.evaluate
+        expect_near 0.75 if_SizeSmallAndWeightSmall.evaluate
+        expect_near 0.25 if_SizeSmallAndWeightLarge.evaluate
+        expect_near 0.2 if_SizeLargeAndWeightSmall.evaluate
+        expect_near 0.2 if_SizeLargeAndWeightLarge.evaluate
 
-        ASSERT_FLOAT_EQ 0.37692466 (fuzzy.defuzzify 0) // 0.3698 on the paper
+        expect_near 0.37692466 (fuzzy.defuzzify 0) // 0.3698 on the paper
     
-    TEST_END
+    test_end

@@ -20,9 +20,9 @@ import set_trapezoidal_r show RTrapezoidalSet
 
 main:
 
-    TEST_START
+    test_start
 
-    TEST "Fuzzy" "testFromLectureSystemsTwo":
+    test "Fuzzy" "testFromLectureSystemsTwo":
 
         fuzzy := FuzzyModel
 
@@ -75,9 +75,9 @@ main:
         fuzzy.set_input 1 65.0
         fuzzy.fuzzify
 
-        ASSERT_FLOAT_EQ 50.568535 (fuzzy.defuzzify 0) // This value was not extracted from the paper
+        expect_near 50.568535 (fuzzy.defuzzify 0) // This value was not extracted from the paper
 
-    TEST_END
+    test_end
 
 
     /*
