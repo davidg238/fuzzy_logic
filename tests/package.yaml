@@ -1,31 +1,6 @@
 dependencies:
-  antecedent:
-    path: ..
-  composition:
-    path: ..
-  consequent:
-    path: ..
-  fuzzy_input:
-    path: ..
-  fuzzy_model:
-    path: ..
-  fuzzy_output:
-    path: ..
-  fuzzy_rule:
-    path: ..
-  fuzzy_set:
-    path: ..
-  set_singleton:
-    path: ..
-  set_trapezoidal:
-    path: ..
-  set_trapezoidal_l:
-    path: ..
-  set_trapezoidal_r:
-    path: ..
-  set_triangular:
-    path: ..
-  set_triangular_lra:
-    path: ..
-  set_triangular_rra:
+  btest:
+    url: github.com/davidg238/btest
+    version: ^1.0.4
+  fuzzy_logic:
     path: ..

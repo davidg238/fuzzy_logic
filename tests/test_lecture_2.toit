@@ -1,6 +1,8 @@
 
-import .test_util show *
+import btest show *
 
+import fuzzy_logic show FuzzyModel Composition FuzzyInput FuzzyOutput FuzzySet FuzzyRule Antecedent Consequent TriangularSet TrapezoidalSet LTrapezoidalSet RTrapezoidalSet
+/*
 import fuzzy_model show FuzzyModel
 import composition show Composition
 import fuzzy_input show FuzzyInput
@@ -14,7 +16,7 @@ import set_triangular show TriangularSet
 import set_trapezoidal show TrapezoidalSet
 import set_trapezoidal_l show LTrapezoidalSet
 import set_trapezoidal_r show RTrapezoidalSet
-
+*/
 
 // From: http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.486.1238&rep=rep1&type=pdf
 

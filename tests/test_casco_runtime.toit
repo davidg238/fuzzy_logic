@@ -1,19 +1,7 @@
-import .test_util show *
+import btest show *
 import statistics show OnlineStatistics
 
-import fuzzy_model show FuzzyModel
-import composition show Composition
-import fuzzy_input show FuzzyInput
-import fuzzy_output show FuzzyOutput
-import fuzzy_set show FuzzySet
-import fuzzy_rule show FuzzyRule
-import antecedent show Antecedent
-import consequent show Consequent
-
-import set_triangular show TriangularSet
-import set_trapezoidal show TrapezoidalSet
-import set_trapezoidal_l show LTrapezoidalSet
-import set_trapezoidal_r show RTrapezoidalSet
+import fuzzy_logic show *
 
 // ##### Tests from real systems, received from eFLL users
 // From miss Casco (Paraguay)

@@ -1,23 +1,13 @@
 // Copyright (c) 2021 Ekorau LLC
 
-import .set_singleton show SingletonSet
-
-import .set_triangular show TriangularSet
-import .set_triangular_lra show LraTriangularSet
-import .set_triangular_rra show RraTriangularSet
-
-import .set_trapezoidal show TrapezoidalSet
-import .set_trapezoidal_l show LTrapezoidalSet
-import .set_trapezoidal_r show RTrapezoidalSet
-
 import .geometry show Point2f NoPoint intersection
 
 abstract class FuzzySet:
 
-  a_/float 
-  b_/float
-  c_/float
-  d_/float
+  a_/num 
+  b_/num
+  c_/num
+  d_/num
   pertinence_/float := 0.0
   name := ""
 
@@ -32,7 +22,7 @@ abstract class FuzzySet:
     if c==d: return RTrapezoidalSet a b c d aname 
     return TrapezoidalSet a b c d aname
 
-  calculate_pertinence crispVal/float -> none:  //new, eFLL returned true (only)
+  pertinence_for crispVal/float -> none:  //new, eFLL returned true (only)
 
     // check if this FuzzySet represents "everything small is true"
     if crispVal < a_:
@@ -53,10 +43,10 @@ abstract class FuzzySet:
       // check if this FuzzySet represents "everithing bigger is true"
       pertinence_ = c_==d_ and c_!=b_ and b_!=a_? 1.0 : 0.0
 
-  a -> float: return a_
-  b -> float: return b_
-  c -> float: return c_
-  d -> float: return d_
+  a -> float: return a_.to_float
+  b -> float: return b_.to_float
+  c -> float: return c_.to_float
+  d -> float: return d_.to_float
 
   compare_to other/FuzzySet -> any:
     if a_ < other.a_: return -1
@@ -75,10 +65,10 @@ abstract class FuzzySet:
 
   abstract truncated
 
-  truncator_a -> Point2f:  ///For now, set geometries x-values are defined between 0.0 - 100.0
+  truncator_l -> Point2f:  ///For now, set geometries x-values are defined between 0.0 - 100.0
     return Point2f 0.0 pertinence_
     
-  truncator_b -> Point2f:
+  truncator_r -> Point2f:
     return Point2f 100.0 pertinence_
 
   reset -> none:
@@ -87,3 +77,144 @@ abstract class FuzzySet:
   stype: return ""
 
   stringify: return "$name/$(stype):[$a_, $b_, $c_, $d_]/$(%.3f pertinence_)"
+
+class SingletonSet extends FuzzySet:
+
+  constructor a aname="":
+    super.with_points a a a a aname
+
+  constructor a b c d name:
+      super.with_points a b c d name
+
+  stype: return "sing"
+
+  truncated -> List: //Answer the point geometry, truncated to the current pertinence
+      return [(Point2f a_ 0.0), (Point2f a_ pertinence_)]
+
+class LTrapezoidalSet extends FuzzySet:
+
+  constructor a c d name:
+      super.with_points a a c d name
+
+  constructor a b c d name:
+      super.with_points a b c d name
+
+  stype: return "trap.l"
+
+  truncated -> List: //Answer the point geometry, truncated to the current pertinence
+    return pertinence_== 1.0?
+      [ Point2f 0.0 1.0, 
+        Point2f c_ 1.0,
+        Point2f d_ 0.0
+      ] :
+      [ Point2f 0.0 pertinence, 
+        intersection (Point2f c_ 1.0) (Point2f d_ 0.0) truncator_l truncator_r,
+        Point2f d_ 0.0
+      ]
+
+class RTrapezoidalSet extends FuzzySet:
+
+  constructor a b c name:
+      super.with_points a b c c name
+
+  constructor a b c d name:
+    super.with_points a b c d name
+
+  stype: return "trap.r"
+
+  truncated -> List: //Answer the point geometry, truncated to the current pertinence
+    return pertinence_== 1.0?
+      [ Point2f a_ 0.0, 
+        Point2f b_ 1.0,
+        Point2f 100.0 1.0,  // geometries considered x range of 0-100 ? //todo
+      ] :
+      [ Point2f a_ 0.0, 
+        intersection (Point2f a_ 0.0) (Point2f b_ 1.0) truncator_l truncator_r,
+        Point2f 100.0 pertinence,
+      ]      
+
+class TrapezoidalSet extends FuzzySet:
+
+  constructor a b c d name:
+      super.with_points a b c d name
+
+  stype: return "trap"
+
+  truncated -> List: //Answer the point geometry, truncated to the current pertinence
+    return pertinence_== 1.0?
+      [ Point2f a_ 0.0, 
+        Point2f b_ 1.0,
+        Point2f c_ 1.0,    
+        Point2f d_ 0.0
+      ] :
+      [ Point2f a_ 0.0, 
+        intersection (Point2f a_ 0.0) (Point2f b_ 1.0) truncator_l truncator_r,
+        intersection truncator_l truncator_r (Point2f c_ 1.0) (Point2f d_ 0.0),    
+        Point2f d_ 0.0
+      ]
+
+class LraTriangularSet extends FuzzySet:
+
+  constructor a d name:
+      super.with_points a a a d name
+
+  constructor a b c d name:
+    super.with_points a b c d name
+
+  stype: return "tri.lra"
+
+  truncated -> List: //Answer the point geometry, truncated to the current pertinence
+    return pertinence_== 1.0?
+      [ Point2f a_ 0.0, 
+        Point2f a_ 1.0,
+        Point2f d_ 0.0
+      ] :
+      [ Point2f a_ 0.0, 
+        intersection (Point2f a_ 0.0) (Point2f a_ 1.0) truncator_l truncator_r,
+        intersection (Point2f a_ 1.0) (Point2f d_ 0.0) truncator_l truncator_r,
+        Point2f d_ 0.0
+      ]      
+
+class RraTriangularSet extends FuzzySet:
+
+  constructor a b c d name:
+    super.with_points a b c d name
+
+  constructor a d name:
+      super.with_points a d d d name
+
+  stype: return "tri.rra"
+
+  truncated -> List: //Answer the point geometry, truncated to the current pertinence
+    return pertinence_== 1.0?
+      [ Point2f a_ 0.0, 
+        Point2f d_ 1.0,
+        Point2f d_ 0.0
+      ] :
+      [ Point2f a_ 0.0, 
+        intersection (Point2f a_ 0.0) (Point2f d_ 1.0) truncator_l truncator_r,
+        intersection (Point2f d_ 1.0) (Point2f d_ 0.0) truncator_l truncator_r,
+        Point2f d_ 0.0
+      ]
+
+class TriangularSet extends FuzzySet:
+
+  constructor a b d name:
+    super.with_points a b b d name
+
+  constructor a b c d name:
+    super.with_points a b c d name
+
+  stype: return "tri"
+
+  truncated -> List: //Answer the point geometry, truncated to the current pertinence
+    return pertinence_== 1.0?
+      [ Point2f a_ 0.0, 
+        Point2f b_ 1.0,
+        Point2f d_ 0.0
+      ] :
+      [ Point2f a_ 0.0, 
+        intersection (Point2f a_ 0.0) (Point2f b_ 1.0) truncator_l truncator_r,
+        intersection truncator_l truncator_r (Point2f b_ 1.0) (Point2f d_ 0.0),    
+        Point2f d_ 0.0
+      ]

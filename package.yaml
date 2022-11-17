@@ -1,1 +1,3 @@
 # Toit Package File.
+name: fuzzy_logic
+description: A library for running fuzzy logic algorithms

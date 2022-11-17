@@ -1,19 +1,10 @@
 prefixes:
-  antecedent: ..
-  composition: ..
-  consequent: ..
-  fuzzy_input: ..
-  fuzzy_model: ..
-  fuzzy_output: ..
-  fuzzy_rule: ..
-  fuzzy_set: ..
-  set_singleton: ..
-  set_trapezoidal: ..
-  set_trapezoidal_l: ..
-  set_trapezoidal_r: ..
-  set_triangular: ..
-  set_triangular_lra: ..
-  set_triangular_rra: ..
+  btest: btest
+  fuzzy_logic: ..
 packages:
   ..:
     path: ..
+  btest:
+    url: github.com/davidg238/btest
+    version: 1.0.4
+    hash: ed91837501ad5dce6c212f38a7f42598135bd43b

@@ -1,131 +1,108 @@
 // Copyright (c) 2021 Ekorau LLC
 
 import .fuzzy_set show FuzzySet
-import .geometry show 
-    Stack Point2f NoPoint
-    intersection leftmost_lowest  
-    forms_singleton forms_rectangle forms_triangle  
-    tri_area tri_centroid rect_area rect_centroid rtrap_area rtrap_centroid
-    convex_hull xy_sort
-
+import .geometry show *
 
 /*
-A composition looks more like a traditional function plot of values than the sets.
-Note, a point x and y values are stored as Point2f in the points List.
+A composition is a piecewise linear function.
+It is defined as a set of points, but many of the operations involve synthesized line segments.
+The function is built adding the points of contributing fuzzy sets, taking the maximum of existing or added line segments.
 The original eFLL used duplicate points to indicate the type of set.
 */
 
 class Composition:
 
-  points/List := []
+  p_/List := []
 
-  add_point x/float pertinence/float -> none:  // only used by test harness, so no return
-    points.add (Point2f x pertinence)
+  centroid_x -> float:
+    p_.add p_.first  // the polygon must be closed for this algorithm to work
+    cx := 0.0
+    for i:=0;i<size-1;i++:
+      cx += (p_[i].x + p_[i+1].x)*(p_[i].x * p_[i+1].y - p_[i+1].x * p_[i].y)
+    cx = cx/(6*area_)
+    p_.remove_last
+    return cx
 
-  any_point point/float pertinence/float -> bool:     /// was checkPoint, to resemble set operator
-    return points.any: 
-        (it.x == point) and (it.y == pertinence)
+  area_ -> float:
+    area := 0.0
+    for i:=0;i<size-1;i++:
+      area += (p_[i].x * p_[i+1].y) - (p_[i+1].x * p_[i].y)
+    return area/2.0
 
-  calculate_centroid -> float:
-    // print "$this"
-    a := null
-    b := null
-    tot_area := 0.0
-    tot_wcent := 0.0
-    accumulate := : | area cent str |
-                        tot_area += area
-                        tot_wcent += cent*area
-                        // print " ... $str: a$(%.2f area) c$(%.2f cent), ta$(%.2f tot_area) twc$(%.2f tot_wcent)"
+  clear -> none:      //eFLL, "empty"
+    p_.clear
 
-    if points.size==2 and forms_singleton points[0] points[1]: return points[0].x
-    for i:=0;i<points.size-1;i+=1:
-        a = points[i] 
-        b = points[i+1]
-        if forms_singleton a b:
-            tot_wcent += a.x
-        else if forms_triangle a b:
-            accumulate.call (tri_area a b) (tri_centroid a b) "tri"
-        else if forms_rectangle a b:
-            accumulate.call (rect_area a b) (rect_centroid a b) "rect"
-        else: // it is a right trapezoid
-            accumulate.call (rtrap_area a b) (rtrap_centroid a b) "rtrap"
-    return (tot_area==0)? 0.0 : (tot_wcent/tot_area)
-/*
-  paint_histogram -> List:
-
-    histogram := []
-    if points.size==2 and forms_singleton points[0] points[1]: 
-      paint_singleton_to histogram
-      return histogram
-    for i:=0;i<points.size-1;i+=1:
-        a = points[i] 
-        b = points[i+1]
-        if forms_singleton a b:
-            tot_wcent += a.x
-        else if forms_triangle a b:
-            accumulate.call (tri_area a b) (tri_centroid a b) "tri"
-        else if forms_rectangle a b:
-            accumulate.call (rect_area a b) (rect_centroid a b) "rect"
-        else: // it is a right trapezoid
-            accumulate.call (rtrap_area a b) (rtrap_centroid a b) "rtrap"
-    return (tot_area==0)? 0.0 : (tot_wcent/tot_area)
-
-  paint_singleton_to list/List -> none:
-    for i:=0; i<points[0].x; i+=1:
-      list.add 0
-    list.add points[1].y
-    for i:=points[1].x+1; i<100; i+=1:
-      list.add 0
-*/
-
-
-  clear -> none:      //was "empty"
-    points.clear
-
-  size -> int:                                //was countPoints
-    return points.size
+  size -> int:          //eFLL, was countPoints
+    return p_.size
 
   stringify -> string:
     txt := "$(this.size): "
-    points.do:
-        txt = txt + "$it , "
+    p_.do:
+        txt = txt + "$it "
     return txt
 
-  union set/List -> none:     /// the order in which points are added is not so important, re-sorted later
-    if points.is_empty:
-        // print "set empty"
-        points.add_all set
+  as_svg_polyline -> string:
+    txt := ""
+    p_.do:
+        txt = txt + "$(5*it.x),$(400*it.y) "
+    return txt
+
+  union new/List -> none:
+    // print new
+    if p_.is_empty:
+      // print "set empty"
+      p_.add_all new
     else:
-        temp := points.copy
-        for i:=0; i<set.size-1; i+=1:
-            temp.add set[i]
-            // print "adding $set[i]"
-            for j:=0;j<points.size-1;j+=1:
-                intersect := intersection set[i] set[i+1] points[j] points[j+1]
-                if not intersect is NoPoint:
-                    temp.add intersect
-            //        print "add interesect: $intersect"
-        temp.add set.last
-        // print "adding set last $set.last"
-        points = temp
+      union_ := p_.copy
+      intersects := []
+      i := 0
+      while i<new.size:
+        if not new[i].inside p_:
+          insert_ new[i] union_
+          i++
+        if i<new.size-1:
+          add_intersections new[i] new[i+1] union_
+      // remove_insiders union_
+      p_ = union_
 
-  simplify -> none:
-    /// https://en.wikibooks.org/wiki/Algorithm_Implementation/Geometry/Convex_hull/Monotone_chain
-    // print "$this"
-    if points.size < 3:
-        if points.size == 2:
-            if forms_singleton points[0] points[1]: return  // no need to simplify further
-        else:
-            throw "attempt to simplify unknown geometry, with $(points.size) points"
+  remove_insiders points/List -> none: // TODO will fail bacause missing 0,0 for ltrap / tri
+    temp := []
+    temp.add points.first
+    i := 1
+    while i<points.size-1:
+      if points[i].y > 0:
+        temp.add points[i]
+    temp.add points.last
+    points = temp
 
-    temp := xy_sort points
-    // this simplification will only work for a limited subset of intersecting triangular and trapezoidal fuzzy sets, 
-    //  otherwise you will get bad results.  Until concave_hull algorithm working.
-    if temp.first.y != 0.0: throw "heuristic failed"
-    temp2 := []
-    temp2.add temp.first
-    for i:=1; i<temp.size-1; i+=1:  // remove any points, between the first and last, with y=0.0
-        if temp[i].y != 0.0: 
-            temp2.add temp[i]
-    temp2.add temp.last    
-    points = temp2
+  insert_ point/Point2f list/List -> none:
+    idx := 0
+    list.do:
+      if (point.compare_to it) > 0:
+        idx++
+    temp := list.copy 0 idx
+    temp.add point
+    temp.add_all (list.copy idx list.size)
+    list = temp
+
+  add_intersections a/Point2f b/Point2f new/List -> none:
+    i:= 0
+    newp := null
+    while i<p_.size-1:
+      newp = intersection a b p_[i] p_[i+1]
+      if not (newp==null):
+        insert_ newp new
+
+
+/// Test methods, NOT for production use ----------------------------------------------
+
+  test_points -> List:
+    return p_
+
+  test_add_point x/num pertinence/num -> none:  /// eFLL, only used by test harness
+    p_.add (Point2f x pertinence)
+
+  test_any_point point/num pertinence/num -> bool:  /// eFLL, was checkPoint
+    return p_.any: 
+        (it.x == point) and (it.y == pertinence)
+

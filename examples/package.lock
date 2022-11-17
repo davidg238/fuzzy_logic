@@ -1,12 +1,10 @@
 prefixes:
-  antecedent: ..
-  consequent: ..
-  fuzzy_input: ..
   fuzzy_logic: ..
-  fuzzy_model: ..
-  fuzzy_output: ..
-  fuzzy_rule: ..
-  fuzzy_set: ..
+  http: pkg-http
 packages:
   ..:
     path: ..
+  pkg-http:
+    url: github.com/toitlang/pkg-http
+    version: 1.9.3
+    hash: 108c436cc990535f5d70c380ef68081c38840f4c

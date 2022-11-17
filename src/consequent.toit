@@ -4,20 +4,20 @@ import .fuzzy_set show FuzzySet
 
 class Consequent:
 
-    fuzzy_set_outputs/List := []
+  fuzzy_set_outputs/List := []
 
-    constructor.output set/FuzzySet:
-        this.add_output set
+  constructor.output set/FuzzySet:
+    this.add_output set
 
-    add_output fuzzy_set/FuzzySet -> none:
-        fuzzy_set_outputs.add fuzzy_set
+  add_output fuzzy_set/FuzzySet -> none:
+    fuzzy_set_outputs.add fuzzy_set
 
-    evaluate power/float -> none:
-        fuzzy_set_outputs.do:
-            it.pertinence power
+  evaluate power/float -> none:
+    fuzzy_set_outputs.do:
+      it.pertinence power
 
-    stringify -> string:
-        str := "("
-        fuzzy_set_outputs.do:
-            str = str + it.name + ", "
-        return str + ")"
+  stringify -> string:
+    str := "("
+    fuzzy_set_outputs.do:
+        str = str + it.name + ", "
+    return str + ")"

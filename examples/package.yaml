@@ -1,17 +1,6 @@
 dependencies:
-  antecedent:
-    path: ..
-  consequent:
-    path: ..
-  fuzzy_input:
-    path: ..
   fuzzy_logic:
     path: ..
-  fuzzy_model:
-    path: ..
-  fuzzy_output:
-    path: ..
-  fuzzy_rule:
-    path: ..
-  fuzzy_set:
-    path: ..
+  http:
+    url: github.com/toitlang/pkg-http
+    version: ^1.9.3
