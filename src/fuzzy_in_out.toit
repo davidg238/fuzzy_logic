@@ -9,11 +9,10 @@ seg idx/int list/List -> List:
 class InputOutput:
 
   crisp_in := 0.0
-  index_/int := 0
   fuzzy_sets_/List := []
   name/string
 
-  constructor .index_ .name="":
+  constructor .name="":
 
   add_set a_set -> none:
       fuzzy_sets_.add a_set
@@ -21,16 +20,13 @@ class InputOutput:
   add_all_sets sets/List-> none:
       fuzzy_sets_.add_all sets
 
-  index -> int:
-      return index_
-
   reset_sets -> none:
       fuzzy_sets_.do: it.reset
 
 class FuzzyInput extends InputOutput:
 
-  constructor index name="" :
-    super index name
+  constructor name="" :
+    super name
 
   calculate_set_pertinences -> none:
     fuzzy_sets_.do: it.pertinence_for crisp_in
@@ -46,8 +42,8 @@ class FuzzyOutput extends InputOutput:
 
   composition_ := Composition
 
-  constructor index name="":
-      super index name
+  constructor name="":
+      super name
 
   crisp_out -> float:
       return composition_.centroid_x
@@ -70,7 +66,7 @@ class FuzzyOutput extends InputOutput:
       sublist := List
       fuzzy_sets_.do:
           if it.is_pertinent: 
-              print "output $index_, add set: " + it.stringify + "\n"
+              print "output $name, add set: " + it.stringify + "\n"
               sublist.add it
       sublist.sort --in_place: | a b | (a.a_.compare_to b.a_)
       composition_.clear

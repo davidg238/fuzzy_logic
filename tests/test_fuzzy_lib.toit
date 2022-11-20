@@ -74,9 +74,9 @@ main:
 
 
   test "FuzzyInput" "addFuzzySet":
-    fuzzyInput := FuzzyInput 0
+    fuzzyInput := FuzzyInput
     fuzzySet := FuzzySet 0.0 10.0 10.0 20.0
-
+    print "... should be triangular $fuzzySet"
     expect_true (fuzzySet is TriangularSet)
 
     expect_runs: // deleted bool return of C functions, since in usual code, unchecked?
@@ -84,14 +84,14 @@ main:
 
   test "FuzzyInput" "setCrispInputAndGetCrispInput":
 
-    fuzzyInput := FuzzyInput 1;
+    fuzzyInput := FuzzyInput
     fuzzyInput.crisp_in = 10.190
     expect_near 10.190 fuzzyInput.crisp_in
 
 
   test "FuzzyInput" "calculateFuzzySetPertinences":
 
-    fuzzyInput := FuzzyInput 0
+    fuzzyInput := FuzzyInput
     fuzzySet1 := FuzzySet 0.0 10.0 10.0 20.0 "set1"
     fuzzyInput.add_set fuzzySet1
     fuzzySet2 := FuzzySet 10.0 20.0 20.0 30.0 "set2"
@@ -136,7 +136,7 @@ main:
 */      
     tri2 := FuzzySet 10.0 20.0 20.0 30.0
     tri2.pertinence 1.0
-    composition.union tri2.truncated
+    expect_runs: composition.union tri2.truncated
 //        print "composition: $composition"
 
 /*
@@ -144,8 +144,6 @@ main:
     composition.test_add_point 20.0 1.0
     composition.test_add_point 30.0 0.0
 */
-
-    expect_runs: composition.simplify
 
     //print "composition: $composition"
 
@@ -162,14 +160,13 @@ main:
 
     sing := FuzzySet 25.0 25.0 25.0 25.0
     sing.pertinence 1.0
-    composition.union sing.truncated
+    expect_runs: composition.union sing.truncated
     // print "sing composition: $composition"
 /*
     composition.test_add_point 25.0 0.0
     composition.test_add_point 25.0 1.0
     composition.test_add_point 25.0 0.0
 */
-    expect_runs: composition.simplify
     expect_equals 2 composition.size // size should be 2, not 3 ? ... check original
     expect_near 25.0 composition.centroid_x
     expect_runs: composition.clear
@@ -177,21 +174,20 @@ main:
 
     tri := FuzzySet 10.0 20.0 20.0 30.0
     tri.pertinence 1.0
-    composition.union tri.truncated
+    expect_runs: composition.union tri.truncated
     // print "tri composition: $composition"
 /*
     composition.test_add_point 10.0 0.0
     composition.test_add_point 20.0 1.0
     composition.test_add_point 30.0 0.0
 */        
-    expect_runs: composition.simplify
     expect_equals 3 composition.size
     expect_near 20.0 composition.centroid_x
     expect_runs: composition.clear
 
     trap := FuzzySet 20.0 30.0 50.0 60.0
     trap.pertinence 1.0
-    composition.union trap.truncated
+    expect_runs: composition.union trap.truncated
     // print "trap composition: $composition"
 /*
     composition.test_add_point 20.0 0.0
@@ -199,7 +195,6 @@ main:
     composition.test_add_point 50.0 1.0
     composition.test_add_point 60.0 0.0
 */
-    expect_runs: composition.simplify
     expect_equals 4 composition.size
     expect_near 40.0 composition.centroid_x
     expect_runs: composition.clear
@@ -220,18 +215,16 @@ main:
     expect_near 20.0 composition.centroid_x
 */
   test "FuzzyOutput" "getIndex":
-    fuzzyOutput := FuzzyOutput 0
-    expect_equals 0 fuzzyOutput.index  //check original cpp, used 0 index
-
+    fuzzyOutput := FuzzyOutput
 
   test "FuzzyOutput" "setCrispInputAndGetCrispInput":
-    fuzzyOutput := FuzzyOutput 0
+    fuzzyOutput := FuzzyOutput
     fuzzyOutput.crisp_in = 10.190
     expect_near 10.190 fuzzyOutput.crisp_in
 
 
   test "FuzzyOutput" "addFuzzySetAndResetFuzzySets":
-    fuzzyOutput := FuzzyOutput 0
+    fuzzyOutput := FuzzyOutput
     fuzzySetTest := FuzzySet 0.0 10.0 10.0 20.0
 
     expect_runs: fuzzyOutput.add_set fuzzySetTest
@@ -245,9 +238,7 @@ main:
 
 
   test "FuzzyOutput" "truncateAndGetCrispOutputAndGetFuzzyComposition":
-    fuzzyOutput := FuzzyOutput 0
-
-    expect_equals 0 fuzzyOutput.index
+    fuzzyOutput := FuzzyOutput
 
     fuzzySetTest0 := FuzzySet 0.0 10.0 10.0 20.0 "set0"
     expect_true (fuzzySetTest0 is TriangularSet)
@@ -389,9 +380,8 @@ main:
     fuzzySet3 := FuzzySet 0.0 10.0 10.0 20.0
     fuzzyRuleConsequent := Consequent.output fuzzySet3
 
-    fuzzyRule := FuzzyRule 1 antecedent3 fuzzyRuleConsequent
+    fuzzyRule := FuzzyRule antecedent3 fuzzyRuleConsequent
 
-    expect_equals 1 fuzzyRule.index
     expect_false fuzzyRule.fired
 
     expect_true fuzzyRule.evaluate
@@ -441,7 +431,7 @@ main:
     fuzzySet2 := FuzzySet 0.0 10.0 10.0 20.0
     fuzzyRuleConsequent := Consequent.output fuzzySet2
 
-    fuzzyRule := FuzzyRule 0 antecedent2 fuzzyRuleConsequent
+    fuzzyRule := FuzzyRule antecedent2 fuzzyRuleConsequent
 
     expect_runs: fuzzy.add_rule fuzzyRule
 
@@ -449,7 +439,7 @@ main:
     fuzzy := FuzzyModel
 
     // FuzzyInput
-    temperature := FuzzyInput 0
+    temperature := FuzzyInput
 
     low := FuzzySet 0.0 10.0 10.0 20.0
     temperature.add_set low
@@ -477,21 +467,21 @@ main:
     if_TemperatureLow := Antecedent.set low
     then_ClimateCold := Consequent.output cold
 
-    fuzzyRule0 := FuzzyRule 0 if_TemperatureLow then_ClimateCold
+    fuzzyRule0 := FuzzyRule if_TemperatureLow then_ClimateCold
     fuzzy.add_rule fuzzyRule0
 
     // Building FuzzyRule
     if_TemperatureMean := Antecedent.set mean
     then_ClimateGood := Consequent.output good
 
-    fuzzyRule1 := FuzzyRule 1 if_TemperatureMean then_ClimateGood
+    fuzzyRule1 := FuzzyRule if_TemperatureMean then_ClimateGood
     fuzzy.add_rule fuzzyRule1
 
     // Building FuzzyRule
     if_TemperatureHigh := Antecedent.set high
     then_ClimateHot := Consequent.output cold
 
-    fuzzyRule2 := FuzzyRule 2 if_TemperatureHigh then_ClimateHot
+    fuzzyRule2 := FuzzyRule if_TemperatureHigh then_ClimateHot
     fuzzy.add_rule fuzzyRule2
 
     expect_runs: fuzzy.set_input 0 15.0

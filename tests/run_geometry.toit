@@ -4,18 +4,7 @@ import btest show *
 import .float_util show almost_equal_abs_ulps
 
 import fuzzy_logic show *
-/*
-What it used to look like, before introducing fuzzy_logic.toit in ../src
 
-import fuzzy_logic.fuzzy_model show FuzzyModel
-import fuzzy_logic.composition show Composition
-import fuzzy_logic.fuzzy_input show FuzzyInput
-import fuzzy_logic.fuzzy_output show FuzzyOutput
-import fuzzy_logic.fuzzy_set show FuzzySet
-import fuzzy_logic.fuzzy_rule show FuzzyRule
-import fuzzy_logic.antecedent show Antecedent
-import fuzzy_logic.consequent show Consequent
-*/
 main:
 
   set := null
@@ -45,10 +34,11 @@ main:
 
   composition.clear
         
-        
+  composition.union tri1
+  composition.union tri2      
 
 
-    // TEST "Composition" "2 sets"  //todo, rebuild
+  TEST "Composition" "2 sets"  //todo, rebuild
 
 /*
     TEST "Composition" "build":

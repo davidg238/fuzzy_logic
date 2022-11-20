@@ -60,9 +60,6 @@ spa := """
 </html>
 """
 
-// https://www.tutorialspoint.com/html5/html5_websocket.htm 
-// https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_client_applications
-
 script := """
 <script type = "text/javascript">
     var ws;
