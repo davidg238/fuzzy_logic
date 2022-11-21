@@ -88,6 +88,9 @@ class SingletonSet extends FuzzySet:
 
   stype: return "sing"
 
+  graph_points -> string:
+    return "$(a_*4),0, $(a_*4),400"
+
   truncated -> List: //Answer the point geometry, truncated to the current pertinence
       return [(Point2f a_ 0.0), (Point2f a_ pertinence_)]
 
@@ -100,6 +103,9 @@ class LTrapezoidalSet extends FuzzySet:
       super.with_points a b c d name
 
   stype: return "trap.l"
+
+  graph_points -> string:
+    return "0,0 0,400 $(c_*4),400, $(d_*4),0"
 
   truncated -> List: //Answer the point geometry, truncated to the current pertinence
     return pertinence_== 1.0?
@@ -122,6 +128,9 @@ class RTrapezoidalSet extends FuzzySet:
 
   stype: return "trap.r"
 
+  graph_points -> string:
+    return "$(a_*4),0 $(b_*4),400 400,400, 400,0"
+
   truncated -> List: //Answer the point geometry, truncated to the current pertinence
     return pertinence_== 1.0?
       [ Point2f a_ 0.0, 
@@ -139,6 +148,9 @@ class TrapezoidalSet extends FuzzySet:
       super.with_points a b c d name
 
   stype: return "trap"
+
+  graph_points -> string:
+    return "$(a_*4),0 $(b_*4),400 $(c_*4),400, $(d_*4),0"
 
   truncated -> List: //Answer the point geometry, truncated to the current pertinence
     return pertinence_== 1.0?
@@ -163,6 +175,9 @@ class LraTriangularSet extends FuzzySet:
 
   stype: return "tri.lra"
 
+  graph_points -> string:
+    return "$(a_*4),0 $(a_*4),400 $(d_*4),0"
+
   truncated -> List: //Answer the point geometry, truncated to the current pertinence
     return pertinence_== 1.0?
       [ Point2f a_ 0.0, 
@@ -185,6 +200,9 @@ class RraTriangularSet extends FuzzySet:
 
   stype: return "tri.rra"
 
+  graph_points -> string:
+    return "$(a_*4),0 $(d_*4),400 $(d_*4),0"
+
   truncated -> List: //Answer the point geometry, truncated to the current pertinence
     return pertinence_== 1.0?
       [ Point2f a_ 0.0, 
@@ -206,6 +224,9 @@ class TriangularSet extends FuzzySet:
     super.with_points a b c d name
 
   stype: return "tri"
+
+  graph_points -> string:
+    return "$(a_*4),0 $(b_*4),400 $(d_*4),0"
 
   truncated -> List: //Answer the point geometry, truncated to the current pertinence
     return pertinence_== 1.0?

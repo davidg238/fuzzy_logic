@@ -1,3 +1,6 @@
+https://www.tutorialspoint.com/html5/html5_websocket.htm  --
+
+
 [jQuery SVG](http://keith-wood.name/svg.html)  presumably as a plugin, you also need jQuery  2014 !
 
 [Two.js](https://two.js.org/) ... appears to be owner drawn SVG ... min is 43kB  

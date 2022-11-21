@@ -2,6 +2,8 @@ import http
 import net
 import websocket
 
+import .models show *
+import .html_writer show *
 
 
 /**
@@ -13,7 +15,14 @@ network := net.open
 addr_str := network.address.stringify
 server := http.Server
 
+model := get_model "driver_advanced"
+html_writer := FuzzyWriter model addr_str
+
 main:
+
+  model.set_input 0 35.0
+//  model.fuzzify
+
   print "Open a browser on: $network.address:8080"
   sessions := {:}
   server.listen network 8080:: | request/http.Request response/http.ResponseWriter |
@@ -41,109 +50,14 @@ handle session/websocket.Session -> none:
     i := 1
     while in := session.receive:
       print "received: $in"
-      session.send "{\"counter\": $i}"
-      i += 1
+      model.handle_msg in
+      // session.send "{\"counter\": $i}"
+      // i += 1
 
-spa := """
-<!DOCTYPE HTML>
-<html>
-  <head>
-    $style
-  </head>
-  <body onload="open_ws_connection()">
-    <h1>Counter</h1>
-    <p id="counter">0</p>
-    <button onclick="device_on(1)">Click me</button>
-    <div id="alerts"> -- -- </div>
-  </body>
-  $script
-</html>
-"""
+spa -> string:
 
-// https://www.tutorialspoint.com/html5/html5_websocket.htm 
-// https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_client_applications
+  //print model
 
-script := """
-<script type = "text/javascript">
-    var ws;
-    
-    function send_num(device, num) {
-      ws.send('{"' + device + '": ' + num + '}');
-    }
-    function device_on(adevice) {
-      send_num(adevice, 1);
-    }
-    function device_off(adevice) {
-      send_num(adevice, 0);
-    }
-    function dispatch_msg(msg)  {
-      // const obj = JSON.parse(msg)
-      
-      const obj = JSON.parse(msg, function (key, value) {
-        var el = document.getElementById(key);
-        if (el != null) {
-          el.innerHTML = value;
-        };
-      });
-    }
-
-    function open_ws_connection() {
-      if ("WebSocket" in window) {
-          ws = new WebSocket('ws://$(addr_str):8080');
-          ws.onopen = function() {
-            document.getElementById("alerts").innerHTML = "-- active --";
-          };
-          ws.onmessage = function (evt) { 
-            var received_msg = evt.data;
-            dispatch_msg(received_msg);
-          };
-          ws.onclose = function() {
-            document.getElementById("alerts").innerHTML = "-- closed --";
-          };
-      } else {
-          // The browser doesn't support WebSocket
-          alert("WebSocket NOT supported by your Browser!");
-      };
-    }
-</script>
-"""
-
-style := """
-    <style>
-      .tab {
-        overflow: hidden;
-        border: 1px solid #ccc;
-        background-color: #f1f1f1;
-      }
-      /* Style the buttons that are used to open the tab content */
-      .tab button {
-        background-color: inherit;
-        float: left;
-        border: none;
-        outline: none;
-        cursor: pointer;
-        padding: 14px 16px;
-        transition: 0.3s;
-      }
-      /* Change background color of buttons on hover */
-      .tab button:hover {
-        background-color: #ddd;
-      }
-
-      /* Create an active/current tablink class */
-      .tab button.active {
-        background-color: #ccc;
-      }
-      /* Style the tab content */
-      .tabcontent {
-        display: none;
-        padding: 6px 12px;
-        border: 1px solid #ccc;
-        border-top: none;
-      }
-      table, th, td {
-        padding: 5px;
-        border-collapse: collapse;
-      }
-    </style>
-"""
+  str := html_writer.page
+  // print str
+  return str

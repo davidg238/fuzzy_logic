@@ -9,19 +9,19 @@ seg idx/int list/List -> List:
 class InputOutput:
 
   crisp_in := 0.0
-  fuzzy_sets_/List := []
+  fsets/List := []
   name/string
 
   constructor .name="":
 
   add_set a_set -> none:
-      fuzzy_sets_.add a_set
+      fsets.add a_set
 
   add_all_sets sets/List-> none:
-      fuzzy_sets_.add_all sets
+      fsets.add_all sets
 
   reset_sets -> none:
-      fuzzy_sets_.do: it.reset
+      fsets.do: it.reset
 
 class FuzzyInput extends InputOutput:
 
@@ -29,11 +29,11 @@ class FuzzyInput extends InputOutput:
     super name
 
   calculate_set_pertinences -> none:
-    fuzzy_sets_.do: it.pertinence_for crisp_in
+    fsets.do: it.pertinence_for crisp_in
 
   stringify -> string:
     in_str := "in: $name\n"
-    fuzzy_sets_.do:
+    fsets.do:
       in_str = in_str + "    " + it.stringify + "\n"
     return "$in_str"
 
@@ -52,11 +52,11 @@ class FuzzyOutput extends InputOutput:
       return composition_
 
   order -> none:
-      fuzzy_sets_.sort --in_place=true: | a b | a.compare_to b
+      fsets.sort --in_place=true: | a b | a.compare_to b
 
   stringify -> string:
       out_str := "out: $name\n"
-      fuzzy_sets_.do:
+      fsets.do:
           out_str = out_str + "    " + it.stringify + "\n"
       return "$out_str"        
 
@@ -64,7 +64,7 @@ class FuzzyOutput extends InputOutput:
       // print "truncate output $index_, which looks like: "
       // print "$this"
       sublist := List
-      fuzzy_sets_.do:
+      fsets.do:
           if it.is_pertinent: 
               print "output $name, add set: " + it.stringify + "\n"
               sublist.add it

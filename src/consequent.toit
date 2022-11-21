@@ -18,6 +18,8 @@ class Consequent:
 
   stringify -> string:
     str := "("
-    fuzzy_set_outputs.do:
-        str = str + it.name + ", "
+    for i:=0; i<fuzzy_set_outputs.size; i++:
+      str += fuzzy_set_outputs[i].name
+      if i < fuzzy_set_outputs.size-1:
+        str += ", "
     return str + ")"
