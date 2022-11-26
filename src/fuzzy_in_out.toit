@@ -1,7 +1,7 @@
 // Copyright (c) 2021 Ekorau LLC
 
 import .composition show Composition
-import .geometry show Point2f NoPoint
+import .geometry show Point2f NoPoint2f
 
 seg idx/int list/List -> List:
     return [list[idx], list[idx + 1]]
@@ -30,6 +30,10 @@ class FuzzyInput extends InputOutput:
 
   calculate_set_pertinences -> none:
     fsets.do: it.pertinence_for crisp_in
+
+  init -> none:
+    // crisp_in = 0.0 // TODO
+    reset_sets
 
   stringify -> string:
     in_str := "in: $name\n"
@@ -66,11 +70,11 @@ class FuzzyOutput extends InputOutput:
       sublist := List
       fsets.do:
           if it.is_pertinent: 
-              print "output $name, add set: " + it.stringify + "\n"
+              print "output $name, add set: $it"
               sublist.add it
       sublist.sort --in_place: | a b | (a.a_.compare_to b.a_)
       composition_.clear
       sublist.do: |set|
-          composition_.union (set.truncated) /// truncate the set shape to the pertinence
+          composition_.union (set.truncated) set.name /// truncate the set shape to the pertinence
       // composition.simplify
 

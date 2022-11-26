@@ -2,8 +2,7 @@ import http
 import net
 import websocket
 
-import .models show *
-import .html_writer show *
+import .fuzzy_view show *
 
 
 /**
@@ -15,13 +14,9 @@ network := net.open
 addr_str := network.address.stringify
 server := http.Server
 
-model := get_model "driver_advanced"
-html_writer := FuzzyWriter model addr_str
-
 main:
 
-  model.set_input 0 35.0
-//  model.fuzzify
+  fuzzy_view := FuzzyHTMLview addr_str
 
   print "Open a browser on: $network.address:8080"
   sessions := {:}
@@ -31,33 +26,15 @@ main:
       peer_address := session.peer_address
       sessions[peer_address] = session
       print "session created for $peer_address"
-      handle session
+      fuzzy_view.use session
       sessions.remove peer_address
       print "....... removed for $peer_address"
 
     else:
-      print request.path
+      print "Request Path: $request.path"
       if request.path == "/":
-        response.write spa
+        response.write fuzzy_view.homepage
       else if request.path == "/599":
         response.write_headers 599 --message="Dazed and confused"
       else:
-        response.write_headers 404
-      print "request path finished"
-
-handle session/websocket.Session -> none:
-  task --background=true::
-    i := 1
-    while in := session.receive:
-      print "received: $in"
-      model.handle_msg in
-      // session.send "{\"counter\": $i}"
-      // i += 1
-
-spa -> string:
-
-  //print model
-
-  str := html_writer.page
-  // print str
-  return str
+        response.write (fuzzy_view.page_for request.path)

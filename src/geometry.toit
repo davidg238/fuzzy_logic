@@ -5,30 +5,26 @@ import math show *
 RIGHT ::=  1
 ON    ::=  0
 LEFT  ::= -1
+F_error3 ::= 0.0001  // TODO floating point error
+F_error6 ::= 0.0000001  // TODO floating point error
 
-// Method to rebuild some point, the new point is calculated finding the intersection between two lines
+intersection p0/Point2f p1/Point2f p2/Point2f p3/Point2f -> Point2f:
+// https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
 
-intersection a1/Point2f a2/Point2f b3/Point2f b4/Point2f -> Point2f?:
+  // print "intersection $p0,$p1 + $p2,$p3"
 
-    // print "find intersection $x1,$y1 - $x2,$y2 and $x3,$y3 - $x4,$y4"
-    // calculate the denominator and numerator
-    denom  := (b4.y - b3.y) * (a2.x - a1.x) - (b4.x - b3.x) * (a2.y - a1.y)
-    numera := (b4.x - b3.x) * (a1.y - b3.y) - (b4.y - b3.y) * (a1.x - b3.x)
-    numerb := (a2.x - a1.x) * (a1.y - b3.y) - (a2.y - a1.y) * (a1.x - b3.x)
-    
-    if denom < 0.0: denom *= -1.0             // if negative, convert to positive
-        
-    // If the denominator is zero or close to it, it means that the lines are parallels, so return false for intersection
-    //EPSILON_VALUE = 0.001  // todo
-    if denom < 0.001: return NoPoint
-    if numera < 0.0: numera *= -1.0  // if negative, convert to positive
-    if numerb < 0.0: numerb *= -1.0         // if negative, convert to positive
-    // verify if has intersection between the segments
-    mua := numera / denom
-    mub := numerb / denom
-    return mua<0.0 or mua>1.0 or mub<0.0 or mub>1.0?
-      null:
-      Point2f (a1.x + mua * (a2.x - a1.x)) (a1.y + mua * (a2.y - a1.y))
+  s1 := Point2f (p1.x - p0.x) (p1.y - p0.y)
+  s2 := Point2f (p3.x - p2.x) (p3.y - p2.y)
+  denom := (-s2.x * s1.y + s1.x * s2.y)
+
+  if denom.abs < F_error3: return NoPoint2f  // not general, but good enough for geometries here?
+
+  s := (-s1.y * (p0.x - p2.x) + s1.x * (p0.y - p2.y)) / denom;
+  t := ( s2.x * (p0.y - p2.y) - s2.y * (p0.x - p2.x)) / denom;
+
+  return (s >= 0 and s <= 1 and t >= 0 and t <= 1)? 
+    Point2f (p0.x + (t * s1.x)) (p0.y + (t * s1.y)): 
+    NoPoint2f
 
 convex_hull points/List -> List:
     /// https://en.wikipedia.org/wiki/Graham_scan
@@ -113,7 +109,7 @@ class Point2f extends Point3f:
   stringify: return "$(%.2f x),$(%.2f y)"
     
 
-class NoPoint extends Point2f:
+class NoPoint2f extends Point2f:
   constructor:
       super float.NAN float.NAN float.NAN
 
@@ -141,3 +137,31 @@ class Stack extends Deque:
 
   next_to_top -> any:
     return backing_[size-2]
+
+  is_empty -> bool:
+    return this.is_empty
+
+/*
+intersection a1/Point2f a2/Point2f b3/Point2f b4/Point2f -> Point2f?:
+
+    // print "find intersection $x1,$y1 - $x2,$y2 and $x3,$y3 - $x4,$y4"
+    // calculate the denominator and numerator
+    denom  := (b4.y - b3.y) * (a2.x - a1.x) - (b4.x - b3.x) * (a2.y - a1.y)
+    numera := (b4.x - b3.x) * (a1.y - b3.y) - (b4.y - b3.y) * (a1.x - b3.x)
+    numerb := (a2.x - a1.x) * (a1.y - b3.y) - (a2.y - a1.y) * (a1.x - b3.x)
+    
+    if denom < 0.0: denom *= -1.0             // if negative, convert to positive
+        
+    // If the denominator is zero or close to it, it means that the lines are parallels, so return false for intersection
+    //EPSILON_VALUE = 0.001  // todo
+    if denom < 0.001: return NoPoint2f
+    if numera < 0.0: numera *= -1.0  // if negative, convert to positive
+    if numerb < 0.0: numerb *= -1.0         // if negative, convert to positive
+    // verify if has intersection between the segments
+    mua := numera / denom
+    mub := numerb / denom
+    return mua<0.0 or mua>1.0 or mub<0.0 or mub>1.0?
+      NoPoint2f:
+      Point2f (a1.x + mua * (a2.x - a1.x)) (a1.y + mua * (a2.y - a1.y))
+
+*/

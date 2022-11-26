@@ -1,19 +1,29 @@
 // Copyright (c) 2021 Ekorau LLC
 
-import .geometry show Point2f NoPoint intersection
+import .geometry show *
+
+y_rising p q r -> float:
+  return (p-q)/(r-q)
+
+y_falling p q r -> float:
+  return 1.0 - (p-q)/(r-q)
 
 abstract class FuzzySet:
 
-  a_/num 
-  b_/num
-  c_/num
-  d_/num
+  a_/float
+  b_/float
+  c_/float
+  d_/float
   pertinence_/float := 0.0
   name := ""
 
-  constructor.with_points .a_ .b_ .c_ .d_ .name="":            //new
+  constructor.with_points a b c d .name="":            //new
+    a_ = a.to_float
+    b_ = b.to_float
+    c_ = c.to_float
+    d_ = d.to_float
 
-  constructor a b c d aname="" :                      //new
+  constructor a/num b/num c/num d/num aname="" :                      //new
     if a==b and b==c and c==d: return SingletonSet a b c d aname
     if a==b and b==c: return LraTriangularSet a b c d aname
     if b==c and c==d: return RraTriangularSet a b c d aname
@@ -22,6 +32,7 @@ abstract class FuzzySet:
     if c==d: return RTrapezoidalSet a b c d aname 
     return TrapezoidalSet a b c d aname
 
+/*
   pertinence_for crispVal/float -> none:  //new, eFLL returned true (only)
 
     // check if this FuzzySet represents "everything small is true"
@@ -42,17 +53,19 @@ abstract class FuzzySet:
     else if crispVal > d_:
       // check if this FuzzySet represents "everithing bigger is true"
       pertinence_ = c_==d_ and c_!=b_ and b_!=a_? 1.0 : 0.0
-
-  a -> float: return a_.to_float
-  b -> float: return b_.to_float
-  c -> float: return c_.to_float
-  d -> float: return d_.to_float
+*/
+  test_a -> float: return a_
+  test_b -> float: return b_
+  test_c -> float: return c_
+  test_d -> float: return d_
 
   compare_to other/FuzzySet -> any:
     if a_ < other.a_: return -1
     if a_ > other.a_: return 1
-    if a_==other.a and b_==other.b_ and c_==other.c_ and d_==other.d: return 0
-    return pertinence_<other.pertinence_? -1: 1
+    if a_==other.a_ and b_==other.b_ and c_==other.c_ and d_==other.d_: return 0
+    if pertinence_ < other.pertinence_: return -1
+    if pertinence_ > other.pertinence_: return 1
+    return 0
 
   is_pertinent -> bool:
     return pertinence_ > 0.0
@@ -60,10 +73,12 @@ abstract class FuzzySet:
   pertinence -> float:
     return pertinence_
   
-  pertinence val/float -> none:
-    if pertinence_<val: pertinence_ = val
+  max val/float -> none:
+    if pertinence_<val: 
+      pertinence_ = val
+    // print "set $name max: $pertinence_ $val"
 
-  abstract truncated
+  abstract truncated -> float
 
   truncator_l -> Point2f:  ///For now, set geometries x-values are defined between 0.0 - 100.0
     return Point2f 0.0 pertinence_
@@ -88,6 +103,9 @@ class SingletonSet extends FuzzySet:
 
   stype: return "sing"
 
+  pertinence_for cVal/float -> none:
+    pertinence_ = (a_-cVal).abs < F_error3 ? 1.0 : 0.0
+
   graph_points -> string:
     return "$(a_*4),0, $(a_*4),400"
 
@@ -104,17 +122,31 @@ class LTrapezoidalSet extends FuzzySet:
 
   stype: return "trap.l"
 
+  pertinence_for cVal/float -> none:
+    if cVal <= c_:
+      pertinence_ = 1.0
+    else if cVal >= d_:
+      pertinence_ = 0.0
+    else:
+      pertinence_ = y_falling cVal c_ d_
+
   graph_points -> string:
     return "0,0 0,400 $(c_*4),400, $(d_*4),0"
 
-  truncated -> List: //Answer the point geometry, truncated to the current pertinence
-    return pertinence_== 1.0?
-      [ Point2f 0.0 1.0, 
+  truncated -> List: 
+  /*
+  Answer the point geometry, truncated to the current pertinence,
+  adding a synthetic point at 0,0 to form a closed polygon, for calc purposes
+  */
+    return (1.0-pertinence).abs < F_error3?
+      [ Point2f 0 0,
+        Point2f 0.0 1.0, 
         Point2f c_ 1.0,
         Point2f d_ 0.0
       ] :
-      [ Point2f 0.0 pertinence, 
-        intersection (Point2f c_ 1.0) (Point2f d_ 0.0) truncator_l truncator_r,
+      [ Point2f 0 0
+        Point2f 0.0 pertinence, 
+        intersection truncator_l truncator_r (Point2f c_ 1.0) (Point2f d_ 0.0),
         Point2f d_ 0.0
       ]
 
@@ -131,15 +163,29 @@ class RTrapezoidalSet extends FuzzySet:
   graph_points -> string:
     return "$(a_*4),0 $(b_*4),400 400,400, 400,0"
 
-  truncated -> List: //Answer the point geometry, truncated to the current pertinence
-    return pertinence_== 1.0?
+  pertinence_for cVal/float -> none:
+    if cVal <= a_:
+      pertinence_ = 0.0
+    else if cVal >= b_:
+      pertinence_ = 1.0
+    else:
+      pertinence_ = y_rising cVal a_ b_
+
+  truncated -> List:
+  /*
+  Answer the point geometry, truncated to the current pertinence,
+  adding a synthetic point at 0,0 to form a closed polygon, for calc purposes
+  */
+    return (1.0-pertinence).abs < F_error3?
       [ Point2f a_ 0.0, 
         Point2f b_ 1.0,
         Point2f 100.0 1.0,  // geometries considered x range of 0-100 ? //todo
+        Point2f 100.0 0.0
       ] :
       [ Point2f a_ 0.0, 
-        intersection (Point2f a_ 0.0) (Point2f b_ 1.0) truncator_l truncator_r,
+        intersection truncator_l truncator_r (Point2f a_ 0.0) (Point2f b_ 1.0),
         Point2f 100.0 pertinence,
+        Point2f 100.0 0.0
       ]      
 
 class TrapezoidalSet extends FuzzySet:
@@ -152,15 +198,26 @@ class TrapezoidalSet extends FuzzySet:
   graph_points -> string:
     return "$(a_*4),0 $(b_*4),400 $(c_*4),400, $(d_*4),0"
 
+  pertinence_for cVal/float -> none:
+    if (cVal<=a_) or (cVal>=d_):
+      pertinence_ = 0.0
+    else if (cVal>=b_) and (cVal<=c_):
+      pertinence_ = 1.0
+    else if cVal<b_:
+      pertinence_ = y_rising cVal a_ b_
+    else:
+      pertinence_ = y_falling cVal c_ d_
+
+
   truncated -> List: //Answer the point geometry, truncated to the current pertinence
-    return pertinence_== 1.0?
+    return (1.0-pertinence).abs < F_error3?
       [ Point2f a_ 0.0, 
         Point2f b_ 1.0,
         Point2f c_ 1.0,    
         Point2f d_ 0.0
       ] :
       [ Point2f a_ 0.0, 
-        intersection (Point2f a_ 0.0) (Point2f b_ 1.0) truncator_l truncator_r,
+        intersection truncator_l truncator_r (Point2f a_ 0.0) (Point2f b_ 1.0),
         intersection truncator_l truncator_r (Point2f c_ 1.0) (Point2f d_ 0.0),    
         Point2f d_ 0.0
       ]
@@ -178,15 +235,21 @@ class LraTriangularSet extends FuzzySet:
   graph_points -> string:
     return "$(a_*4),0 $(a_*4),400 $(d_*4),0"
 
+  pertinence_for cVal/float -> none:
+    if cVal<a_ or cVal>d_: 
+      pertinence_ = 0.0
+    else if cVal>d_:
+      pertinence_ = y_falling cVal c_ d_
+
   truncated -> List: //Answer the point geometry, truncated to the current pertinence
-    return pertinence_== 1.0?
+    return (1.0-pertinence).abs < F_error3?
       [ Point2f a_ 0.0, 
         Point2f a_ 1.0,
         Point2f d_ 0.0
       ] :
       [ Point2f a_ 0.0, 
-        intersection (Point2f a_ 0.0) (Point2f a_ 1.0) truncator_l truncator_r,
-        intersection (Point2f a_ 1.0) (Point2f d_ 0.0) truncator_l truncator_r,
+        intersection truncator_l truncator_r (Point2f a_ 0.0) (Point2f a_ 1.0),
+        intersection truncator_l truncator_r (Point2f a_ 1.0) (Point2f d_ 0.0),
         Point2f d_ 0.0
       ]      
 
@@ -203,15 +266,22 @@ class RraTriangularSet extends FuzzySet:
   graph_points -> string:
     return "$(a_*4),0 $(d_*4),400 $(d_*4),0"
 
+  pertinence_for cVal/float -> none:
+    if cVal<a_ or cVal>d_: 
+      pertinence_ = 0.0
+    else if cVal>a_:
+      pertinence_ = y_rising cVal a_ b_
+
+
   truncated -> List: //Answer the point geometry, truncated to the current pertinence
-    return pertinence_== 1.0?
+    return (1.0-pertinence).abs < F_error3?
       [ Point2f a_ 0.0, 
         Point2f d_ 1.0,
         Point2f d_ 0.0
       ] :
       [ Point2f a_ 0.0, 
-        intersection (Point2f a_ 0.0) (Point2f d_ 1.0) truncator_l truncator_r,
-        intersection (Point2f d_ 1.0) (Point2f d_ 0.0) truncator_l truncator_r,
+        intersection truncator_l truncator_r (Point2f a_ 0.0) (Point2f d_ 1.0),
+        intersection truncator_l truncator_r (Point2f d_ 1.0) (Point2f d_ 0.0),
         Point2f d_ 0.0
       ]
 
@@ -228,14 +298,23 @@ class TriangularSet extends FuzzySet:
   graph_points -> string:
     return "$(a_*4),0 $(b_*4),400 $(d_*4),0"
 
+  pertinence_for cVal/float -> none:
+    if (cVal<=a_) or (cVal>=d_):
+      pertinence_ = 0.0
+    else if cVal<=b_:
+      pertinence_ = y_rising cVal a_ b_
+    else:
+      pertinence_ = y_falling cVal c_ d_
+
+
   truncated -> List: //Answer the point geometry, truncated to the current pertinence
-    return pertinence_== 1.0?
+    return (1.0-pertinence).abs < F_error3?
       [ Point2f a_ 0.0, 
         Point2f b_ 1.0,
         Point2f d_ 0.0
       ] :
       [ Point2f a_ 0.0, 
-        intersection (Point2f a_ 0.0) (Point2f b_ 1.0) truncator_l truncator_r,
+        intersection truncator_l truncator_r (Point2f a_ 0.0) (Point2f b_ 1.0),
         intersection truncator_l truncator_r (Point2f b_ 1.0) (Point2f d_ 0.0),    
         Point2f d_ 0.0
       ]

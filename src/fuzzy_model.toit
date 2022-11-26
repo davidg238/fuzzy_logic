@@ -30,25 +30,27 @@ class FuzzyModel:
   handle_msg msg/string -> none:
     cmd := json.parse msg
     idx := input_names.index_of cmd.keys.first
-    print "index: $idx"
     set_input idx (cmd.values.first.to_float)
-    fuzzify
+
+  init -> none:
+    inputs.do: it.init
 
   fuzzify -> none:
-    print "in model.fuzzify ..."
+    // print "in model.fuzzify ..."
     inputs.do: it.reset_sets
     outputs.do: it.reset_sets
 
     inputs.do: it.calculate_set_pertinences
+    /*
     in_str := ""
     inputs.do:
         in_str = in_str + it.stringify + "\n"
     print in_str
-    print "... evaluate rules"
+    */
+    // print "... evaluate rules"
     rules.do: it.evaluate
-    print "... truncate outputs"
-    outputs.do: 
-      it.truncate
+    // print "... truncate outputs"
+    outputs.do: it.truncate
     print "... defuzzify done!"
 
   is_fired index/int -> bool:

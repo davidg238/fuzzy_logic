@@ -17,8 +17,9 @@ https://www.tutorialspoint.com/html5/html5_websocket.htm  --
 
 [SVG.js](https://svgjs.dev/docs/3.0/) and [source](https://github.com/svgdotjs) ... different files to draw, manipulate, events  
 
+// -------------------------------------------------------
 
-
+https://blogs.sas.com/content/iml/2018/07/09/intersection-line-segments.html
 
 <p class="codepen" data-height="300" data-default-tab="html,result" data-slug-hash="bOWdrp" data-user="fuzzyma" style="height: 300px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 2px solid; margin: 1em 0; padding: 1em;">
   <span>See the Pen <a href="https://codepen.io/fuzzyma/pen/bOWdrp">

@@ -128,7 +128,7 @@ get_driver_advanced -> FuzzyModel:
 
     rule2 :=  FuzzyRule if_DistanceDistantAndSpeedSlowOrTemperatureHot then_RiskMinimumSpeedQuick
     
-    model := FuzzyModel "advanced_driver"
+    model := FuzzyModel "driver_advanced"
     model.add_input distance
     model.add_input speedInput
     model.add_input temperature
@@ -142,7 +142,7 @@ get_driver_advanced -> FuzzyModel:
 
 get_casco -> FuzzyModel:
 
-  fuzzy := FuzzyModel
+  fuzzy := FuzzyModel "casco"
   // FuzzyInput
   dry :=       FuzzySet  0.0   0.0   0.0  42.5  "dry" // seco
   wet :=       FuzzySet 37.5  60.0  60.0  82.5  "wet" // humedo
@@ -167,7 +167,7 @@ get_casco -> FuzzyModel:
   fuzzy.add_input season
 
   // FuzzyOutput
-  any :=         FuzzySet  0.0  0.0  0.0  0.0 "any" // any
+  anys :=         FuzzySet  0.0  0.0  0.0  0.0 "anys" // any
   very_little :=      FuzzySet  0.0  0.0  0.0  5.5 "very_little" // muy poco
   little_bit :=         FuzzySet  4.5  7.5  7.5 10.5 "little_bit" // poco
   medium :=        FuzzySet  9.5 12.5 12.5 15.5 "medium" // medium
@@ -175,7 +175,7 @@ get_casco -> FuzzyModel:
   much :=        FuzzySet 19.5 22.5 22.5 25.5 "much" // much
   very_much :=    FuzzySet 24.5 30.0 30.0 30.0 "very_much" // very_much
   weather := FuzzyOutput "weather" // weather
-  weather.add_all_sets [any, very_little, little_bit, medium, quite, much, very_much]
+  weather.add_all_sets [anys, very_little, little_bit, medium, quite, much, very_much]
   fuzzy.add_output weather
 
   rule_template := : |set_a set_b set_c output|
@@ -189,10 +189,10 @@ get_casco -> FuzzyModel:
   rule_template.call   wet cold fall             very_little
   rule_template.call   wet cold winter          very_little
   rule_template.call   wet cold spring         very_little
-  rule_template.call   puddled cold spring     any
-  rule_template.call   puddled cold fall         any
-  rule_template.call  puddled cold winter      any
-  rule_template.call  puddled cold spring     any
+  rule_template.call   puddled cold spring     anys
+  rule_template.call   puddled cold fall         anys
+  rule_template.call  puddled cold winter      anys
+  rule_template.call  puddled cold spring     anys
   rule_template.call  dry tempered summer          quite
   rule_template.call  dry tempered fall           medium
   rule_template.call  dry tempered winter        little_bit
@@ -202,8 +202,8 @@ get_casco -> FuzzyModel:
   rule_template.call  wet tempered winter      little_bit
   rule_template.call  wet tempered spring     medium
   rule_template.call  puddled tempered spring very_little
-  rule_template.call  puddled tempered fall     any
-  rule_template.call  puddled tempered winter  any
+  rule_template.call  puddled tempered fall     anys
+  rule_template.call  puddled tempered winter  anys
   rule_template.call  puddled tempered spring very_little
   rule_template.call  dry heat summer             much
   rule_template.call  dry heat fall              medium
@@ -214,8 +214,8 @@ get_casco -> FuzzyModel:
   rule_template.call  wet heat winter         quite
   rule_template.call  wet heat spring        medium
   rule_template.call  puddled heat summer       very_little
-  rule_template.call  puddled heat fall        any
-  rule_template.call  puddled heat winter     any
+  rule_template.call  puddled heat fall        anys
+  rule_template.call  puddled heat winter     anys
   rule_template.call  puddled heat spring    very_little
   
   return fuzzy

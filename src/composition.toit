@@ -13,6 +13,8 @@ The original eFLL used duplicate points to indicate the type of set.
 class Composition:
 
   p_/List := []
+  truncs := []
+  trunc_names := []
 
   centroid_x -> float:
     p_.add p_.first  // the polygon must be closed for this algorithm to work
@@ -31,6 +33,8 @@ class Composition:
 
   clear -> none:      //eFLL, "empty"
     p_.clear
+    truncs.clear
+    trunc_names.clear
 
   size -> int:          //eFLL, was countPoints
     return p_.size
@@ -38,16 +42,31 @@ class Composition:
   stringify -> string:
     txt := "$(this.size): "
     p_.do:
-        txt = txt + "$it "
+        txt = txt + "(%.1f $it) "
     return txt
 
-  as_svg_polyline -> string:
+  svg_polyline -> string:
+    return svg_polyline_ p_
+
+  svg_polyline_ points/List -> string:
     txt := ""
-    p_.do:
-        txt = txt + "$(5*it.x),$(400*it.y) "
+    points.do:
+        txt = txt + "$(%.1f 4*it.x),$(%.1f 400*it.y) "
+    print txt
     return txt
 
-  union new/List -> none:
+  trunc_svg_polylines -> List:
+    list := []
+    truncs.do:
+      list.add (svg_polyline_ it)
+    return list
+
+
+  union new/List name/string -> none:
+    print "To composition, add $name: $new"
+    truncs.add new
+    trunc_names.add name
+/*   
     // print new
     if p_.is_empty:
       // print "set empty"
@@ -62,10 +81,10 @@ class Composition:
           i++
         if i<new.size-1:
           add_intersections new[i] new[i+1] union_
-      // remove_insiders union_
+      remove_insiders union_
       p_ = union_
-
-  remove_insiders points/List -> none: // TODO will fail bacause missing 0,0 for ltrap / tri
+*/    
+  remove_insiders points/List -> none:
     temp := []
     temp.add points.first
     i := 1
@@ -90,7 +109,7 @@ class Composition:
     newp := null
     while i<p_.size-1:
       newp = intersection a b p_[i] p_[i+1]
-      if not (newp==null):
+      if not (newp is NoPoint2f):
         insert_ newp new
 
 

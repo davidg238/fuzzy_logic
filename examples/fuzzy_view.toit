@@ -1,4 +1,6 @@
 import fuzzy_logic show *
+import websocket show Session
+import .models
 
 /*
 
@@ -9,16 +11,84 @@ import fuzzy_logic show *
 
 */
 
-class FuzzyWriter:
+class FuzzyHTMLview:
 
-  colors := ["red", "cyan", "lime", "blue"]
-  model/FuzzyModel
+  // colors := ["red", "cyan", "lime", "blue"]
+  colors := ["aqua", "blue", "teal", "fuchsia", "green", "lime", "maroon", "navy", "olive", "purple", "red", "silver", "yellow",  ] // black, white, gray (or grey)
+  session /Session? := null
+  model/FuzzyModel? := null
   addr_str/string
 
-  constructor .model/FuzzyModel .addr_str/string:
+  constructor .addr_str/string:
 
-  page -> string:
+  use session/Session -> none:
+    task --background=true::
+      i := 1
+      while in := session.receive:
+        print "received: $in"
+        model.handle_msg in
+        model.init
+        model.fuzzify
+        // update_compositions session
 
+  update_compositions session/Session -> none:
+    session.send "ping"
+
+  homepage -> string:
+    return """
+    <!DOCTYPE html>
+      <html>
+          <head>
+              <title>Fuzzy Logic Models</title>
+          </head>
+          <body>
+              <p>List of models goes here</p>
+          </body>
+      </html>
+    """
+
+  page_for path/string -> string:
+    parts := split_path path[1..]
+    new := get_model parts[0]
+    if new == null:
+      return (page_unknown "Model not found")
+    else:
+      if (model == null) or (model.name != new.name):
+        model = new
+        model.init
+        model.fuzzify
+    return page_ parts
+
+  split_path path/string -> List:
+    return path.trim.split --at_first=false "/"
+
+  page_unknown reason/string -> string:
+    return """
+    <!DOCTYPE html>
+      <html>
+          <head>
+          </head>
+          <body>
+              <p>$reason</p>
+          </body>
+      </html>
+    """
+
+  page_ parts/List -> string:
+    if parts.size == 1:
+      return model_inputs_page_
+    if parts[1] == null:
+      return (page_unknown "Facet empty")
+    else if parts[1] == "inputs":
+      return model_inputs_page_
+    else if parts[1] == "rules":
+      return model_rules_page_
+    else if parts[1] == "outputs":
+      return model_outputs_page_
+    else:
+      return (page_unknown "Facet not understood")
+
+  model_inputs_page_ -> string:
     return """
       <!DOCTYPE HTML>
       <html>
@@ -32,6 +102,26 @@ class FuzzyWriter:
             <h4>Inputs</h4>
             $inputs_
           </div>
+          <div id="inputs" class="w3-row-padding">
+            <a class="click" href="http://$(addr_str):8080/$model.name/outputs">outputs</a>
+          </div>
+        </body>
+        $script_
+      </html>
+    """
+
+  model_rules_page_ -> string:
+    return """
+      <!DOCTYPE HTML>
+      <html>
+        <head>
+          <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+          $style_
+        </head>
+        <body>
+          <div id="inputs" class="w3-row-padding">
+            <h2>Fuzzy Model: $model.name</h2>
+          </div>
           <div id="output" class="w3-row-padding">
             <h4>Output</h4>
             <div id="rules" class="w3-container w3-third">
@@ -39,70 +129,110 @@ class FuzzyWriter:
               $rules_
               <h5>Crisp Out: 53</h5>
             </div>
-            <div id="output" class="w3-container w3-quarter">
-              <p>Distance, sets:  <tspan style="color:red">near</tspan>,  <tspan style="color:lime">safe</tspan>,  <tspan style="color:cyan">distant</tspan></p>
-              <svg width="500" height="400">
-                <g transform ="translate (0,400) scale (1, -1)">
-                  <polyline points="0.0, 0.0 80.0,400.0 160.0, 0.0" style="stroke:red;fill:red;opacity:0.3" />
-                  <polyline points="120.0, 0.0 200.0,400.0 280.0, 0.0" style="stroke:lime;fill:lime;opacity:0.3" />  // 30.0 50.0 50.0 70.0
-                  <polyline points="240.0, 0.0 320.0,400.0 400.0, 400.0 400.0, 0.0" style="stroke:cyan;fill:cyan;opacity:0.3" />  // 60.0 80.0 100.0 100.0
-                </g>
-                <g transform="translate (0, 400) scale (1,-1)">
-                  <line x1="0" y1="0" x2="400" y2="0" stroke="black"/>
-                  <line x1="0" y1="80" x2="400" y2="80" vector-effect="non-scaling-stroke" stroke="black" stroke-dasharray="20,5" stroke-opacity="0.5" />
-                  <line x1="0" y1="160" x2="400" y2="160" vector-effect="non-scaling-stroke" stroke="black" stroke-dasharray="20,5" stroke-opacity="0.5" />
-                  <line x1="0" y1="240" x2="400" y2="240" vector-effect="non-scaling-stroke" stroke="black" stroke-dasharray="20,5" stroke-opacity="0.5" />
-                  <line x1="0" y1="320" x2="400" y2="320" vector-effect="non-scaling-stroke" stroke="black" stroke-dasharray="20,5" stroke-opacity="0.5" />
-                  <line x1="0" y1="400" x2="400" y2="400" stroke="black"/>
-                  
-                  <line x1="0" y1="0" x2="0" y2="400" stroke="black"/>
-                  <line x1="80" y1="0" x2="80" y2="400" vector-effect="non-scaling-stroke" stroke="black" stroke-dasharray="20,5" stroke-opacity="0.5" />
-                  <line x1="160" y1="0" x2="160" y2="400" vector-effect="non-scaling-stroke" stroke="black" stroke-dasharray="20,5" stroke-opacity="0.5" />
-                  <line x1="240" y1="0" x2="240" y2="400" vector-effect="non-scaling-stroke" stroke="black" stroke-dasharray="20,5" stroke-opacity="0.5" />
-                  <line x1="320" y1="0" x2="320" y2="400" vector-effect="non-scaling-stroke" stroke="black" stroke-dasharray="20,5" stroke-opacity="0.5" />
-                  <line x1="400" y1="0" x2="400" y2="400" vector-effect="non-scaling-stroke" stroke="black" stroke-dasharray="20,5" stroke-opacity="0.5" />
-                </g>
-                <text x="410" y="400" fill="black" text-anchor="start">0</text>
-                <text x="410" y="320" fill="black" text-anchor="start">20</text>
-                <text x="410" y="240" fill="black" text-anchor="start">40</text>
-                <text x="410" y="160" fill="black" text-anchor="start">60</text>
-                <text x="410" y="80" fill="black" text-anchor="start">80</text>
-                <text x="410" y="15" fill="black" text-anchor="start">100</text>
-              </svg>
-              <svg width="450" height="20">
-                <g transform="translate (0, 20) scale (1, 1)">
-                  <text x="2" y="0" fill="black" text-anchor="start">0</text>
-                  <text x="200" y="0" fill="black" text-anchor="middle">50</text>
-                  <text x="398" y="0" fill="black" text-anchor="end">100</text>
-                </g>
-              </svg>
-            </div>
+          </div>
+        </body>
+      </html>
+    """
 
+  model_outputs_page_ -> string:
+    return """
+      <!DOCTYPE HTML>
+      <html>
+        <head>
+          <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+          $style_
+        </head>
+        <body>
+          <div id="inputs" class="w3-row-padding">
+            <h2>Fuzzy Model: $model.name</h2>
+          </div>
+          <div id="output" class="w3-row-padding">
+            <h4>Output</h4>
+            $compositions_
+          </div>
+          <div id="inputs" class="w3-row-padding">
+            <a class="click" href="http://$(addr_str):8080/$model.name/inputs">inputs</a>
           </div>
         </body>
         $script_
       </html>
     """
   inputs_ -> string:
-
     inputs_str := ""
     model.inputs.do:
       inputs_str += input_html it
     return inputs_str
 
   rules_ -> string:
-
     rules_str := ""
     model.rules.do:
       rules_str += "$it.stringify </br>"
     return rules_str
 
-  input_html input/FuzzyInput -> string:
+  compositions_ -> string:
+    // print "..... about to print compositions"
+    composition_str := ""
+    model.outputs.do:
+      composition_str += composition_html it
+    return composition_str
 
+
+  outputs_ -> string:
+    outputs_str := ""
+    model.outputs.do:
+      outputs_str += output_html it
+    return outputs_str
+
+  input_html input/FuzzyInput -> string:
     return """
             <div id="in1" class="w3-container w3-quarter">
-              <p>$input.name, sets:  $(input_set_names input)
+              <p>$input.name, sets:  $(set_names input)
               <svg width="500" height="400">
+                $graph_grid_
+                <g transform ="translate (0,400) scale (1, -1)">
+                  $(set_polylines input) 
+                </g>
+                $graph_y_axis_
+              </svg>
+              $graph_x_axis_
+              <input type="range" min="1" max="100" value=$input.crisp_in class="slider" id=$input.name>
+            </div>
+    """
+
+  composition_html output/FuzzyOutput -> string:
+    print "..... printing composition for $output.name"
+    return """
+            <div id=($output.name)_graph class="w3-container w3-quarter">
+              <p>$output.name, sets:  $(list_names output.composition.trunc_names)
+              <svg width="500" height="400">
+                $graph_grid_
+                <g id="composition" transform ="translate (0,400) scale (1, -1)">
+                  $(list_polylines output.composition.trunc_svg_polylines) 
+                </g>
+                $graph_y_axis_
+              </svg>
+              $graph_x_axis_
+            </div>
+    """
+
+
+  output_html output/FuzzyOutput -> string:
+    return """
+            <div id="in1" class="w3-container w3-quarter">
+              <p>$output.name, sets:  $(set_names output)
+              <svg width="500" height="400">
+                $graph_grid_
+                <g transform ="translate (0,400) scale (1, -1)">
+                  $(set_polylines output) 
+                </g>
+                $graph_y_axis_
+              </svg>
+              $graph_x_axis_
+            </div>
+    """
+
+  graph_grid_ -> string:
+    return """
                 <g transform="translate (0, 400) scale (1,-1)">
                   <line x1="0" y1="0" x2="400" y2="0" stroke="black"/>
                   <line x1="0" y1="80" x2="400" y2="80" vector-effect="non-scaling-stroke" stroke="black" stroke-dasharray="20,5" stroke-opacity="0.5" />
@@ -118,47 +248,71 @@ class FuzzyWriter:
                   <line x1="320" y1="0" x2="320" y2="400" vector-effect="non-scaling-stroke" stroke="black" stroke-dasharray="20,5" stroke-opacity="0.5" />
                   <line x1="400" y1="0" x2="400" y2="400" vector-effect="non-scaling-stroke" stroke="black" stroke-dasharray="20,5" stroke-opacity="0.5" />
                 </g>
-                <g transform ="translate (0,400) scale (1, -1)">
-                  $(input_set_polylines input) 
-                </g>
+    """
+
+  graph_y_axis_ -> string:
+    return """
                 <text x="410" y="400" fill="black" text-anchor="start">0</text>
                 <text x="410" y="320" fill="black" text-anchor="start">20</text>
                 <text x="410" y="240" fill="black" text-anchor="start">40</text>
                 <text x="410" y="160" fill="black" text-anchor="start">60</text>
                 <text x="410" y="80" fill="black" text-anchor="start">80</text>
                 <text x="410" y="15" fill="black" text-anchor="start">100</text>
-              </svg>
-              <svg width="450" height="20">
+    """
+
+  graph_x_axis_ -> string:
+    return """
+                <svg width="450" height="20">
                 <g transform="translate (0, 20) scale (1, 1)">
                   <text x="2" y="0" fill="black" text-anchor="start">0</text>
                   <text x="200" y="0" fill="black" text-anchor="middle">50</text>
                   <text x="398" y="0" fill="black" text-anchor="end">100</text>
                 </g>
               </svg>
-              <input type="range" min="1" max="100" value="50" class="slider" id=$input.name>
-            </div>
-
     """
-  input_set_names input/FuzzyInput -> string:
+  set_names inout/InputOutput -> string:
     // <tspan style="color:red">near</tspan>,  <tspan style="color:lime">safe</tspan>,  <tspan style="color:cyan">distant</tspan></p>
     str := ""
-    for i:=0; i<input.fsets.size; i++:
-      str += "<tspan style=\"color:$(colors[i])\">$input.fsets[i].name</tspan>"
-      if i < input.fsets.size-1:
+    // print "set $inout.name size: $inout.fsets.size"
+    for i:=0; i<inout.fsets.size; i++:
+      // print "working on $i"
+      str += "<tspan style=\"color:$(colors[i])\">$inout.fsets[i].name</tspan>"
+      if i < inout.fsets.size-1:
         str += ", "
     return str
 
-  input_set_polylines input/FuzzyInput -> string:
+  list_names names/List -> string:
+    // <tspan style="color:red">near</tspan>,  <tspan style="color:lime">safe</tspan>,  <tspan style="color:cyan">distant</tspan></p>
+    str := ""
+    for i:=0; i<names.size; i++:
+      // print "working on $i"
+      str += "<tspan style=\"color:$(colors[i])\">$names[i]</tspan>"
+      if i < names.size-1:
+        str += ", "
+    return str
+
+  set_polylines inout/InputOutput -> string:
     // <polyline points="0.0, 0.0 80.0,400.0 160.0, 0.0" style="stroke:red;fill:red;opacity:0.3" />
 
     str := ""
-    for i:=0; i<input.fsets.size; i++:
-      if input.fsets[i] is SingletonSet:
-        str += "<polyline points=\"$(input.fsets[i].graph_points)\"  style=\"stroke:$(colors[i]);stroke-width:5;fill:$(colors[i]);opacity:0.7\" />\n"
+    for i:=0; i<inout.fsets.size; i++:
+      if inout.fsets[i] is SingletonSet:
+        str += "<polyline points=\"$(inout.fsets[i].graph_points)\"  style=\"stroke:$(colors[i]);stroke-width:5;fill:$(colors[i]);opacity:0.7\" />\n"
       else:
-        str += "<polyline points=\"$(input.fsets[i].graph_points)\"  style=\"stroke:$(colors[i]);fill:$(colors[i]);opacity:0.3\" />\n"
+        str += "<polyline points=\"$(inout.fsets[i].graph_points)\"  style=\"stroke:$(colors[i]);fill:$(colors[i]);opacity:0.3\" />\n"
     return str
 
+  list_polylines polys/List -> string:
+    // <polyline points="0.0, 0.0 80.0,400.0 160.0, 0.0" style="stroke:red;fill:red;opacity:0.3" />
+
+    str := ""
+    for i:=0; i<polys.size; i++:
+      print "list each poly $polys[i]"
+      if polys[i].size == 2:
+        str += "<polyline points=\"$(polys[i])\"  style=\"stroke:$(colors[i]);stroke-width:5;fill:$(colors[i]);opacity:0.7\" />\n"
+      else:
+        str += "<polyline points=\"$(polys[i])\"  style=\"stroke:$(colors[i]);fill:$(colors[i]);opacity:0.3\" />\n"
+    return str
 
   // https://www.tutorialspoint.com/html5/html5_websocket.htm 
   // https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_client_applications
@@ -179,13 +333,15 @@ class FuzzyWriter:
           }
           function dispatch_msg(msg)  {
             // const obj = JSON.parse(msg)
-            
+            //var line = el.appendChild(SVGPolylineElement);
+            // line.setAttributes(\"points\", \"10,0.0 20, 50 70,50 80,0.0\");
+            /*
             const obj = JSON.parse(msg, function (key, value) {
               var el = document.getElementById(key);
               if (el != null) {
                 el.innerHTML = value;
               };
-            });
+            }); */
           }
           $add_listeners
           function open_ws_connection() {
@@ -505,4 +661,35 @@ class FuzzyWriter:
       .w3-border-dark-grey,.w3-hover-border-dark-grey:hover,.w3-border-dark-gray,.w3-hover-border-dark-gray:hover{border-color:#616161!important}
       .w3-border-pale-red,.w3-hover-border-pale-red:hover{border-color:#ffe7e7!important}.w3-border-pale-green,.w3-hover-border-pale-green:hover{border-color:#e7ffe7!important}
       .w3-border-pale-yellow,.w3-hover-border-pale-yellow:hover{border-color:#ffffcc!important}.w3-border-pale-blue,.w3-hover-border-pale-blue:hover{border-color:#e7ffff!important}
+
     """
+
+/*
+  page_ -> string:
+    return """
+      <!DOCTYPE HTML>
+      <html>
+        <head>
+          <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+          $style_
+        </head>
+        <body onload="open_ws_connection()">
+          <div id="inputs" class="w3-row-padding">
+            <h2>Fuzzy Model: $model.name</h2>
+            <h4>Inputs</h4>
+            $inputs_
+          </div>
+          <div id="output" class="w3-row-padding">
+            <h4>Output</h4>
+            <div id="rules" class="w3-container w3-third">
+              <h5>Rules</h5>
+              $rules_
+              <h5>Crisp Out: 53</h5>
+            </div>
+            $compositions_
+          </div>
+        </body>
+        $script_
+      </html>
+    """
+*/    
