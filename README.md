@@ -5,13 +5,7 @@ An adaption of the [Embedded Fuzzy Logic Library](https://github.com/zerokol/eFL
 If curious, look at `test/test_fuzzy_lib.toit` for test cases; `test/test_lecture_1.toit`, `test/test_lecture_1.toit` and `test/test_casco.toit` for construction and usage of the models.
 
 ToDos
-- fix the float comparisons, in ~~test~~ and geometry !
-- calculation of the concave hull for the composition points (is it expensive?)
-- check handling of colinear points, see floats
-- resolve the discrepancies in the test suite, between the .cpp and .toit implementations
-- further leverage OO patterns, rather than simple transcoding
-- write new test cases, specifically for set combinations to test composition simplification
-- ~~write a test suite for the test utility `test_util.toit`~~ 
+- resolve the result discrepancies (<1%) in the test suite, between the .cpp and .toit implementations
 
 
 
@@ -65,3 +59,6 @@ dependencies:
   fuzzy_logic:
     path: ..
 ```
+
+## References
+1. [Polybool](http://globec.whoi.edu/software/saga/polybool.m)

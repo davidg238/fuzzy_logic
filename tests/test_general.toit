@@ -6,7 +6,7 @@ import fuzzy_logic show *
 
 main:
 
-    print "nothing here yet"  //todo
+  throw "Tests to be revised"  //todo
 
 /*
 #include <iostream>

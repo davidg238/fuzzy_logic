@@ -24,6 +24,8 @@ import set_trapezoidal_r show RTrapezoidalSet
 
 main:
 
+  throw "Tests to be revised"
+/*  
   test_start
 
 /// Test FuzzySet
@@ -31,10 +33,10 @@ main:
   test "FuzzySet" "getPoints":
 
     fuzzySet := FuzzySet 0.0 10.0 20.0 30.0 "set"
-    expect_near 0.0 fuzzySet.a
-    expect_near 10.0 fuzzySet.b
-    expect_near 20.0 fuzzySet.c
-    expect_near 30.0 fuzzySet.d
+    expect_near 0.0 fuzzySet.test_a
+    expect_near 10.0 fuzzySet.test_b
+    expect_near 20.0 fuzzySet.test_c
+    expect_near 30.0 fuzzySet.test_d
 
   test "FuzzySet" "calculateAndGetPertinence":
 
@@ -42,34 +44,34 @@ main:
 
     expect_true (fuzzySet1 is TriangularSet)
 
-    fuzzySet1.pertinence_for -5.0
+    fuzzySet1.set_pertinence -5.0
     expect_near 0.0 fuzzySet1.pertinence
 
-    fuzzySet1.pertinence_for 5.0
+    fuzzySet1.set_pertinence 5.0
     expect_near 0.5 fuzzySet1.pertinence
 
-    fuzzySet1.pertinence_for 10.0
+    fuzzySet1.set_pertinence 10.0
     expect_near 1.0 fuzzySet1.pertinence
 
-    fuzzySet1.pertinence_for 15.0
+    fuzzySet1.set_pertinence 15.0
     expect_near 0.5 fuzzySet1.pertinence
     // expect_equals 0.4 fuzzySet1.pertinence  //usage of expect methods?
 
-    fuzzySet1.pertinence_for 25.0
+    fuzzySet1.set_pertinence 25.0
     expect_near 0.0 fuzzySet1.pertinence
 
     fuzzySet2 := FuzzySet  0.0 0.0 20.0 30.0
 
     expect_true (fuzzySet2 is LTrapezoidalSet)
 
-    fuzzySet2.pertinence_for -5.0
+    fuzzySet2.set_pertinence -5.0
     expect_near 1.0 fuzzySet2.pertinence
 
     fuzzySet3 := FuzzySet 0.0 10.0 20.0 20.0
 
     expect_true (fuzzySet3 is RTrapezoidalSet)
 
-    fuzzySet3.pertinence_for 25.0
+    fuzzySet3.set_pertinence 25.0
     expect_near 1.0 fuzzySet3.pertinence
 
 
@@ -125,8 +127,8 @@ main:
     composition := Composition
 
     tri1 := FuzzySet 0.0 10.0 10.0 20.0
-    tri1.pertinence 1.0
-    composition.union tri1.truncated
+    tri1.max 1.0
+    composition.union (tri1.truncated) tri1.name
 //        print "composition: $composition"
 
 /*
@@ -135,8 +137,8 @@ main:
     composition.test_add_point 20.0 0.0
 */      
     tri2 := FuzzySet 10.0 20.0 20.0 30.0
-    tri2.pertinence 1.0
-    expect_runs: composition.union tri2.truncated
+    tri2.max 1.0
+    expect_runs: composition.union tri2.truncated tri2.name
 //        print "composition: $composition"
 
 /*
@@ -158,9 +160,9 @@ main:
   test "Composition" "calculateAndEmptyAndCountPoints":
     composition := Composition
 
-    sing := FuzzySet 25.0 25.0 25.0 25.0
-    sing.pertinence 1.0
-    expect_runs: composition.union sing.truncated
+    sing := FuzzySet 25.0 25.0 25.0 25.0 "sing"
+    sing.max 1.0
+    expect_runs: composition.union sing.truncated sing.name
     // print "sing composition: $composition"
 /*
     composition.test_add_point 25.0 0.0
@@ -172,9 +174,9 @@ main:
     expect_runs: composition.clear
 
 
-    tri := FuzzySet 10.0 20.0 20.0 30.0
-    tri.pertinence 1.0
-    expect_runs: composition.union tri.truncated
+    tri := FuzzySet 10.0 20.0 20.0 30.0 "tri"
+    tri.max 1.0
+    expect_runs: composition.union tri.truncated tri.name
     // print "tri composition: $composition"
 /*
     composition.test_add_point 10.0 0.0
@@ -185,9 +187,9 @@ main:
     expect_near 20.0 composition.centroid_x
     expect_runs: composition.clear
 
-    trap := FuzzySet 20.0 30.0 50.0 60.0
-    trap.pertinence 1.0
-    expect_runs: composition.union trap.truncated
+    trap := FuzzySet 20.0 30.0 50.0 60.0 "trap"
+    trap.max 1.0
+    expect_runs: composition.union trap.truncated trap.name
     // print "trap composition: $composition"
 /*
     composition.test_add_point 20.0 0.0
@@ -229,7 +231,7 @@ main:
 
     expect_runs: fuzzyOutput.add_set fuzzySetTest
 
-    fuzzySetTest.pertinence 0.242
+    fuzzySetTest.max 0.242
     expect_near 0.242 fuzzySetTest.pertinence
 
     fuzzyOutput.reset_sets
@@ -242,17 +244,17 @@ main:
 
     fuzzySetTest0 := FuzzySet 0.0 10.0 10.0 20.0 "set0"
     expect_true (fuzzySetTest0 is TriangularSet)
-    fuzzySetTest0.pertinence 1.0
+    fuzzySetTest0.max 1.0
     fuzzyOutput.add_set fuzzySetTest0
 
     fuzzySetTest1 := FuzzySet 10.0 20.0 20.0 30.0
     expect_true (fuzzySetTest1 is TriangularSet)
-    fuzzySetTest1.pertinence 1.0
+    fuzzySetTest1.max 1.0
     fuzzyOutput.add_set fuzzySetTest1
 
     fuzzySetTest2 := FuzzySet 20.0 30.0 30.0 40.0 "set2"
     expect_true (fuzzySetTest2 is TriangularSet)
-    fuzzySetTest2.pertinence 1.0
+    fuzzySetTest2.max 1.0
     fuzzyOutput.add_set fuzzySetTest2
 
     expect_runs : fuzzyOutput.truncate
@@ -286,7 +288,7 @@ main:
     antecedent := null
 
     fuzzySet := FuzzySet 0.0 10.0 10.0 20.0
-    fuzzySet.pertinence 0.25
+    fuzzySet.max 0.25
 
     expect_runs: antecedent = Antecedent.set fuzzySet
     expect_near 0.25 antecedent.evaluate     
@@ -295,9 +297,9 @@ main:
   test "Antecedent" "joinTwoFuzzySetAndEvaluate":
 
     fuzzySet1 := FuzzySet 0.0 10.0 10.0 20.0
-    fuzzySet1.pertinence 0.25
+    fuzzySet1.max 0.25
     fuzzySet2 := FuzzySet 10.0 20.0 20.0 30.0
-    fuzzySet2.pertinence 0.75
+    fuzzySet2.max 0.75
 
     antecedent1 := null
     expect_runs:
@@ -311,10 +313,10 @@ main:
 
   test "Antecedent" "joinOneFuzzySetAndOneFuzzyAntecedentAndEvaluate":
     fuzzySet1 := FuzzySet 0.0 10.0 10.0 20.0
-    fuzzySet1.pertinence 0.25
+    fuzzySet1.max 0.25
 
     fuzzySet2 := FuzzySet 10.0 20.0 20.0 30.0
-    fuzzySet2.pertinence 0.75
+    fuzzySet2.max 0.75
     antecedent1 := Antecedent.set fuzzySet2
 
     antecedent2 := Antecedent.AND_set_ante fuzzySet1 antecedent1
@@ -332,13 +334,13 @@ main:
 
   test "Antecedent" "joinTwoFuzzyAntecedentAndEvaluate":
     fuzzySet1 := FuzzySet  0.0 10.0 10.0 20.0 "set1"
-    fuzzySet1.pertinence 0.25
+    fuzzySet1.max 0.25
     antecedent1 := Antecedent.set fuzzySet1
 
     fuzzySet2 := FuzzySet  10.0 20.0 20.0 30.0 "set2"
-    fuzzySet2.pertinence 0.75
+    fuzzySet2.max 0.75
     fuzzySet3 := FuzzySet  30.0 40.0 40.0 50.0 "set3"
-    fuzzySet3.pertinence 0.5
+    fuzzySet3.max 0.5
     antecedent2 := Antecedent.OR_sets fuzzySet2 fuzzySet3
 
     antecedent3 := null
@@ -368,11 +370,11 @@ main:
 
   test "FuzzyRule" "getIndexAndEvaluateExpressionAndIsFired":
     fuzzySet := FuzzySet 0.0 10.0 10.0 20.0
-    fuzzySet.pertinence 0.75
+    fuzzySet.max 0.75
     antecedent1 := Antecedent.set fuzzySet
 
     fuzzySet2 := FuzzySet 0.0 10.0 10.0 20.0
-    fuzzySet2.pertinence 0.25
+    fuzzySet2.max 0.25
     antecedent2 := Antecedent.set fuzzySet2
 
     antecedent3 := Antecedent.AND_ante_ante antecedent1 antecedent2
@@ -420,11 +422,11 @@ main:
     fuzzy := FuzzyModel
 
     fuzzySet0 := FuzzySet 0.0 10.0 10.0 20.0
-    fuzzySet0.pertinence 0.25
+    fuzzySet0.max 0.25
     antecedent0 := Antecedent.set fuzzySet0
 
     fuzzySet1 := FuzzySet 0.0 10.0 10.0 20.0
-    fuzzySet1.pertinence 0.75
+    fuzzySet1.max 0.75
     antecedent1 := Antecedent.set fuzzySet1
     
     antecedent2 := Antecedent.AND_ante_ante antecedent0 antecedent1
@@ -484,7 +486,7 @@ main:
     fuzzyRule2 := FuzzyRule if_TemperatureHigh then_ClimateHot
     fuzzy.add_rule fuzzyRule2
 
-    expect_runs: fuzzy.set_input 0 15.0
+    expect_runs: fuzzy.crisp_input 0 15.0
 
     fuzzy.fuzzify  // was expect_runs //todo
 
@@ -495,3 +497,5 @@ main:
     expect_near 19.375 (fuzzy.defuzzify 0)
 
   test_end
+
+*/

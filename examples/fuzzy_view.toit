@@ -1,5 +1,7 @@
 import fuzzy_logic show *
 import websocket show Session
+import encoding.json
+
 import .models
 
 /*
@@ -14,7 +16,7 @@ import .models
 class FuzzyHTMLview:
 
   // colors := ["red", "cyan", "lime", "blue"]
-  colors := ["aqua", "blue", "teal", "fuchsia", "green", "lime", "maroon", "navy", "olive", "purple", "red", "silver", "yellow",  ] // black, white, gray (or grey)
+  colors := ["aqua", "blue", "teal", "fuchsia", "green", "lime", "maroon", "navy", "olive", "purple", "red", "silver", "yellow", "black"] // , white, gray (or grey)
   session /Session? := null
   model/FuzzyModel? := null
   addr_str/string
@@ -26,10 +28,15 @@ class FuzzyHTMLview:
       i := 1
       while in := session.receive:
         print "received: $in"
-        model.handle_msg in
-        model.init
+        handle_msg in
+        model.changed
         model.fuzzify
-        // update_compositions session
+        model.defuzzify
+//        print_objects
+
+  handle_msg msg/string -> none:
+    cmd := json.parse msg
+    model.crisp_inputs_named cmd.keys.first cmd.values.first.to_float
 
   update_compositions session/Session -> none:
     session.send "ping"
@@ -55,8 +62,9 @@ class FuzzyHTMLview:
     else:
       if (model == null) or (model.name != new.name):
         model = new
-        model.init
+        // model.init  TODO 2022-12-05, can be deleted?
         model.fuzzify
+        model.defuzzify
     return page_ parts
 
   split_path path/string -> List:
@@ -159,8 +167,10 @@ class FuzzyHTMLview:
     """
   inputs_ -> string:
     inputs_str := ""
-    model.inputs.do:
-      inputs_str += input_html it
+    for i:=0; i<model.inputs.size; i++:
+      inputs_str += input_html model.inputs[i] model.crisp_inputs[i]
+//    model.inputs.do:
+//      inputs_str += input_html it
     return inputs_str
 
   rules_ -> string:
@@ -177,13 +187,7 @@ class FuzzyHTMLview:
     return composition_str
 
 
-  outputs_ -> string:
-    outputs_str := ""
-    model.outputs.do:
-      outputs_str += output_html it
-    return outputs_str
-
-  input_html input/FuzzyInput -> string:
+  input_html input/FuzzyInput crisp_in/num-> string:
     return """
             <div id="in1" class="w3-container w3-quarter">
               <p>$input.name, sets:  $(set_names input)
@@ -195,7 +199,7 @@ class FuzzyHTMLview:
                 $graph_y_axis_
               </svg>
               $graph_x_axis_
-              <input type="range" min="1" max="100" value=$input.crisp_in class="slider" id=$input.name>
+              <input type="range" min="1" max="100" value=$crisp_in class="slider" id=$input.name>
             </div>
     """
 
@@ -203,33 +207,21 @@ class FuzzyHTMLview:
     print "..... printing composition for $output.name"
     return """
             <div id=($output.name)_graph class="w3-container w3-quarter">
-              <p>$output.name, sets:  $(list_names output.composition.trunc_names)
+              <p><b>sets:</b> $(list_names output.composition.set_names)  <b>output:</b> $output.name <b>value:</b> $(%.1f output.defuzzify)
               <svg width="500" height="400">
                 $graph_grid_
                 <g id="composition" transform ="translate (0,400) scale (1, -1)">
-                  $(list_polylines output.composition.trunc_svg_polylines) 
+                  $(list_polylines output.composition.set_polylines)
+                  $(draw_line output.composition.centroid_line)
                 </g>
                 $graph_y_axis_
               </svg>
               $graph_x_axis_
             </div>
     """
-
-
-  output_html output/FuzzyOutput -> string:
-    return """
-            <div id="in1" class="w3-container w3-quarter">
-              <p>$output.name, sets:  $(set_names output)
-              <svg width="500" height="400">
-                $graph_grid_
-                <g transform ="translate (0,400) scale (1, -1)">
-                  $(set_polylines output) 
-                </g>
-                $graph_y_axis_
-              </svg>
-              $graph_x_axis_
-            </div>
-    """
+  draw_line line/string -> string:
+    return "<polyline points=\"$(line)\" fill=\"none\" stroke-dasharray=\"5,5\" style=\"stroke:$(colors[10]);stroke-width:1\" />\n"
+//    return "<polyline points=\"$(line)\"  style=\"stroke:$(colors[10]);stroke-width:3;fill:$(colors[10]);opacity:0.7;stroke-dasharray=\"5,5\"\" />\n"
 
   graph_grid_ -> string:
     return """
@@ -302,17 +294,20 @@ class FuzzyHTMLview:
         str += "<polyline points=\"$(inout.fsets[i].graph_points)\"  style=\"stroke:$(colors[i]);fill:$(colors[i]);opacity:0.3\" />\n"
     return str
 
-  list_polylines polys/List -> string:
+  list_polylines polys/List-> string:
     // <polyline points="0.0, 0.0 80.0,400.0 160.0, 0.0" style="stroke:red;fill:red;opacity:0.3" />
 
     str := ""
     for i:=0; i<polys.size; i++:
-      print "list each poly $polys[i]"
+      // print "list each poly $polys[i]"
       if polys[i].size == 2:
         str += "<polyline points=\"$(polys[i])\"  style=\"stroke:$(colors[i]);stroke-width:5;fill:$(colors[i]);opacity:0.7\" />\n"
       else:
         str += "<polyline points=\"$(polys[i])\"  style=\"stroke:$(colors[i]);fill:$(colors[i]);opacity:0.3\" />\n"
     return str
+
+  nofill_polyline points_str/string -> string:
+    return "<polyline points=\"$(points_str)\" fill=\"none\" style=\"stroke:$(colors[colors.size-1]);opacity:0.8\" />\n"
 
   // https://www.tutorialspoint.com/html5/html5_websocket.htm 
   // https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_client_applications
@@ -693,3 +688,25 @@ class FuzzyHTMLview:
       </html>
     """
 */    
+/*
+  outputs_ -> string:
+    outputs_str := ""
+    model.outputs.do:
+      outputs_str += output_html it
+    return outputs_str
+
+  output_html output/FuzzyOutput -> string:
+    return """
+            <div id="in1" class="w3-container w3-quarter">
+              <p>$output.name, sets:  $(set_names output)
+              <svg width="500" height="400">
+                $graph_grid_
+                <g transform ="translate (0,400) scale (1, -1)">
+                  $(set_polylines output) 
+                </g>
+                $graph_y_axis_
+              </svg>
+              $graph_x_axis_
+            </div>
+    """
+*/

@@ -1,3 +1,8 @@
+## 0.6.0 - 2022-12-05
+Significant refactor, slight change to API.
+Revised calculation of the composition centroid.
+Added a webserver in examples, to enable models to be visualized.
+
 ## 0.5.1 - 2022-01-27
 Revised the test suite utility and related tests.  
 Improve code formatting.

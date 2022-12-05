@@ -2,21 +2,20 @@
 
 import .fuzzy_in_out show *
 import .fuzzy_rule
-import encoding.json
 
 class FuzzyModel:
 
-  inputs  := []
-  input_names := []
-  outputs := []
-  rules   := []
   name := ""
+  crisp_inputs := []  // The physical inputs to the model.
+  inputs  := []       // The fuzzy inputs.
+  rules   := []       // The fuzzy rules.
+  outputs := []       // The fuzzy outputs, NOT physical outputs  See defuzzify /int.
 
-  constructor .name="":                   //a name is optional
+  constructor .name="":                   //The model name is optional.
 
   add_input input/FuzzyInput -> none:
     inputs.add input
-    input_names.add input.name
+    crisp_inputs.add 0.0
 
   add_output output/FuzzyOutput -> none:
     outputs.add output
@@ -24,44 +23,35 @@ class FuzzyModel:
   add_rule rule/FuzzyRule -> none:
     rules.add rule
 
+  changed -> none:                    // TODO For now call explicitly.
+    inputs.do: it.clear
+    outputs.do: it.clear
+
+  crisp_inputs list/List -> none:
+    for i:=0; i<list.size; i+= 1:
+      crisp_input i list[i]
+
+  crisp_inputs_named name/string value/num -> none:
+    input_names := inputs.map: it.name
+    crisp_input (input_names.index_of name) value
+
+  crisp_input index/int value/num -> none:
+    crisp_inputs[index] = value
+
+  defuzzify -> none:
+    outputs.do:
+      it.defuzzify
+
   defuzzify index/int -> float:
-    return outputs[index].crisp_out
-
-  handle_msg msg/string -> none:
-    cmd := json.parse msg
-    idx := input_names.index_of cmd.keys.first
-    set_input idx (cmd.values.first.to_float)
-
-  init -> none:
-    inputs.do: it.init
+    return outputs[index].defuzzify
 
   fuzzify -> none:
-    // print "in model.fuzzify ..."
-    inputs.do: it.reset_sets
-    outputs.do: it.reset_sets
-
-    inputs.do: it.calculate_set_pertinences
-    /*
-    in_str := ""
-    inputs.do:
-        in_str = in_str + it.stringify + "\n"
-    print in_str
-    */
-    // print "... evaluate rules"
+    for i:=0; i<crisp_inputs.size; i+= 1:
+      inputs[i].fuzzify crisp_inputs[i]
     rules.do: it.evaluate
-    // print "... truncate outputs"
-    outputs.do: it.truncate
-    print "... defuzzify done!"
 
-  is_fired index/int -> bool:
+  is_fired index/int -> bool:  // TODO just fired?
     return rules[index].fired
-
-  set_input index/int crisp_value/float -> none:
-    inputs[index].crisp_in = crisp_value
-
-  set_inputs list/List -> none:
-    for i:=0; i<list.size; i+= 1:
-      set_input i list[i]
 
   stringify -> string:
     in_str := ""

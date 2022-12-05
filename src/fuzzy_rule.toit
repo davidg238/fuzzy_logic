@@ -14,8 +14,10 @@ class FuzzyRule:
 
   evaluate -> bool:
     antecedent_power := antecedent_.evaluate
+    // print "ante $antecedent_power"
     fired = antecedent_power > 0.0? true : false
     consequent_.evaluate antecedent_power
+    // print "eval conse $consequent_"
     return fired
 
   stringify -> string: return "$name: if $antecedent_ then $consequent_"

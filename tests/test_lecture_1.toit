@@ -13,7 +13,7 @@ main:
     fuzzy := FuzzyModel
 
     // FuzzyInput
-    size := FuzzyInput 0
+    size := FuzzyInput "size"
 
     smallSize := FuzzySet 0.0 0.0 0.0 10.0
     size.add_set smallSize
@@ -23,7 +23,7 @@ main:
     fuzzy.add_input size
 
     // FuzzyInput
-    weight := FuzzyInput 1
+    weight := FuzzyInput "weight"
 
     smallWeight := FuzzySet 0.0 0.0 0.0 100.0
     weight.add_set smallWeight
@@ -33,7 +33,7 @@ main:
     fuzzy.add_input weight
 
     // FuzzyOutput
-    quality := FuzzyOutput 0
+    quality := FuzzyOutput "quality"
 
     bad := FuzzySet 0.0 0.0 0.0 0.5
     quality.add_set bad
@@ -48,30 +48,31 @@ main:
     if_SizeSmallAndWeightSmall := Antecedent.AND_sets smallSize smallWeight
     then_QualityBad := Consequent.output bad
     
-    fuzzyRule0 := FuzzyRule 0 if_SizeSmallAndWeightSmall then_QualityBad
+    fuzzyRule0 := FuzzyRule if_SizeSmallAndWeightSmall then_QualityBad
     fuzzy.add_rule fuzzyRule0
 
     // Building FuzzyRule
     if_SizeSmallAndWeightLarge := Antecedent.AND_sets smallSize largeWeight
     then_QualityMedium1 := Consequent.output medium
-    fuzzyRule1 := FuzzyRule 1 if_SizeSmallAndWeightLarge then_QualityMedium1
+    fuzzyRule1 := FuzzyRule if_SizeSmallAndWeightLarge then_QualityMedium1
     fuzzy.add_rule fuzzyRule1
 
     // Building FuzzyRule
     if_SizeLargeAndWeightSmall := Antecedent.AND_sets largeSize smallWeight
     then_QualityMedium2 := Consequent.output medium
-    fuzzyRule2 := FuzzyRule 2 if_SizeLargeAndWeightSmall then_QualityMedium2
+    fuzzyRule2 := FuzzyRule if_SizeLargeAndWeightSmall then_QualityMedium2
     fuzzy.add_rule fuzzyRule2
 
     // Building FuzzyRule
     if_SizeLargeAndWeightLarge := Antecedent.AND_sets largeSize largeWeight
     then_QualityGood := Consequent.output good
-    fuzzyRule3 := FuzzyRule 3 if_SizeLargeAndWeightLarge then_QualityGood
+    fuzzyRule3 := FuzzyRule if_SizeLargeAndWeightLarge then_QualityGood
     fuzzy.add_rule fuzzyRule3
 
     print "run it"
-    fuzzy.set_input 0 2.0
-    fuzzy.set_input 1 25.0
+    fuzzy.crisp_input 0 2.0
+    fuzzy.crisp_input 1 25.0
+    fuzzy.changed
     fuzzy.fuzzify
     print "got to here"
     expect_near 0.75 if_SizeSmallAndWeightSmall.evaluate

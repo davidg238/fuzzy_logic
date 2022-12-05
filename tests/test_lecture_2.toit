@@ -33,7 +33,7 @@ main:
         low :=      FuzzySet 10.0 20.0 20.0 30.0
         high :=     FuzzySet 25.0 30.0 30.0 35.0
         veryHigh := FuzzySet 30.0 50.0 50.0 50.0
-        temperature := FuzzyInput 0
+        temperature := FuzzyInput "temperature"
         temperature.add_all_sets [veryLow, low, high, veryHigh]
         fuzzy.add_input temperature
 
@@ -42,7 +42,7 @@ main:
         comfortable :=  FuzzySet 20.0 35.0 35.0 50.0
         humid :=        FuzzySet 40.0 55.0 55.0 70.0
         sticky :=       FuzzySet 60.0 100.0 100.0 100.0
-        humidity := FuzzyInput 1
+        humidity := FuzzyInput "humidity"
         humidity.add_all_sets [dry, comfortable, humid, sticky]
         fuzzy.add_input humidity
 
@@ -51,30 +51,31 @@ main:
         lowHumidity :=  FuzzySet 30.0 45.0 45.0 60.0
         medium :=       FuzzySet 50.0 65.0 65.0 80.0
         fast :=         FuzzySet 70.0 90.0 95.0 95.0
-        speed := FuzzyOutput 0
+        speed := FuzzyOutput "speed"
         speed.add_all_sets [off, lowHumidity, medium, fast]
         fuzzy.add_output speed
 
         // Building FuzzyRules
-        fuzzy.add_rule (FuzzyRule 0  (Antecedent.AND_sets veryLow dry)          (Consequent.output off))
-        fuzzy.add_rule (FuzzyRule 1  (Antecedent.AND_sets veryLow comfortable)  (Consequent.output off))
-        fuzzy.add_rule (FuzzyRule 2  (Antecedent.AND_sets veryLow humid)        (Consequent.output off))
-        fuzzy.add_rule (FuzzyRule 3  (Antecedent.AND_sets veryLow sticky)       (Consequent.output lowHumidity))
-        fuzzy.add_rule (FuzzyRule 4  (Antecedent.AND_sets low dry)              (Consequent.output off))
-        fuzzy.add_rule (FuzzyRule 5  (Antecedent.AND_sets low comfortable)      (Consequent.output off))
-        fuzzy.add_rule (FuzzyRule 6  (Antecedent.AND_sets low humid)            (Consequent.output lowHumidity))
-        fuzzy.add_rule (FuzzyRule 7  (Antecedent.AND_sets low sticky)           (Consequent.output medium))
-        fuzzy.add_rule (FuzzyRule 8  (Antecedent.AND_sets high dry)             (Consequent.output lowHumidity))
-        fuzzy.add_rule (FuzzyRule 9  (Antecedent.AND_sets high comfortable)     (Consequent.output medium))
-        fuzzy.add_rule (FuzzyRule 10 (Antecedent.AND_sets high humid)           (Consequent.output fast))
-        fuzzy.add_rule (FuzzyRule 11 (Antecedent.AND_sets high sticky)          (Consequent.output fast))
-        fuzzy.add_rule (FuzzyRule 12 (Antecedent.AND_sets veryHigh dry)         (Consequent.output medium))
-        fuzzy.add_rule (FuzzyRule 13 (Antecedent.AND_sets veryHigh comfortable) (Consequent.output fast))
-        fuzzy.add_rule (FuzzyRule 14 (Antecedent.AND_sets veryHigh humid)       (Consequent.output fast))
-        fuzzy.add_rule (FuzzyRule 15 (Antecedent.AND_sets veryHigh sticky)      (Consequent.output fast))
+        fuzzy.add_rule (FuzzyRule (Antecedent.AND_sets veryLow dry)          (Consequent.output off))
+        fuzzy.add_rule (FuzzyRule (Antecedent.AND_sets veryLow comfortable)  (Consequent.output off))
+        fuzzy.add_rule (FuzzyRule (Antecedent.AND_sets veryLow humid)        (Consequent.output off))
+        fuzzy.add_rule (FuzzyRule (Antecedent.AND_sets veryLow sticky)       (Consequent.output lowHumidity))
+        fuzzy.add_rule (FuzzyRule (Antecedent.AND_sets low dry)              (Consequent.output off))
+        fuzzy.add_rule (FuzzyRule (Antecedent.AND_sets low comfortable)      (Consequent.output off))
+        fuzzy.add_rule (FuzzyRule (Antecedent.AND_sets low humid)            (Consequent.output lowHumidity))
+        fuzzy.add_rule (FuzzyRule (Antecedent.AND_sets low sticky)           (Consequent.output medium))
+        fuzzy.add_rule (FuzzyRule (Antecedent.AND_sets high dry)             (Consequent.output lowHumidity))
+        fuzzy.add_rule (FuzzyRule (Antecedent.AND_sets high comfortable)     (Consequent.output medium))
+        fuzzy.add_rule (FuzzyRule (Antecedent.AND_sets high humid)           (Consequent.output fast))
+        fuzzy.add_rule (FuzzyRule (Antecedent.AND_sets high sticky)          (Consequent.output fast))
+        fuzzy.add_rule (FuzzyRule (Antecedent.AND_sets veryHigh dry)         (Consequent.output medium))
+        fuzzy.add_rule (FuzzyRule (Antecedent.AND_sets veryHigh comfortable) (Consequent.output fast))
+        fuzzy.add_rule (FuzzyRule (Antecedent.AND_sets veryHigh humid)       (Consequent.output fast))
+        fuzzy.add_rule (FuzzyRule (Antecedent.AND_sets veryHigh sticky)      (Consequent.output fast))
         // run it
-        fuzzy.set_input 0 20.0
-        fuzzy.set_input 1 65.0
+        fuzzy.crisp_input 0 20.0
+        fuzzy.crisp_input 1 65.0
+        fuzzy.changed
         fuzzy.fuzzify
 
         expect_near 50.568535 (fuzzy.defuzzify 0) // This value was not extracted from the paper

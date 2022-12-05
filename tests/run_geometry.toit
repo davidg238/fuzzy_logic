@@ -1,12 +1,11 @@
 // Copyright (c) 2021 Ekorau LLC
 
 import btest show *
-import .float_util show almost_equal_abs_ulps
-
 import fuzzy_logic show *
 
 main:
-
+  throw "Test to be revised"
+/*
   set := null
   composition := Composition
   test_centroid := : | set pert answer |
@@ -38,8 +37,8 @@ main:
   composition.union tri2      
 
 
-  TEST "Composition" "2 sets"  //todo, rebuild
-
+  test "Composition" "2 sets"  //todo, rebuild
+*/
 /*
     TEST "Composition" "build":
         composition := Composition

@@ -13,14 +13,14 @@ main:
     seco :=         FuzzySet  0.0   0.0   0.0  42.5
     humedo :=       FuzzySet 37.5  60.0  60.0  82.5
     encharcado :=   FuzzySet 77.5 100.0 100.0 100.0
-    humedad := FuzzyInput 0
+    humedad := FuzzyInput "humedad"
     humedad.add_all_sets [seco, humedo, encharcado]
     fuzzy.add_input humedad
     // FuzzyInput
     frio :=         FuzzySet -5.0 -5.0 -5.0 12.5
     templado :=     FuzzySet  7.5 17.5 17.5 27.5
     calor :=        FuzzySet 22.5 45.0 45.0 45.0
-    temperatura := FuzzyInput 1
+    temperatura := FuzzyInput "temperatura"
     temperatura.add_all_sets [frio, templado, calor]
     fuzzy.add_input temperatura
     // FuzzyInput
@@ -28,7 +28,7 @@ main:
     otono :=        FuzzySet 2.5  4.5  4.5  6.5
     invierno :=     FuzzySet 5.5  7.5  7.5  9.5
     primavera :=    FuzzySet 8.5 12.0 12.0 12.0
-    mes := FuzzyInput 2
+    mes := FuzzyInput "mes"
     mes.add_all_sets [verano, otono, invierno, primavera]
     fuzzy.add_input mes
 
@@ -40,12 +40,12 @@ main:
     bastante :=     FuzzySet 14.5 17.5 17.5 20.5
     mucho :=        FuzzySet 19.5 22.5 22.5 25.5
     muchisimo :=    FuzzySet 24.5 30.0 30.0 30.0
-    tiempo := FuzzyOutput 0
+    tiempo := FuzzyOutput "tiempo"
     tiempo.add_all_sets [nada, muyPoco, poco, medio, bastante, mucho, muchisimo]
     fuzzy.add_output tiempo
 
     rule_template := : |id set_a set_b set_c output|
-        fuzzy.add_rule (FuzzyRule id (Antecedent.AND_ante_set (Antecedent.AND_sets set_a set_b) set_c) (Consequent.output output))
+        fuzzy.add_rule (FuzzyRule (Antecedent.AND_ante_set (Antecedent.AND_sets set_a set_b) set_c) (Consequent.output output))
 
     rule_template.call  0 seco frio verano              medio
     rule_template.call  1 seco frio otono               muyPoco
@@ -85,15 +85,14 @@ main:
     rule_template.call 35 encharcado calor primavera    muyPoco
     
     // timing test
-    fuzzy.set_input 0 12.65
-    fuzzy.set_input 1  1.928
-    fuzzy.set_input 2  6.0
+    fuzzy.crisp_input 0 12.65
+    fuzzy.crisp_input 1  1.928
+    fuzzy.crisp_input 2  6.0
 
     100.repeat:
         xtime := Duration.of:
             fuzzy.fuzzify
             fuzzy.defuzzify 0
-        print "model runtime: $(xtime) ms, gc count: $gc_count"
 
     print "---------------------------"
 
@@ -114,7 +113,8 @@ main:
     cases.do: |inputs|
         100.repeat:
             xtime := Duration.of:
-                fuzzy.set_inputs inputs
+                fuzzy.crisp_inputs inputs
+                fuzzy.changed
                 fuzzy.fuzzify
                 fuzzy.defuzzify 0
             stats.update xtime.in_ms

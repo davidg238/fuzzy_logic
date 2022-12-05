@@ -53,6 +53,21 @@ upper_convex_hull points/List -> List:
         stack.push it
     return stack.to_list
 
+/* 
+Answers true if the point is before, after or above the polyline.
+Points in the polyline are assumed to be ordered.
+*/
+is_point point/Point2f --above polyline/List -> bool:
+  // print "is_point $point $polyline"
+  if point.x < polyline.first.x or point.x > polyline.last.x:
+    return true
+  for i:=0; i < polyline.size - 1; i++:
+    if point.x >= polyline[i].x and point.x <= polyline[i+1].x:
+      return point.is_above --p1=polyline[i] --p2=polyline[i+1]
+  throw "unknown geometry"
+
+    
+
 xy_sort points/List -> List:
     return points.sort: | a b |
         i := a.x.compare_to b.x
@@ -85,7 +100,6 @@ class Point2f extends Point3f:
     else:
       return 0
     
-
   counter_clockwise a/Point2f b/Point2f -> int:
     // Subtract co-ordinates of point A from B and P, to make A as origin
     b_ := b - a
@@ -102,6 +116,10 @@ class Point2f extends Point3f:
     angle := 0.0
     polygon.do: [angle += polar_angle it]
     return angle.abs > PI // angle is 2PI if inside, 0 if outside: test with fp error tolerance
+
+  is_above --p1/Point2f --p2/Point2f -> bool:
+    // https://stackoverflow.com/questions/1560492/how-to-tell-whether-a-point-is-to-the-right-or-left-side-of-a-line
+    return ((p2.x - p1.x) * (this.y - p1.y)) - ((p2.y - p1.y) * (this.x - p1.x)) > 0
 
   polar_angle b/Point2f -> float:
     return atan ((b.y - y)/(b.x - x))

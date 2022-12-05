@@ -16,7 +16,7 @@ import set_trapezoidal_r show RTrapezoidalSet
 
 main:
 
-    print "nothing here yet"  //todo
+  throw "Test to be revised"  //TODO
 
 /*
 TEST(Fuzzy, setInputAndFuzzifyAndDefuzzify09)

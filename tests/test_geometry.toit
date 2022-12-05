@@ -7,7 +7,8 @@ import fuzzy_logic show *
 import expect show *
 
 main:
-
+  throw "Tests to be revised"
+/*
     test_start
     test "Composition" "single sets":
         set := null
@@ -66,3 +67,4 @@ main:
         ASSERT_TRUE (composition.test_any_point 30.0 0.0)
 */        
     test_end
+*/

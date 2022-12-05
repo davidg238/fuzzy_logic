@@ -12,19 +12,19 @@ main:
     test_start
     test "Fuzzy" "testFromLibraryUsersSystemsCasco":
 
-        fuzzy := FuzzyModel
+        fuzzy := FuzzyModel "casco"
         // FuzzyInput
         seco :=         FuzzySet  0.0   0.0   0.0  42.5
         humedo :=       FuzzySet 37.5  60.0  60.0  82.5
         encharcado :=   FuzzySet 77.5 100.0 100.0 100.0
-        humedad := FuzzyInput 0
+        humedad := FuzzyInput "humedad"
         humedad.add_all_sets [seco, humedo, encharcado]
         fuzzy.add_input humedad
         // FuzzyInput
         frio :=         FuzzySet -5.0 -5.0 -5.0 12.5
         templado :=     FuzzySet  7.5 17.5 17.5 27.5
         calor :=        FuzzySet 22.5 45.0 45.0 45.0
-        temperatura := FuzzyInput 1
+        temperatura := FuzzyInput "temperatura"
         temperatura.add_all_sets [frio, templado, calor]
         fuzzy.add_input temperatura
         // FuzzyInput
@@ -32,7 +32,7 @@ main:
         otono :=        FuzzySet 2.5  4.5  4.5  6.5
         invierno :=     FuzzySet 5.5  7.5  7.5  9.5
         primavera :=    FuzzySet 8.5 12.0 12.0 12.0
-        mes := FuzzyInput 2
+        mes := FuzzyInput "mes"
         mes.add_all_sets [verano, otono, invierno, primavera]
         fuzzy.add_input mes
 
@@ -44,12 +44,12 @@ main:
         bastante :=     FuzzySet 14.5 17.5 17.5 20.5
         mucho :=        FuzzySet 19.5 22.5 22.5 25.5
         muchisimo :=    FuzzySet 24.5 30.0 30.0 30.0
-        tiempo := FuzzyOutput 0
+        tiempo := FuzzyOutput "tiempo"
         tiempo.add_all_sets [nada, muyPoco, poco, medio, bastante, mucho, muchisimo]
         fuzzy.add_output tiempo
 
         rule_template := : |id set_a set_b set_c output|
-            fuzzy.add_rule (FuzzyRule id (Antecedent.AND_ante_set (Antecedent.AND_sets set_a set_b) set_c) (Consequent.output output))
+            fuzzy.add_rule (FuzzyRule (Antecedent.AND_ante_set (Antecedent.AND_sets set_a set_b) set_c) (Consequent.output output))
 
         rule_template.call  0 seco frio verano              medio
         rule_template.call  1 seco frio otono               muyPoco
@@ -89,85 +89,84 @@ main:
         rule_template.call 35 encharcado calor primavera    muyPoco
         
         // TEST 01
-        fuzzy.set_input 0 54.82
-        fuzzy.set_input 1 20.0
-        fuzzy.set_input 2  6.0
+        fuzzy.crisp_input 0 54.82
+        fuzzy.crisp_input 1 20.0
+        fuzzy.crisp_input 2  6.0
 
+        fuzzy.changed
         fuzzy.fuzzify
-
         expect_near 7.5 (fuzzy.defuzzify 0)
 
         // TEST 02
-        fuzzy.set_input 0 12.65
-        fuzzy.set_input 1  1.928
-        fuzzy.set_input 2  6.0
+        fuzzy.crisp_input 0 12.65
+        fuzzy.crisp_input 1  1.928
+        fuzzy.crisp_input 2  6.0
 
-        runtime := Duration.of:
-          fuzzy.fuzzify
-          expect_near 2.4226191 (fuzzy.defuzzify 0) // 2.35 on original file
-        print "Time to solve a model: $(%.3f runtime)"
+        fuzzy.changed
+        fuzzy.fuzzify
+        expect_near 2.4226191 (fuzzy.defuzzify 0) // 2.35 on original file
 
         // TEST 03
-        fuzzy.set_input 0 25.9
-        fuzzy.set_input 1  8.55
-        fuzzy.set_input 2  6.0
+        fuzzy.crisp_input 0 25.9
+        fuzzy.crisp_input 1  8.55
+        fuzzy.crisp_input 2  6.0
 
+        fuzzy.changed
         fuzzy.fuzzify
-
         expect_near 6.4175873 (fuzzy.defuzzify 0) // 6.21 on original file
 
         // TEST 04
-        fuzzy.set_input 0 71.69
-        fuzzy.set_input 1  8.554
-        fuzzy.set_input 2  6.0
+        fuzzy.crisp_input 0 71.69
+        fuzzy.crisp_input 1  8.554
+        fuzzy.crisp_input 2  6.0
 
+        fuzzy.changed
         fuzzy.fuzzify
-
         expect_near 4.2093439 (fuzzy.defuzzify 0) // 4.12 on original file
 
         // TEST 05
-        fuzzy.set_input 0 71.69
-        fuzzy.set_input 1 27.83
-        fuzzy.set_input 2  9.036
+        fuzzy.crisp_input 0 71.69
+        fuzzy.crisp_input 1 27.83
+        fuzzy.crisp_input 2  9.036
 
+        fuzzy.changed
         fuzzy.fuzzify
-
         expect_near 15.478251 (fuzzy.defuzzify 0) // 15.5 on original file
 
         // TEST 06
-        fuzzy.set_input 0 16.27
-        fuzzy.set_input 1 27.83
-        fuzzy.set_input 2  9.036
+        fuzzy.crisp_input 0 16.27
+        fuzzy.crisp_input 1 27.83
+        fuzzy.crisp_input 2  9.036
 
+        fuzzy.changed
         fuzzy.fuzzify
-
         expect_near 16.58123  (fuzzy.defuzzify 0) // 16.6 on original file
 
         // TEST 07
-        fuzzy.set_input 0 82.53
-        fuzzy.set_input 1 27.83
-        fuzzy.set_input 2 10.63
+        fuzzy.crisp_input 0 82.53
+        fuzzy.crisp_input 1 27.83
+        fuzzy.crisp_input 2 10.63
 
+        fuzzy.changed
         fuzzy.fuzzify
-
         expect_near 2.4555054 (fuzzy.defuzzify 0) // 2.38 on original file
 
         // TEST 08
-        fuzzy.set_input 0 7.831
-        fuzzy.set_input 1 27.83
-        fuzzy.set_input 2 10.63
+        fuzzy.crisp_input 0 7.831
+        fuzzy.crisp_input 1 27.83
+        fuzzy.crisp_input 2 10.63
 
+        fuzzy.changed
         fuzzy.fuzzify
-
         expect_near 22.5 (fuzzy.defuzzify 0)
 
         // TEST 09
-        fuzzy.set_input 0 7.831
-        fuzzy.set_input 1 7.952
-        fuzzy.set_input 2 10.63
+        fuzzy.crisp_input 0 7.831
+        fuzzy.crisp_input 1 7.952
+        fuzzy.crisp_input 2 10.63
 
+        fuzzy.changed
         fuzzy.fuzzify
-
         expect_near 5.0615907 (fuzzy.defuzzify 0) // 4.96 on original file
 
     test_end
