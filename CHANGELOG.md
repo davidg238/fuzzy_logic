@@ -1,3 +1,6 @@
+## 0.6.1 - 2022-12-05
+Fix README
+
 ## 0.6.0 - 2022-12-05
 Significant refactor, slight change to API.
 Revised calculation of the composition centroid.

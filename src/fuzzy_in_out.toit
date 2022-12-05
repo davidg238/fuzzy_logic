@@ -47,7 +47,7 @@ class FuzzyOutput extends InputOutput:
 
   clear -> none:
     composition_.clear
-    fsets.do: it.clear
+    super
 
   composition -> Composition:
       return composition_

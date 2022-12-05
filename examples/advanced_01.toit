@@ -110,10 +110,10 @@ main:
     print "---------------------------- "
     print "Distance: $(%.2f input0)  Speed: $(%.2f input1) Temperature: $(%.2f input2)"
 
-    model.crisp_input 0 input0.to_float
-    model.crisp_input 1 input1.to_float
-    model.crisp_input 2 input2.to_float
-
+    model.crisp_input 0 input0
+    model.crisp_input 1 input1
+    model.crisp_input 2 input2
+    model.changed
     model.fuzzify
 
     print "Input: "

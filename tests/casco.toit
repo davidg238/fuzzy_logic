@@ -91,7 +91,7 @@ main:
   fuzzy.changed
   fuzzy.fuzzify
 
-  print "test 01, expect_7.5, got $(%.2f fuzzy.defuzzify 0)"
+  print "test 01, expect 7.5, got $(%.7f fuzzy.defuzzify 0)"
 
   // TEST 02
   fuzzy.crisp_input 0 12.65
@@ -100,7 +100,7 @@ main:
 
   fuzzy.changed
   fuzzy.fuzzify
-  print "test 02, expect 2.4226191, got $(%.2f fuzzy.defuzzify 0)  2.35 on original file"
+  print "test 02, expect 2.4226191, got $(%.7f fuzzy.defuzzify 0)  2.35 on original file"
 
   // TEST 03
   fuzzy.crisp_input 0 25.9
@@ -109,7 +109,7 @@ main:
 
   fuzzy.changed
   fuzzy.fuzzify
-  print "test 03, expect_6.4175873, got $(%.2f fuzzy.defuzzify 0)  6.21 on original file"
+  print "test 03, expect 6.4175873, got $(%.7f fuzzy.defuzzify 0)  6.21 on original file"
 
   // TEST 04
   fuzzy.crisp_input 0 71.69
@@ -118,7 +118,7 @@ main:
 
   fuzzy.changed
   fuzzy.fuzzify
-  print "test 04, expect 4.2093439, got $(%.2f fuzzy.defuzzify 0) 4.12 on original file"
+  print "test 04, expect 4.2093439, got $(%.7f fuzzy.defuzzify 0) 4.12 on original file"
 
   // TEST 05
   fuzzy.crisp_input 0 71.69
@@ -127,7 +127,7 @@ main:
 
   fuzzy.changed
   fuzzy.fuzzify
-  print "test 05, expect 15.478251, got $(%.2f fuzzy.defuzzify 0) 15.5 on original file"
+  print "test 05, expect 15.478251, got $(%.7f fuzzy.defuzzify 0) 15.5 on original file"
 
   // TEST 06
   fuzzy.crisp_input 0 16.27
@@ -136,7 +136,7 @@ main:
 
   fuzzy.changed
   fuzzy.fuzzify
-  print "test 06, expect 16.58123, got $(%.2f fuzzy.defuzzify 0) 16.6 on original file"
+  print "test 06, expect 16.58123, got $(%.7f fuzzy.defuzzify 0) 16.6 on original file"
 
   // TEST 07
   fuzzy.crisp_input 0 82.53
@@ -145,7 +145,7 @@ main:
 
   fuzzy.changed
   fuzzy.fuzzify
-  print "test 07, expect_2.4555054, got $(%.2f fuzzy.defuzzify 0) 2.38 on original file"
+  print "test 07, expect 2.4555054, got $(%.7f fuzzy.defuzzify 0) 2.38 on original file"
 
   // TEST 08
   fuzzy.crisp_input 0 7.831
@@ -154,7 +154,7 @@ main:
 
   fuzzy.changed
   fuzzy.fuzzify
-  print "test 8, expect_22.5, got $(%.2f fuzzy.defuzzify 0)"
+  print "test 8, expect 22.5, got $(%.7f fuzzy.defuzzify 0)"
 
   // TEST 09
   fuzzy.crisp_input 0 7.831
@@ -163,5 +163,5 @@ main:
 
   fuzzy.changed
   fuzzy.fuzzify
-  print "test 09, expect 5.0615907, got $(%.2f fuzzy.defuzzify 0) 4.96 on original file"
+  print "test 09, expect 5.0615907, got $(%.7f fuzzy.defuzzify 0) 4.96 on original file"
 
