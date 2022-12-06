@@ -1,3 +1,6 @@
+## 0.6.2 - 2022-12-06
+Improve navigation on web pages
+
 ## 0.6.1 - 2022-12-05
 Fix README
 

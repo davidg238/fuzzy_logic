@@ -49,11 +49,25 @@ class FuzzyHTMLview:
               <title>Fuzzy Logic Models</title>
           </head>
           <body>
-              <p>List of models goes here</p>
+            <div id="models" class="w3-row-padding">
+              <h2>Models</h2>
+            </div>
+            $models_
           </body>
       </html>
     """
+  models_ -> string:
+    models_str := ""
+    for i:=0; i<model_names.size; i++:
+      models_str += model_html model_names[i]
+    return models_str
 
+  model_html name/string -> string:
+    return """
+            <div id="model_$name" class="w3-padding-large">
+              <a class="click" href="http://$(addr_str):8080/$name/inputs">$name</a>
+            </div>
+    """
   page_for path/string -> string:
     parts := split_path path[1..]
     new := get_model parts[0]
@@ -62,7 +76,6 @@ class FuzzyHTMLview:
     else:
       if (model == null) or (model.name != new.name):
         model = new
-        // model.init  TODO 2022-12-05, can be deleted?
         model.fuzzify
         model.defuzzify
     return page_ parts
@@ -105,13 +118,15 @@ class FuzzyHTMLview:
           $style_
         </head>
         <body onload="open_ws_connection()">
-          <div id="inputs" class="w3-row-padding">
-            <h2>Fuzzy Model: $model.name</h2>
-            <h4>Inputs</h4>
-            $inputs_
+          <div class="w3-row-padding">
+            <a class="click" href="http://$(addr_str):8080">Home</a>
+          </div>
+          <div class="w3-row-padding">
+            Inputs <a class="click" href="http://$(addr_str):8080/$model.name/rules">rules</a> <a class="click" href="http://$(addr_str):8080/$model.name/outputs">outputs</a>
           </div>
           <div id="inputs" class="w3-row-padding">
-            <a class="click" href="http://$(addr_str):8080/$model.name/outputs">outputs</a>
+            <h3>Fuzzy Model: $model.name</h3>
+            $inputs_
           </div>
         </body>
         $script_
@@ -127,15 +142,21 @@ class FuzzyHTMLview:
           $style_
         </head>
         <body>
-          <div id="inputs" class="w3-row-padding">
-            <h2>Fuzzy Model: $model.name</h2>
+          <div class="w3-row-padding">
+            <a class="click" href="http://$(addr_str):8080">Home</a>
           </div>
-          <div id="output" class="w3-row-padding">
-            <h4>Output</h4>
+          <div class="w3-row-padding">
+            <a class="click" href="http://$(addr_str):8080/$model.name/inputs">inputs</a> Rules <a class="click" href="http://$(addr_str):8080/$model.name/outputs">outputs</a>
+          </div>
+          <div class="w3-row-padding">
+            <h3>Fuzzy Model: $model.name</h3>
+          </div>
+          <div class="w3-row-padding">
+              <h4>Rules</h4>
+          </div>
+          <div id="rules" class="w3-row-padding">
             <div id="rules" class="w3-container w3-third">
-              <h5>Rules</h5>
               $rules_
-              <h5>Crisp Out: 53</h5>
             </div>
           </div>
         </body>
@@ -151,15 +172,20 @@ class FuzzyHTMLview:
           $style_
         </head>
         <body>
-          <div id="inputs" class="w3-row-padding">
-            <h2>Fuzzy Model: $model.name</h2>
+          <div class="w3-row-padding">
+            <a class="click" href="http://$(addr_str):8080">Home</a>
           </div>
-          <div id="output" class="w3-row-padding">
-            <h4>Output</h4>
+          <div class="w3-row-padding">
+            <a class="click" href="http://$(addr_str):8080/$model.name/inputs">inputs</a> <a class="click" href="http://$(addr_str):8080/$model.name/rules">rules</a> outputs
+          </div>
+          <div class="w3-row-padding">
+            <h3>Fuzzy Model: $model.name</h3>
+          </div>
+          <div class="w3-row-padding">
+            <h4>Outputs</h4>
+          </div>
+          <div id="outputs" class="w3-row-padding">
             $compositions_
-          </div>
-          <div id="inputs" class="w3-row-padding">
-            <a class="click" href="http://$(addr_str):8080/$model.name/inputs">inputs</a>
           </div>
         </body>
         $script_
@@ -419,6 +445,7 @@ class FuzzyHTMLview:
         }
       </style>
     """
+/*
   css_ -> string:
     return """
       /* W3.CSS 4.15 December 2020 by Jan Egil and Borge Refsnes */
@@ -658,7 +685,7 @@ class FuzzyHTMLview:
       .w3-border-pale-yellow,.w3-hover-border-pale-yellow:hover{border-color:#ffffcc!important}.w3-border-pale-blue,.w3-hover-border-pale-blue:hover{border-color:#e7ffff!important}
 
     """
-
+*/
 /*
   page_ -> string:
     return """

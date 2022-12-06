@@ -1,5 +1,13 @@
 import fuzzy_logic show *
 
+/*
+Pretty ugly, but no models in memory until requested.
+Could have used Map + block.call ,but to be replaced with FCL parser.
+*/
+
+model_names -> List:
+  return ["driver", "driver_advanced", "casco"]
+
 get_model name/string -> FuzzyModel?:
   if name == "driver":
     return get_driver
