@@ -23,5 +23,3 @@ main:
     fuzzy.fuzzify
     print "test $i crisp = $(fuzzy.defuzzify 0)"
     i += 1
-
-  
