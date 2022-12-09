@@ -2,7 +2,7 @@
 
 An adaption of the [Embedded Fuzzy Logic Library](https://github.com/zerokol/eFLL) to Toit.  
 
-Still very much a work in progress.  Target is the FCL Basic Level language elements, Table 6.1-1 of [IEC 61131-7](https://webstore.ansi.org/standards/iec/iec61131ed2000-1003797) Programmable Controllers - Part 7: Fuzzy Control Programming.
+Still very much a work in progress.  
 
 ## Visualization of models
 
