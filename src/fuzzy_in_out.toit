@@ -22,6 +22,11 @@ class InputOutput:
   clear -> none:
     fsets.do: it.clear
 
+  set_names -> List:
+    names := []
+    fsets.do: names.add it.name
+    return names
+
 class FuzzyInput extends InputOutput:
 
   constructor name="" :

@@ -1,0 +1,223 @@
+// https://stackoverflow.com/questions/43327446/how-to-run-fuzzy-control-language
+// Block definition (there may be more than one block per file)
+FUNCTION_BLOCK back_pain
+// Define input variables
+VAR_INPUT
+    airway : REAL;
+    oxygenation : REAL;
+    sweating: REAL;
+    color: REAL;
+    heart_rate: REAL;
+    blood_pressure: REAL;
+    conscious_level: REAL;
+    abdominal_pain: REAL;
+    pain: REAL;
+    mechanism_of_injury: REAL;
+    life_stage: REAL;
+    direct_trauma: REAL;
+    skin_temperature: REAL;
+    neurological_deficit: REAL;
+    unable_to_walk: REAL;
+    colicky_pain: REAL;
+    onset: REAL;
+    untruthful_story: REAL;
+    onset_of_symptoms: REAL;
+END_VAR
+
+// Define output variable
+VAR_OUTPUT
+    situation : REAL;
+END_VAR
+
+//Fuzzify input variables
+FUZZIFY airway
+    TERM not_maintained := 0; 
+    TERM maintained := 1;
+END_FUZZIFY
+
+FUZZIFY oxygenation
+TERM inadequate := trape 0 0 21 36;
+TERM adequate_but_very_low := trape 20 35 41 56;
+TERM adequate_but_low := trape 40 55 61 76;
+TERM adequate := trape 60 78 100 100;
+END_FUZZIFY
+
+FUZZIFY sweating
+TERM little_to_none := trape 0 0 21 36;
+TERM some := trape 20 35 41 56;
+TERM significant := trape 40 55 61 76;
+TERM exceptional := trape 60 75 100 100;
+END_FUZZIFY
+
+FUZZIFY color
+TERM pale := trape 0 0 27 45;
+TERM somewhat_lacking := trape 30 48 57 75;
+TERM full := trape 60 78 100 100;
+END_FUZZIFY
+
+FUZZIFY heart_rate
+TERM light := trape 0 0 21 36;
+TERM moderate := trape 20 35 41 56;
+TERM vigorous := trape 40 55 61 76;
+TERM very_vigorous := trape 60 75 100 100;
+END_FUZZIFY
+
+FUZZIFY blood_pressure
+TERM low := trape 0 0 27 45;
+TERM normal := trape 30 48 57 75;
+TERM high_normal := trape 60 78 100 100;
+END_FUZZIFY
+
+FUZZIFY conscious_level
+TERM unresponsive := trape 0 0 21 36;
+TERM reduced := trape 20 35 41 56;
+TERM slightly_reduced := trape 40 55 61 76;
+TERM normal := trape 60 75 100 100;
+END_FUZZIFY
+
+FUZZIFY life_stage
+TERM infant := trape 0 0 21 31;
+TERM toddler := trape 17 28 34 45;
+TERM child := trape 32 44 50 62;
+TERM adult := trape 60 70 100 100;
+END_FUZZIFY
+
+FUZZIFY mechanism_of_injury
+TERM minor := trape 0 0 27 45;
+TERM moderate := trape 56 77 80 101;
+TERM significant := trape 60 81 100 100;
+END_FUZZIFY
+
+FUZZIFY pain
+TERM little_to_none := trape 0 0 21 36;
+TERM mild := trape 20 38 38 56;
+TERM moderate := trape 40 58 58 76;
+TERM severe := trape 60 78 100 100;
+END_FUZZIFY
+
+FUZZIFY abdominal_pain
+    TERM not_present := 0;
+    TERM present := 1;
+END_FUZZIFY
+
+FUZZIFY direct_trauma
+    TERM not_present := 0;
+    TERM present := 1;
+END_FUZZIFY
+
+FUZZIFY neurological_deficit
+    TERM not_present := 0;
+    TERM present := 1;
+END_FUZZIFY
+
+FUZZIFY onset
+TERM distant := trape 0 0 17 23;
+TERM recent := trape 17 25 30 38;
+TERM acute := trape 32 39 44 52;
+TERM rapid := trape 43 49 54 60;
+TERM abrupt := trape 60 73 100 100;
+END_FUZZIFY
+
+FUZZIFY unable_to_walk
+    TERM not_present := 0;
+    TERM present := 1;
+END_FUZZIFY
+
+FUZZIFY skin_temperature
+TERM cold := trape 0 0 15 30;
+TERM normal := trape 24 34 45 55;
+TERM warm := trape 39 49 60 70;
+TERM hot := trape 53 65 70 83;
+TERM very_hot := trape 60 72 100 100;
+END_FUZZIFY
+
+FUZZIFY untruthful_story
+    TERM not_present := 0;
+    TERM present := 1;
+END_FUZZIFY
+
+FUZZIFY colicky_pain
+    TERM not_present := 0;
+    TERM present := 1;
+END_FUZZIFY
+
+FUZZIFY onset_of_symptoms
+TERM distant := trape 0 0 17 23;
+TERM recent := trape 17 25 30 38;
+TERM acute := trape 32 39 44 52;
+TERM rapid := trape 43 49 54 60;
+TERM abrupt := trape 60 73 100 100;
+END_FUZZIFY
+
+// Defuzzify output variable 'situation'
+DEFUZZIFY situation
+    TERM immediate := trape 0 0 2.5 5;
+    TERM very_urgent := trian 3 6.5 10;
+    TERM urgent := trian 8 34 60;
+    TERM standard := trian 50 85 120;
+    TERM non_urgent := trape 100 170 240 240;
+    // Use 'Right-most Maximum' defuzzification method
+    METHOD : RM;
+    // Default value is 240 (if no rule activates defuzzifier)
+    DEFAULT := 240;
+END_DEFUZZIFY
+
+RULEBLOCK No1
+    // Use 'min' for 'and' (also implicit use 'max'
+    // for 'or' to fulfill DeMorgan's Law)
+    AND : MIN;
+    // Use 'min' activation method
+    ACT : MIN;
+    // Use 'max' accumulation method
+    ACCU : MAX;
+
+    RULE 1 : IF airway IS NOT maintained 
+                THEN situation IS immediate WITH 1.0;
+
+    RULE 2 : IF oxygenation IS inadequate 
+                THEN situation IS immediate WITH 1.0; 
+
+    RULE 3 : IF (sweating IS significant OR sweating IS exceptional)
+             AND (color IS pale)
+             AND (heart_rate IS vigorous OR heart_rate IS very_vigorous)
+             AND (blood_pressure IS low)
+             AND (conscious_level IS reduced OR conscious_level IS unresponsive) 
+                THEN situation IS immediate WITH 1.0;
+    RULE 4 : IF pain IS severe
+                THEN situation IS very_urgent WITH 0.8;
+    RULE 5 : IF mechanism_of_injury IS significant
+                THEN situation IS very_urgent WITH 0.8;
+    RULE 6 : IF neurological_deficit IS present 
+             AND (onset IS abrupt OR onset IS rapid OR onset IS acute)
+                THEN situation IS very_urgent WITH 0.8;
+    RULE 7 : IF (life_stage IS infant OR life_stage IS toddler OR life_stage IS child)
+             AND (skin_temperature IS hot OR skin_temperature IS very_hot)
+                THEN situation IS very_urgent WITH 0.8;
+    RULE 8 : IF life_stage IS adult
+             AND skin_temperature IS very_hot
+                THEN situation IS very_urgent WITH 0.8;
+    RULE 9 : IF abdominal_pain IS present
+                THEN situation IS very_urgent WITH 0.8;
+    RULE 10 : IF neurological_deficit IS present
+              AND onset IS recent
+                THEN situation IS urgent WITH 0.6;
+    RULE 11 : IF untruthful_story IS present
+                THEN situation IS urgent WITH 0.6;
+    RULE 12 : IF unable_to_walk IS present
+                THEN situation IS urgent WITH 0.6;
+    RULE 13 : IF skin_temperature IS hot 
+              AND life_stage IS adult
+                THEN situation IS urgent WITH 0.6;
+    RULE 14 : IF pain IS moderate
+                THEN situation IS urgent WITH 0.6;
+    RULE 15 : IF colicky_pain IS present
+                THEN situation IS urgent WITH 0.6;
+    RULE 16 : IF direct_trauma IS present
+                THEN situation IS urgent WITH 0.6;  
+    RULE 17 : IF pain IS mild
+                THEN situation IS standard WITH 0.4;
+    RULE 18 : IF onset_of_symptoms IS recent
+                THEN situation IS standard WITH 0.4;
+END_RULEBLOCK
+
+END_FUNCTION_BLOCK

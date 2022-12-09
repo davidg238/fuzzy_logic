@@ -59,7 +59,15 @@ abstract class FuzzySet:
       pertinence_ = val
     // print "set $name max: $pertinence_ $val"
 
-  abstract truncated -> List
+/*
+Answer the point geometry, as a polyline (not closed)
+*/
+  abstract polyline -> List
+/*
+Answer the point geometry, truncated to the current pertinence, as a closed polygon.
+The geometry must be closed for the Composition centroid algorithm to work.
+*/
+  abstract truncated_polygon -> List
 
   truncator_l -> Point2f:  ///For now, set geometries x-values are defined between 0.0 - 100.0
     return Point2f 0.0 pertinence_
@@ -102,10 +110,10 @@ class SingletonSet extends FuzzySet:
   graph_points -> string:
     return "$(a_*4),0, $(a_*4),400"
 
-  truncated -> List: //Answer the point geometry, truncated to the current pertinence
-      return [(Point2f a_ 0.0), (Point2f a_ pertinence_)]
+  polyline -> List: 
+      return [(Point2f a_ 0.0), (Point2f a_ 1)]
 
-  truncated_polygon -> List: //Answer the point geometry, truncated to the current pertinence
+  truncated_polygon -> List: 
       return [(Point2f a_ 0.0), (Point2f a_ pertinence_), (Point2f a_ 0.0)]
 
   size -> int:
@@ -132,28 +140,15 @@ class LTrapezoidalSet extends FuzzySet:
   graph_points -> string:
     return "0,0 0,400 $(c_*4),400, $(d_*4),0"
 
-  truncated -> List: 
-  /*
-  Answer the point geometry, truncated to the current pertinence,
-  adding a synthetic point at 0,0 to form a closed polygon, for calc purposes
-  */
-    return (1.0-pertinence).abs < F_error3?
+  polyline -> List: 
+    return
       [ Point2f 0 0,
         Point2f 0.0 1.0, 
         Point2f c_ 1.0,
         Point2f d_ 0.0
-      ] :
-      [ Point2f 0 0
-        Point2f 0.0 pertinence, 
-        intersection truncator_l truncator_r (Point2f c_ 1.0) (Point2f d_ 0.0),
-        Point2f d_ 0.0
       ]
 
   truncated_polygon -> List: 
-  /*
-  Answer the point geometry, truncated to the current pertinence,
-  adding a synthetic point at 0,0 to form a closed polygon, for calc purposes
-  */
     return (1.0-pertinence).abs < F_error3?
       [ Point2f 0 0,
         Point2f 0.0 1.0, 
@@ -189,28 +184,15 @@ class RTrapezoidalSet extends FuzzySet:
     else:
       return y_rising cVal a_ b_
 
-  truncated -> List:
-  /*
-  Answer the point geometry, truncated to the current pertinence,
-  adding a synthetic point at 0,0 to form a closed polygon, for calc purposes
-  */
-    return (1.0-pertinence).abs < F_error3?
+  polyline -> List:
+    return
       [ Point2f a_ 0.0, 
         Point2f b_ 1.0,
         Point2f 100.0 1.0,  // geometries considered x range of 0-100 ? //todo
         Point2f 100.0 0.0
-      ] :
-      [ Point2f a_ 0.0, 
-        intersection truncator_l truncator_r (Point2f a_ 0.0) (Point2f b_ 1.0),
-        Point2f 100.0 pertinence,
-        Point2f 100.0 0.0
-      ]      
+      ]     
 
   truncated_polygon -> List:
-  /*
-  Answer the point geometry, truncated to the current pertinence,
-  adding a synthetic point at 0,0 to form a closed polygon, for calc purposes
-  */
     return (1.0-pertinence).abs < F_error3?
       [ Point2f a_ 0.0, 
         Point2f b_ 1.0,
@@ -247,20 +229,15 @@ class TrapezoidalSet extends FuzzySet:
       return y_falling cVal c_ d_
 
 
-  truncated -> List: //Answer the point geometry, truncated to the current pertinence
-    return (1.0-pertinence).abs < F_error3?
+  polyline -> List: 
+    return 
       [ Point2f a_ 0.0, 
         Point2f b_ 1.0,
         Point2f c_ 1.0,    
         Point2f d_ 0.0
-      ] :
-      [ Point2f a_ 0.0, 
-        intersection truncator_l truncator_r (Point2f a_ 0.0) (Point2f b_ 1.0),
-        intersection truncator_l truncator_r (Point2f c_ 1.0) (Point2f d_ 0.0),    
-        Point2f d_ 0.0
-      ]
+      ] 
 
-  truncated_polygon -> List: //Answer the point geometry, truncated to the current pertinence
+  truncated_polygon -> List: 
     return (1.0-pertinence).abs < F_error3?
       [ Point2f a_ 0.0, 
         Point2f b_ 1.0,
@@ -293,15 +270,10 @@ class LraTriangularSet extends FuzzySet:
       return 0.0
     return y_falling cVal c_ d_
 
-  truncated -> List: //Answer the point geometry, truncated to the current pertinence
-    return (1.0-pertinence).abs < F_error3?
+  polyline -> List: 
+    return 
       [ Point2f a_ 0.0, 
         Point2f a_ 1.0,
-        Point2f d_ 0.0
-      ] :
-      [ Point2f a_ 0.0, 
-        intersection truncator_l truncator_r (Point2f a_ 0.0) (Point2f a_ 1.0),
-        intersection truncator_l truncator_r (Point2f a_ 1.0) (Point2f d_ 0.0),
         Point2f d_ 0.0
       ]      
 
@@ -337,20 +309,14 @@ class RraTriangularSet extends FuzzySet:
       return 0.0
     return y_rising cVal a_ b_
 
-
-  truncated -> List: //Answer the point geometry, truncated to the current pertinence
-    return (1.0-pertinence).abs < F_error3?
+  polyline -> List: 
+    return 
       [ Point2f a_ 0.0, 
         Point2f d_ 1.0,
         Point2f d_ 0.0
-      ] :
-      [ Point2f a_ 0.0, 
-        intersection truncator_l truncator_r (Point2f a_ 0.0) (Point2f d_ 1.0),
-        intersection truncator_l truncator_r (Point2f d_ 1.0) (Point2f d_ 0.0),
-        Point2f d_ 0.0
-      ]
+      ] 
 
-  truncated_polygon -> List: //Answer the point geometry, truncated to the current pertinence
+  truncated_polygon -> List: 
     return (1.0-pertinence).abs < F_error3?
       [ Point2f a_ 0.0, 
         Point2f d_ 1.0,
@@ -388,19 +354,14 @@ class TriangularSet extends FuzzySet:
       return 1.0
 
 
-  truncated -> List: //Answer the point geometry, truncated to the current pertinence
-    return (1.0-pertinence).abs < F_error3?
+  polyline -> List: 
+    return 
       [ Point2f a_ 0.0, 
         Point2f b_ 1.0,
         Point2f d_ 0.0
-      ] :
-      [ Point2f a_ 0.0, 
-        intersection truncator_l truncator_r (Point2f a_ 0.0) (Point2f b_ 1.0),
-        intersection truncator_l truncator_r (Point2f b_ 1.0) (Point2f d_ 0.0),    
-        Point2f d_ 0.0
-      ]
+      ] 
 
-  truncated_polygon -> List: //Answer the point geometry, truncated to the current pertinence
+  truncated_polygon -> List: 
     return (1.0-pertinence).abs < F_error3?
       [ Point2f a_ 0.0, 
         Point2f b_ 1.0,
