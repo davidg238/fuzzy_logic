@@ -14,11 +14,11 @@ main:
       [7.831, 27.83, 10.63], 
       [7.831, 7.952, 10.63]
   ]
-  fuzzy := get_casco
+  fuzzy := get-casco
 
   i := 1
   cases.do: |inputs|
-    fuzzy.crisp_inputs inputs
+    fuzzy.crisp-inputs inputs
     fuzzy.changed
     fuzzy.fuzzify
     print "test $i crisp = $(fuzzy.defuzzify 0)"

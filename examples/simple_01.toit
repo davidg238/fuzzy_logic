@@ -8,18 +8,18 @@ import fuzzy_rule show FuzzyRule
 import antecedent show Antecedent
 import consequent show Consequent
 */
-import fuzzy_logic show *
+import fuzzy-logic show *
 import .models show *
 
 main:
 
-  amodel := get_model "driver"
-  start := Time.monotonic_us
-  m_input := 35 //todo, test with 100
-  amodel.crisp_input 0 m_input
+  amodel := get-model "driver"
+  start := Time.monotonic-us
+  m-input := 35 //todo, test with 100
+  amodel.crisp-input 0 m-input
   amodel.changed
   amodel.fuzzify
-  m_output := amodel.defuzzify 0
-  end := Time.monotonic_us
+  m-output := amodel.defuzzify 0
+  end := Time.monotonic-us
 
-  print "Time: $(%.1f (end-start)/1000.0)ms Distance: $m_input ---> Speed: $(%.1f m_output)"
+  print "Time: $(%.1f (end-start)/1000.0)ms Distance: $m-input ---> Speed: $(%.1f m-output)"

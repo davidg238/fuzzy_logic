@@ -2,11 +2,11 @@
 
 import .geometry show *
 
-y_rising p q r -> float:
-  return (p-q)/(r-q)
+y-rising p q r -> float:
+  return (p - q)/(r - q)
 
-y_falling p q r -> float:
-  return 1.0 - (p-q)/(r-q)
+y-falling p q r -> float:
+  return 1.0 - (p - q)/(r - q)
 
 abstract class FuzzySet:
 
@@ -14,14 +14,17 @@ abstract class FuzzySet:
   b_/float
   c_/float
   d_/float
+  
   pertinence_/float := 0.0
   name := ""
+  area_ /float? := 0.0
+  pts_ /List? := []
 
-  constructor.with_points a b c d .name="":            //new
-    a_ = a.to_float
-    b_ = b.to_float
-    c_ = c.to_float
-    d_ = d.to_float
+  constructor.with-points a b c d .name="":            //new
+    a_ = a.to-float
+    b_ = b.to-float
+    c_ = c.to-float
+    d_ = d.to-float
 
   constructor a/num b/num c/num d/num aname="" :                      //new
     if a==b and b==c and c==d: return SingletonSet a b c d aname
@@ -34,8 +37,13 @@ abstract class FuzzySet:
 
   clear -> none:
     pertinence_ = 0.0
+    clear-geometry-cache
 
-  compare_to other/FuzzySet -> any:
+  clear-geometry-cache -> none:
+    area_ = null
+    pts_ = null
+
+  compare-to other/FuzzySet -> any:
     if a_ < other.a_: return -1
     if a_ > other.a_: return 1
     if a_==other.a_ and b_==other.b_ and c_==other.c_ and d_==other.d_: return 0
@@ -43,89 +51,121 @@ abstract class FuzzySet:
     if pertinence_ > other.pertinence_: return 1
     return 0
 
-  is_pertinent -> bool:
+  is-pertinent -> bool:
     return pertinence_ > 0.0
 
   pertinence -> float:
     return pertinence_
 
-  fuzzify crisp_val/num -> none:
-    pertinence_ = lookup_ crisp_val.to_float
+  fuzzify crisp-val/num -> none:
+    pertinence_ = lookup_ crisp-val.to-float
+    clear-geometry-cache
 
   abstract lookup_ val/float -> float
 
   max val/float -> none:
     if pertinence_<val: 
       pertinence_ = val
+      clear-geometry-cache
     // print "set $name max: $pertinence_ $val"
 
 /*
 Answer the point geometry, as a polyline (not closed)
 */
   abstract polyline -> List
+
+  truncate -> none:
+    clear-geometry-cache
+    pts_ = truncated-polygon
 /*
 Answer the point geometry, truncated to the current pertinence, as a closed polygon.
 The geometry must be closed for the Composition centroid algorithm to work.
 */
-  abstract truncated_polygon -> List
+  abstract truncated-polygon -> List
 
-  truncator_l -> Point2f:  ///For now, set geometries x-values are defined between 0.0 - 100.0
-    return Point2f 0.0 pertinence_
+  truncator-l -> Point2f:  /// Since geometries are defined left to right
+    return Point2f a_ pertinence_
     
-  truncator_r -> Point2f:
-    return Point2f 100.0 pertinence_
+  truncator-r -> Point2f:
+    return Point2f d_ pertinence_
 
   stype: return ""
 
   stringify: return "$name/$(stype):[$a_, $b_, $c_, $d_]/$(%.3f pertinence_)"
 
+/// ----- Geometry methods ----------------------------------------------------
+
+  centroid-x_ -> float:
+  // https://en.wikipedia.org/wiki/Centroid#Of_a_polygon
+    cx := 0.0
+    for i:=0;i<pts_.size - 1;i++:
+      cx += (pts_[i].x + pts_[i+1].x)*(pts_[i].x * pts_[i+1].y - pts_[i+1].x * pts_[i].y)
+    cx = cx/(6*truncated-area)
+    return cx
+
+  truncated-weighted-centroid -> float:
+    return truncated-area * centroid-x_
+
+  truncated-area -> float:
+    if area_ != null: return area_
+    area_ = 0.0
+    for i:=0;i<pts_.size - 1;i++:
+      area_ += (pts_[i].x * pts_[i+1].y) - (pts_[i+1].x * pts_[i].y)
+    area_ = area_/2.0  
+    return area_
 
 // Methods used by trial composition
   start -> int:
-    return a_.to_int
+    return a_.to-int
 
   size -> int:
-    return (d_-a_).to_int
+    return (d_ - a_).to-int
 
 // Test methods
-  test_a -> float: return a_
-  test_b -> float: return b_
-  test_c -> float: return c_
-  test_d -> float: return d_
+  test-a -> float: return a_
+  test-b -> float: return b_
+  test-c -> float: return c_
+  test-d -> float: return d_
 
 
 class SingletonSet extends FuzzySet:
 
   constructor a aname="":
-    super.with_points a a a a aname
+    super.with-points a a a a aname
 
   constructor a b c d name:
-      super.with_points a b c d name
+      super.with-points a b c d name
 
   stype: return "sing"
 
   lookup_ cVal/float -> float:
-    return (a_-cVal).abs < F_error3 ? 1.0 : 0.0
+    return (a_ - cVal).abs < F-error3 ? 1.0 : 0.0
 
-  graph_points -> string:
+  graph-points -> string:
     return "$(a_*4),0, $(a_*4),400"
 
   polyline -> List: 
       return [(Point2f a_ 0.0), (Point2f a_ 1)]
 
-  truncated_polygon -> List: 
+  truncated-polygon -> List: 
       return [(Point2f a_ 0.0), (Point2f a_ pertinence_), (Point2f a_ 0.0)]
 
   size -> int:
     return 1
+
+  truncated-weighted-centroid -> float:
+    return a_
+
+  truncated-area -> float:
+    return 0.0
   
 class LTrapezoidalSet extends FuzzySet:
 
   constructor a c d name:
-      super.with_points a a c d name
+      super.with-points a a c d name
 
   constructor a b c d name:
-      super.with_points a b c d name
+      super.with-points a b c d name
 
   stype: return "trap.l"
 
@@ -135,9 +175,9 @@ class LTrapezoidalSet extends FuzzySet:
     else if cVal >= d_:
       return 0.0
     else:
-      return y_falling cVal c_ d_
+      return y-falling cVal c_ d_
 
-  graph_points -> string:
+  graph-points -> string:
     return "0,0 0,400 $(c_*4),400, $(d_*4),0"
 
   polyline -> List: 
@@ -148,8 +188,8 @@ class LTrapezoidalSet extends FuzzySet:
         Point2f d_ 0.0
       ]
 
-  truncated_polygon -> List: 
-    return (1.0-pertinence).abs < F_error3?
+  truncated-polygon -> List: 
+    return (1.0 - pertinence).abs < F-error3?
       [ Point2f 0 0,
         Point2f 0.0 1.0, 
         Point2f c_ 1.0,
@@ -158,7 +198,7 @@ class LTrapezoidalSet extends FuzzySet:
       ] :
       [ Point2f 0 0
         Point2f 0.0 pertinence, 
-        intersection truncator_l truncator_r (Point2f c_ 1.0) (Point2f d_ 0.0),
+        intersection truncator-l truncator-r (Point2f c_ 1.0) (Point2f d_ 0.0),
         Point2f d_ 0.0,
         Point2f 0 0
       ]      
@@ -166,14 +206,14 @@ class LTrapezoidalSet extends FuzzySet:
 class RTrapezoidalSet extends FuzzySet:
 
   constructor a b c name:
-      super.with_points a b c c name
+      super.with-points a b c c name
 
   constructor a b c d name:
-    super.with_points a b c d name
+    super.with-points a b c d name
 
   stype: return "trap.r"
 
-  graph_points -> string:
+  graph-points -> string:
     return "$(a_*4),0 $(b_*4),400 400,400, 400,0"
 
   lookup_ cVal/float -> float:
@@ -182,7 +222,7 @@ class RTrapezoidalSet extends FuzzySet:
     else if cVal >= b_:
       return 1.0
     else:
-      return y_rising cVal a_ b_
+      return y-rising cVal a_ b_
 
   polyline -> List:
     return
@@ -192,8 +232,8 @@ class RTrapezoidalSet extends FuzzySet:
         Point2f 100.0 0.0
       ]     
 
-  truncated_polygon -> List:
-    return (1.0-pertinence).abs < F_error3?
+  truncated-polygon -> List:
+    return (1.0 - pertinence).abs < F-error3?
       [ Point2f a_ 0.0, 
         Point2f b_ 1.0,
         Point2f 100.0 1.0,  // geometries considered x range of 0-100 ? //todo
@@ -201,7 +241,7 @@ class RTrapezoidalSet extends FuzzySet:
         Point2f a_ 0.0
       ] :
       [ Point2f a_ 0.0, 
-        intersection truncator_l truncator_r (Point2f a_ 0.0) (Point2f b_ 1.0),
+        intersection truncator-l truncator-r (Point2f a_ 0.0) (Point2f b_ 1.0),
         Point2f 100.0 pertinence,
         Point2f 100.0 0.0,
         Point2f a_ 0.0
@@ -211,11 +251,11 @@ class RTrapezoidalSet extends FuzzySet:
 class TrapezoidalSet extends FuzzySet:
 
   constructor a b c d name:
-      super.with_points a b c d name
+      super.with-points a b c d name
 
   stype: return "trap"
 
-  graph_points -> string:
+  graph-points -> string:
     return "$(a_*4),0 $(b_*4),400 $(c_*4),400, $(d_*4),0"
 
   lookup_ cVal/float -> float:
@@ -224,9 +264,9 @@ class TrapezoidalSet extends FuzzySet:
     else if (cVal>=b_) and (cVal<=c_):
       return 1.0
     else if cVal<b_:
-      return y_rising cVal a_ b_
+      return y-rising cVal a_ b_
     else:
-      return y_falling cVal c_ d_
+      return y-falling cVal c_ d_
 
 
   polyline -> List: 
@@ -237,8 +277,8 @@ class TrapezoidalSet extends FuzzySet:
         Point2f d_ 0.0
       ] 
 
-  truncated_polygon -> List: 
-    return (1.0-pertinence).abs < F_error3?
+  truncated-polygon -> List: 
+    return (1.0 - pertinence).abs < F-error3?
       [ Point2f a_ 0.0, 
         Point2f b_ 1.0,
         Point2f c_ 1.0,    
@@ -246,8 +286,8 @@ class TrapezoidalSet extends FuzzySet:
         Point2f a_ 0.0
       ] :
       [ Point2f a_ 0.0, 
-        intersection truncator_l truncator_r (Point2f a_ 0.0) (Point2f b_ 1.0),
-        intersection truncator_l truncator_r (Point2f c_ 1.0) (Point2f d_ 0.0),    
+        intersection truncator-l truncator-r (Point2f a_ 0.0) (Point2f b_ 1.0),
+        intersection truncator-l truncator-r (Point2f c_ 1.0) (Point2f d_ 0.0),    
         Point2f d_ 0.0,
         Point2f a_ 0.0
       ]      
@@ -255,20 +295,20 @@ class TrapezoidalSet extends FuzzySet:
 class LraTriangularSet extends FuzzySet:
 
   constructor a d name:
-      super.with_points a a a d name
+      super.with-points a a a d name
 
   constructor a b c d name:
-    super.with_points a b c d name
+    super.with-points a b c d name
 
   stype: return "tri.lra"
 
-  graph_points -> string:
+  graph-points -> string:
     return "$(a_*4),0 $(a_*4),400 $(d_*4),0"
 
   lookup_ cVal/float -> float:
     if cVal<=a_ or cVal>=d_: 
       return 0.0
-    return y_falling cVal c_ d_
+    return y-falling cVal c_ d_
 
   polyline -> List: 
     return 
@@ -277,16 +317,16 @@ class LraTriangularSet extends FuzzySet:
         Point2f d_ 0.0
       ]      
 
-  truncated_polygon -> List: //Answer the point geometry, truncated to the current pertinence
-    return (1.0-pertinence).abs < F_error3?
+  truncated-polygon -> List: //Answer the point geometry, truncated to the current pertinence
+    return (1.0 - pertinence).abs < F-error3?
       [ Point2f a_ 0.0, 
         Point2f a_ 1.0,
         Point2f d_ 0.0,
         Point2f a_ 0.0
       ] :
       [ Point2f a_ 0.0, 
-        intersection truncator_l truncator_r (Point2f a_ 0.0) (Point2f a_ 1.0),
-        intersection truncator_l truncator_r (Point2f a_ 1.0) (Point2f d_ 0.0),
+        intersection truncator-l truncator-r (Point2f a_ 0.0) (Point2f a_ 1.0),
+        intersection truncator-l truncator-r (Point2f a_ 1.0) (Point2f d_ 0.0),
         Point2f d_ 0.0,
         Point2f a_ 0.0
       ]       
@@ -294,20 +334,20 @@ class LraTriangularSet extends FuzzySet:
 class RraTriangularSet extends FuzzySet:
 
   constructor a b c d name:
-    super.with_points a b c d name
+    super.with-points a b c d name
 
   constructor a d name:
-      super.with_points a d d d name
+      super.with-points a d d d name
 
   stype: return "tri.rra"
 
-  graph_points -> string:
+  graph-points -> string:
     return "$(a_*4),0 $(d_*4),400 $(d_*4),0"
 
   lookup_ cVal/float -> float:
     if cVal<=a_ or cVal>=d_: 
       return 0.0
-    return y_rising cVal a_ b_
+    return y-rising cVal a_ b_
 
   polyline -> List: 
     return 
@@ -316,16 +356,16 @@ class RraTriangularSet extends FuzzySet:
         Point2f d_ 0.0
       ] 
 
-  truncated_polygon -> List: 
-    return (1.0-pertinence).abs < F_error3?
+  truncated-polygon -> List: 
+    return (1.0 - pertinence).abs < F-error3?
       [ Point2f a_ 0.0, 
         Point2f d_ 1.0,
         Point2f d_ 0.0,
         Point2f a_ 0.0
       ] :
       [ Point2f a_ 0.0, 
-        intersection truncator_l truncator_r (Point2f a_ 0.0) (Point2f d_ 1.0),
-        intersection truncator_l truncator_r (Point2f d_ 1.0) (Point2f d_ 0.0),
+        intersection truncator-l truncator-r (Point2f a_ 0.0) (Point2f d_ 1.0),
+        intersection truncator-l truncator-r (Point2f d_ 1.0) (Point2f d_ 0.0),
         Point2f d_ 0.0,
         Point2f a_ 0.0
       ]
@@ -333,23 +373,23 @@ class RraTriangularSet extends FuzzySet:
 class TriangularSet extends FuzzySet:
 
   constructor a b d name:
-    super.with_points a b b d name
+    super.with-points a b b d name
 
   constructor a b c d name:
-    super.with_points a b c d name
+    super.with-points a b c d name
 
   stype: return "tri"
 
-  graph_points -> string:
+  graph-points -> string:
     return "$(a_*4),0 $(b_*4),400 $(d_*4),0"
 
   lookup_ cVal/float -> float:
     if (cVal<=a_) or (cVal>=d_):
       return 0.0
     else if cVal<b_:
-      return y_rising cVal a_ b_
+      return y-rising cVal a_ b_
     else if cVal>b_:
-      return y_falling cVal c_ d_
+      return y-falling cVal c_ d_
     else:
       return 1.0
 
@@ -361,16 +401,16 @@ class TriangularSet extends FuzzySet:
         Point2f d_ 0.0
       ] 
 
-  truncated_polygon -> List: 
-    return (1.0-pertinence).abs < F_error3?
+  truncated-polygon -> List: 
+    return (1.0 - pertinence).abs < F-error3?
       [ Point2f a_ 0.0, 
         Point2f b_ 1.0,
         Point2f d_ 0.0,
         Point2f a_ 0.0
       ] :
       [ Point2f a_ 0.0, 
-        intersection truncator_l truncator_r (Point2f a_ 0.0) (Point2f b_ 1.0),
-        intersection truncator_l truncator_r (Point2f b_ 1.0) (Point2f d_ 0.0),    
+        intersection truncator-l truncator-r (Point2f a_ 0.0) (Point2f b_ 1.0),
+        intersection truncator-l truncator-r (Point2f b_ 1.0) (Point2f d_ 0.0),    
         Point2f d_ 0.0,
         Point2f a_ 0.0
       ]      

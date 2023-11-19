@@ -1,6 +1,6 @@
 // Copyright 2021 Ekorau LLC
 
-import fuzzy_logic show *
+import fuzzy-logic show *
 main:
 
     // FuzzyInput
@@ -32,73 +32,73 @@ main:
 
     // FuzzyInput
     distance := FuzzyInput "distance"
-    distance.add_set near
-    distance.add_set safe
-    distance.add_set distant
+    distance.add-set near
+    distance.add-set safe
+    distance.add-set distant
 
     // FuzzyInput
     speedInput := FuzzyInput "speed"
-    speedInput.add_set stoppedInput
-    speedInput.add_set slowInput
-    speedInput.add_set normalInput
-    speedInput.add_set quickInput
+    speedInput.add-set stoppedInput
+    speedInput.add-set slowInput
+    speedInput.add-set normalInput
+    speedInput.add-set quickInput
 
     // FuzzyInput
     temperature := FuzzyInput "temperature"
-    temperature.add_set cold
-    temperature.add_set good
-    temperature.add_set hot
+    temperature.add-set cold
+    temperature.add-set good
+    temperature.add-set hot
 
     // FuzzyOutput
     risk := FuzzyOutput "risk"
-    risk.add_set minimum
-    risk.add_set average
-    risk.add_set maximum
+    risk.add-set minimum
+    risk.add-set average
+    risk.add-set maximum
 
     // FuzzyOutput
     speedOutput :=  FuzzyOutput "speed"
-    speedOutput.add_set stoppedOutput 
-    speedOutput.add_set slowOutput
-    speedOutput.add_set normalOutput
-    speedOutput.add_set quickOutput
+    speedOutput.add-set stoppedOutput 
+    speedOutput.add-set slowOutput
+    speedOutput.add-set normalOutput
+    speedOutput.add-set quickOutput
 
 
-    distanceNearAndSpeedQuick := Antecedent.AND_sets near quickInput
+    distanceNearAndSpeedQuick := Antecedent.AND-sets near quickInput
     temperatureCold := Antecedent.set cold
-    if_DistanceNearAndSpeedQuickOrTempCold := Antecedent.OR_ante_ante distanceNearAndSpeedQuick temperatureCold
+    if-DistanceNearAndSpeedQuickOrTempCold := Antecedent.OR-ante-ante distanceNearAndSpeedQuick temperatureCold
 
-    then_RiskMaxAndSpeedSlow := Consequent.output maximum
-    then_RiskMaxAndSpeedSlow.add_output slowOutput
+    then-RiskMaxAndSpeedSlow := Consequent.output maximum
+    then-RiskMaxAndSpeedSlow.add-output slowOutput
 
-    rule0 := FuzzyRule if_DistanceNearAndSpeedQuickOrTempCold then_RiskMaxAndSpeedSlow
+    rule0 := FuzzyRule if-DistanceNearAndSpeedQuickOrTempCold then-RiskMaxAndSpeedSlow
     
 
-    distanceSafeAndSpeedNormal := Antecedent.AND_sets safe normalInput
-    if_DistanceSafeAndSpeedNormalOrTemperatureGood := Antecedent.OR_ante_set distanceSafeAndSpeedNormal good
+    distanceSafeAndSpeedNormal := Antecedent.AND-sets safe normalInput
+    if-DistanceSafeAndSpeedNormalOrTemperatureGood := Antecedent.OR-ante-set distanceSafeAndSpeedNormal good
 
-    then_RiskAverageAndSpeedNormal := Consequent.output average
-    then_RiskAverageAndSpeedNormal.add_output normalOutput
+    then-RiskAverageAndSpeedNormal := Consequent.output average
+    then-RiskAverageAndSpeedNormal.add-output normalOutput
 
-    rule1 := FuzzyRule if_DistanceSafeAndSpeedNormalOrTemperatureGood then_RiskAverageAndSpeedNormal
+    rule1 := FuzzyRule if-DistanceSafeAndSpeedNormalOrTemperatureGood then-RiskAverageAndSpeedNormal
 
     
-    distanceDistantAndSpeedSlow := Antecedent.AND_sets distant slowInput
-    if_DistanceDistantAndSpeedSlowOrTemperatureHot := Antecedent.OR_ante_set distanceDistantAndSpeedSlow hot
+    distanceDistantAndSpeedSlow := Antecedent.AND-sets distant slowInput
+    if-DistanceDistantAndSpeedSlowOrTemperatureHot := Antecedent.OR-ante-set distanceDistantAndSpeedSlow hot
 
-    then_RiskMinimumSpeedQuick := Consequent.output minimum
-    then_RiskMinimumSpeedQuick.add_output quickOutput
+    then-RiskMinimumSpeedQuick := Consequent.output minimum
+    then-RiskMinimumSpeedQuick.add-output quickOutput
 
-    rule2 :=  FuzzyRule if_DistanceDistantAndSpeedSlowOrTemperatureHot then_RiskMinimumSpeedQuick
+    rule2 :=  FuzzyRule if-DistanceDistantAndSpeedSlowOrTemperatureHot then-RiskMinimumSpeedQuick
     
     model := FuzzyModel "driver_advanced"
-    model.add_input distance
-    model.add_input speedInput
-    model.add_input temperature
-    model.add_output risk
-    model.add_output speedOutput
-    model.add_rule rule0
-    model.add_rule rule1
-    model.add_rule rule2
+    model.add-input distance
+    model.add-input speedInput
+    model.add-input temperature
+    model.add-output risk
+    model.add-output speedOutput
+    model.add-rule rule0
+    model.add-rule rule1
+    model.add-rule rule2
 
     //print "about to loop ..."
     // 10.repeat:
@@ -110,9 +110,9 @@ main:
     print "---------------------------- "
     print "Distance: $(%.2f input0)  Speed: $(%.2f input1) Temperature: $(%.2f input2)"
 
-    model.crisp_input 0 input0
-    model.crisp_input 1 input1
-    model.crisp_input 2 input2
+    model.crisp-input 0 input0
+    model.crisp-input 1 input1
+    model.crisp-input 2 input2
     model.changed
     model.fuzzify
 

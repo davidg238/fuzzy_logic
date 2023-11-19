@@ -5,8 +5,8 @@ import math show *
 RIGHT ::=  1
 ON    ::=  0
 LEFT  ::= -1
-F_error3 ::= 0.0001  // TODO floating point error
-F_error6 ::= 0.0000001  // TODO floating point error
+F-error3 ::= 0.0001  // TODO floating point error
+F-error6 ::= 0.0000001  // TODO floating point error
 
 intersection p0/Point2f p1/Point2f p2/Point2f p3/Point2f -> Point2f:
 // https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
@@ -17,7 +17,7 @@ intersection p0/Point2f p1/Point2f p2/Point2f p3/Point2f -> Point2f:
   s2 := Point2f (p3.x - p2.x) (p3.y - p2.y)
   denom := (-s2.x * s1.y + s1.x * s2.y)
 
-  if denom.abs < F_error3: return NoPoint2f  // not general, but good enough for geometries here?
+  if denom.abs < F-error3: return NoPoint2f  // not general, but good enough for geometries here?
 
   s := (-s1.y * (p0.x - p2.x) + s1.x * (p0.y - p2.y)) / denom;
   t := ( s2.x * (p0.y - p2.y) - s2.y * (p0.x - p2.x)) / denom;
@@ -26,57 +26,57 @@ intersection p0/Point2f p1/Point2f p2/Point2f p3/Point2f -> Point2f:
     Point2f (p0.x + (t * s1.x)) (p0.y + (t * s1.y)): 
     NoPoint2f
 
-convex_hull points/List -> List:
+convex-hull points/List -> List:
     /// https://en.wikipedia.org/wiki/Graham_scan
     /// 
     stack := Stack
-    p0 := leftmost_lowest points
-    temp := polar_sort points p0
+    p0 := leftmost-lowest points
+    temp := polar-sort points p0
     temp.do:
         // pop the last point from the stack if we turn clockwise to reach this point
-        while stack.size > 1 and (it.counter_clockwise stack.next_to_top stack.top ) <= 0:
+        while stack.size > 1 and (it.counter-clockwise stack.next-to-top stack.top ) <= 0:
             stack.pop
         stack.push it
-    return stack.to_list
+    return stack.to-list
 
-upper_convex_hull points/List -> List:
+upper-convex-hull points/List -> List:
     /// https://en.wikibooks.org/wiki/Algorithm_Implementation/Geometry/Convex_hull/Monotone_chain
 
     if points.size < 3:
         throw "unknown geometry"
     val := null // only used debug prints
-    temp := xy_sort points
+    temp := xy-sort points
     stack := Stack
     temp.do --reversed:
-        while stack.size > 1 and (it.counter_clockwise stack.next_to_top stack.top) <= 0:
+        while stack.size > 1 and (it.counter-clockwise stack.next-to-top stack.top) <= 0:
             val = stack.pop
         stack.push it
-    return stack.to_list
+    return stack.to-list
 
 /* 
 Answers true if the point is before, after or above the polyline.
 Points in the polyline are assumed to be ordered.
 */
-is_point point/Point2f --above polyline/List -> bool:
+is-point point/Point2f --above polyline/List -> bool:
   // print "is_point $point $polyline"
   if point.x < polyline.first.x or point.x > polyline.last.x:
     return true
   for i:=0; i < polyline.size - 1; i++:
     if point.x >= polyline[i].x and point.x <= polyline[i+1].x:
-      return point.is_above --p1=polyline[i] --p2=polyline[i+1]
+      return point.is-above --p1=polyline[i] --p2=polyline[i+1]
   throw "unknown geometry"
 
     
 
-xy_sort points/List -> List:
+xy-sort points/List -> List:
     return points.sort: | a b |
-        i := a.x.compare_to b.x
-        (i != 0)? i : a.y.compare_to b.y
+        i := a.x.compare-to b.x
+        (i != 0)? i : a.y.compare-to b.y
       
-polar_sort points/List p0/Point2f -> List:
-    return points.sort: | a b | (p0.polar_angle a).compare_to (p0.polar_angle b)
+polar-sort points/List p0/Point2f -> List:
+    return points.sort: | a b | (p0.polar-angle a).compare-to (p0.polar-angle b)
 
-leftmost_lowest points/List -> Point2f:
+leftmost-lowest points/List -> Point2f:
     p0 := points.first // assumes a non-empty list
     points.do:
         if it.x<=p0.x and it.y<=p0.y: p0 = it
@@ -88,7 +88,7 @@ class Point2f extends Point3f:
   constructor x/num y/num z=0.0:
     super x y z
 
-  compare_to other/Point2f -> num:
+  compare-to other/Point2f -> num:
     if this.x < other.x:
       return -1
     else if this.x > other.x:
@@ -100,28 +100,28 @@ class Point2f extends Point3f:
     else:
       return 0
     
-  counter_clockwise a/Point2f b/Point2f -> int:
+  counter-clockwise a/Point2f b/Point2f -> int:
     // Subtract co-ordinates of point A from B and P, to make A as origin
     b_ := b - a
     p_ := this - a
     
-    cross_product := b_.x * p_.y - b_.y * p_.x;
-    if cross_product > 0:
+    cross-product := b_.x * p_.y - b_.y * p_.x;
+    if cross-product > 0:
         return RIGHT
-    if cross_product < 0:
+    if cross-product < 0:
         return LEFT
     return ON    
 
   inside polygon/List -> bool:
     angle := 0.0
-    polygon.do: [angle += polar_angle it]
+    polygon.do: [angle += polar-angle it]
     return angle.abs > PI // angle is 2PI if inside, 0 if outside: test with fp error tolerance
 
-  is_above --p1/Point2f --p2/Point2f -> bool:
+  is-above --p1/Point2f --p2/Point2f -> bool:
     // https://stackoverflow.com/questions/1560492/how-to-tell-whether-a-point-is-to-the-right-or-left-side-of-a-line
     return ((p2.x - p1.x) * (this.y - p1.y)) - ((p2.y - p1.y) * (this.x - p1.x)) > 0
 
-  polar_angle b/Point2f -> float:
+  polar-angle b/Point2f -> float:
     return atan ((b.y - y)/(b.x - x))
 
   stringify: return "$(%.2f x),$(%.2f y)"
@@ -137,7 +137,7 @@ class Stack extends Deque:
     add element
 
   pop -> any:
-    return remove_last
+    return remove-last
 
   reversed -> List:
     list := []
@@ -145,7 +145,7 @@ class Stack extends Deque:
         list.add it
     return list
 
-  to_list -> List:
+  to-list -> List:
     list := []
     this.do: list.add it
     return list
@@ -153,11 +153,11 @@ class Stack extends Deque:
   top -> any:
     return last
 
-  next_to_top -> any:
-    return backing_[size-2]
+  next-to-top -> any:
+    return backing_[size - 2]
 
-  is_empty -> bool:
-    return this.is_empty
+  is-empty -> bool:
+    return this.is-empty
 
 /*
 intersection a1/Point2f a2/Point2f b3/Point2f b4/Point2f -> Point2f?:

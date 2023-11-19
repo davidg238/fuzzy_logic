@@ -1,4 +1,4 @@
-import fuzzy_logic show *
+import fuzzy-logic show *
 import websocket show Session
 import encoding.json
 import http
@@ -11,35 +11,34 @@ class FuzzyHTMLview:
   colors := ["aqua", "blue", "teal", "fuchsia", "green", "lime", "maroon", "navy", "olive", "purple", "red", "silver", "yellow", "black"] // , white, gray (or grey)
   session /Session? := null
   model/FuzzyModel? := null
-  addr_str/string
+  addr-str/string
   writer/http.ResponseWriter? := null
   tabs := ["Inputs", "Rules", "Outputs"]
 
-  constructor .addr_str/string:
+  constructor .addr-str/string:
 
   use session/Session -> none:
     task --background=true::
       i := 1
       while in := session.receive:
         print "received: $in"
-        handle_msg in
+        handle-msg in
         model.changed
         model.fuzzify
         model.defuzzify
-//        print_objects
 
-  html_ str/string -> none:
+  write_ str/string -> none:
     writer.write str
 
-  handle_msg msg/string -> none:
+  handle-msg msg/string -> none:
     cmd := json.parse msg
-    model.crisp_inputs_named cmd.keys.first cmd.values.first.to_float
+    model.crisp-inputs-named cmd.keys.first cmd.values.first.to-float
 
-  update_compositions session/Session -> none:
+  update-compositions session/Session -> none:
     session.send "ping"
 
-  write_homepage_ -> none:
-    html_
+  write-homepage_ -> none:
+    write_
       """
       <!DOCTYPE html>
         <html>
@@ -51,36 +50,36 @@ class FuzzyHTMLview:
                 <h2>Models</h2>
               </div>
       """
-    for i:=0; i<model_names.size; i++:
-      html_
+    for i:=0; i<model-names.size; i++:
+      write_
         """
         <div class="w3-padding-large">
-          <a class="click" href="http://$(addr_str):8080/$model_names[i]/inputs">$model_names[i]</a>
+          <a class="click" href="http://$(addr-str):8080/$model-names[i]/inputs">$model-names[i]</a>
         </div>
         """
-    html_ "</body>\n</html>"
+    write_ "</body>\n</html>"
 
   write path/string awriter/http.ResponseWriter -> none:
     writer = awriter
     if path == "/":
-      write_homepage_
+      write-homepage_
       return
-    parts := split_path path[1..]
-    new := get_model parts[0]
+    parts := split-path path[1..]
+    new := get-model parts[0]
     if new == null:
-      html_ (page_unknown "Model not found")
+      write_ (page-unknown "Model not found")
       return
     else:
       if (model == null) or (model.name != new.name):
         model = new
         model.fuzzify
         model.defuzzify
-    write_page_ parts
+    write-page_ parts
 
-  split_path path/string -> List:
-    return path.trim.split --at_first=false "/"
+  split-path path/string -> List:
+    return path.trim.split --at-first=false "/"
 
-  page_unknown reason/string -> string:
+  page-unknown reason/string -> string:
     return """
     <!DOCTYPE html>
       <html>
@@ -92,185 +91,185 @@ class FuzzyHTMLview:
       </html>
     """
 
-  write_page_ parts/List -> none:
+  write-page_ parts/List -> none:
   // TODO: improve
     if parts.size == 1:
-      write_model_ 0
+      write-model_ 0
     if parts[1] == null:
-      html_ (page_unknown "Facet empty")
+      write_ (page-unknown "Facet empty")
     else if parts[1] == "inputs":
-      write_model_ 0
+      write-model_ 0
     else if parts[1] == "rules":
-      write_model_ 1
+      write-model_ 1
     else if parts[1] == "outputs":
-      write_model_ 2
+      write-model_ 2
     else:
-      html_ (page_unknown "Facet not understood")
+      write_ (page-unknown "Facet not understood")
 
-  write_model_ tab/int -> none:
-    html_
+  write-model_ tab/int -> none:
+    write_
       """
       <!DOCTYPE HTML>
       <html>
         <head>
           <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
       """
-    html_ style_
-    html_ "</head>"
-    html_ (tab==0? "<body onload=\"open_ws_connection()\">" : "<body>")
-    write_navigation_div tab
-    write_body_div_ tab
-    html_ "</body>"
-    if tab==0: write_script_
-    html_ "</html>"
+    write_ style_
+    write_ "</head>"
+    write_ (tab==0? "<body onload=\"open_ws_connection()\">" : "<body>")
+    write-navigation-div tab
+    write-body-div_ tab
+    write_ "</body>"
+    if tab==0: write-script_
+    write_ "</html>"
 
-  write_navigation_div tab/int -> none:
-    html_
+  write-navigation-div tab/int -> none:
+    write_
       """
         <div class="w3-row-padding">
-          <a class="click" href="http://$(addr_str):8080">Home</a>
+          <a class="click" href="http://$(addr-str):8080">Home</a>
         </div>
         <div class="w3-row-padding">
       """
-    write_links_ tab
-    html_ "</div>"
+    write-links_ tab
+    write_ "</div>"
 
-  write_links_ tab/int -> none:
+  write-links_ tab/int -> none:
   // TODO: improve
     if tab == 0:
-      html_ "Inputs <a class=\"click\" href=\"http://$(addr_str):8080/$model.name/rules\">rules</a> <a class=\"click\" href=\"http://$(addr_str):8080/$model.name/outputs\">outputs</a>"
+      write_ "Inputs <a class=\"click\" href=\"http://$(addr-str):8080/$model.name/rules\">rules</a> <a class=\"click\" href=\"http://$(addr-str):8080/$model.name/outputs\">outputs</a>"
     else if tab == 1:
-      html_ "<a class=\"click\" href=\"http://$(addr_str):8080/$model.name/inputs\">inputs</a> Rules <a class=\"click\" href=\"http://$(addr_str):8080/$model.name/outputs\">outputs</a>"
+      write_ "<a class=\"click\" href=\"http://$(addr-str):8080/$model.name/inputs\">inputs</a> Rules <a class=\"click\" href=\"http://$(addr-str):8080/$model.name/outputs\">outputs</a>"
     else:
-      html_ "<a class=\"click\" href=\"http://$(addr_str):8080/$model.name/inputs\">inputs</a> <a class=\"click\" href=\"http://$(addr_str):8080/$model.name/rules\">rules</a> Outputs"
+      write_ "<a class=\"click\" href=\"http://$(addr-str):8080/$model.name/inputs\">inputs</a> <a class=\"click\" href=\"http://$(addr-str):8080/$model.name/rules\">rules</a> Outputs"
 
-  write_body_div_ tab/int -> none:
-    html_
+  write-body-div_ tab/int -> none:
+    write_
       """
         <div class="w3-row-padding">
           <h4>$tabs[tab]</h4>
         </div>
       """
-    if tab == 0:      write_inputs_
-    else if tab == 1: write_rules_
-    else:             write_outputs_
-    html_ "</div>"
+    if tab == 0:      write-inputs_
+    else if tab == 1: write-rules_
+    else:             write-outputs_
+    write_ "</div>"
 
   // ------------------------------ Inputs ------------------------------
 
-  write_inputs_  -> none:
-    html_
+  write-inputs_  -> none:
+    write_
       """
           <div id="inputs" class="w3-row-padding">
             <h3>Fuzzy Model: $model.name</h3>
       """
     for i:=0; i<model.inputs.size; i++:
-      write_input_ model.inputs[i] model.crisp_inputs[i]
-    html_ "</div>"
+      write-input_ model.inputs[i] model.crisp-inputs[i]
+    write_ "</div>"
 
-  write_input_ input/FuzzyInput crisp_in/num-> none:
-    html_
+  write-input_ input/FuzzyInput crisp-in/num-> none:
+    write_
       """
             <div id="in1" class="w3-container w3-quarter">
-              <p><b>Input:</b> $input.name <b>Sets:</b> $(format_names_ input.set_names)
+              <p><b>Input:</b> $input.name <b>Sets:</b> $(format-names_ input.set-names)
       """
-    html_ "<svg width=\"500\" height=\"400\">"
-    html_ graph_grid_
-    html_ "<g transform =\"translate (0,400) scale (1, -1)\">"
-    write_polylines_ (collect_polylines input.fsets)
-    html_ "</g>"
-    html_ graph_y_axis_
-    html_ "</svg>"
-    html_ graph_x_axis_
-    html_
+    write_ "<svg width=\"500\" height=\"400\">"
+    write_ graph-grid_
+    write_ "<g transform =\"translate (0,400) scale (1, -1)\">"
+    write-polylines_ (collect-polylines input.fsets)
+    write_ "</g>"
+    write_ graph-y-axis_
+    write_ "</svg>"
+    write_ graph-x-axis_
+    write_
       """
-              <input type="range" min="1" max="100" value=$crisp_in class="slider" id=$input.name>
+              <input type="range" min="1" max="100" value=$crisp-in class="slider" id=$input.name>
             </div>
       """
 
   // ------------------------------ Rules ------------------------------
-  write_rules_ -> none:
-    html_
+  write-rules_ -> none:
+    write_
       """
           <div class="w3-row-padding">
           <div class="w3-container w3-third">
       """
-    model.rules.do: html_ "$it.stringify </br>"
-    html_ "</div>"
+    model.rules.do: write_ "$it.stringify </br>"
+    write_ "</div>"
 
   // ------------------------------ Outputs ------------------------------
 
-  write_outputs_ -> none:
-    html_ "<div class=\"w3-row-padding\">"
-    model.outputs.do: write_composition_ it
-    html_ "</div>"
+  write-outputs_ -> none:
+    write_ "<div class=\"w3-row-padding\">"
+    model.outputs.do: write-composition_ it
+    write_ "</div>"
 
-  write_composition_ output/FuzzyOutput -> none:
-    print "composition sets: $output.composition.set_names"
-    html_ 
+  write-composition_ output/FuzzyOutput -> none:
+    print "composition sets: $output.composition.set-names"
+    write_ 
       """
             <div class="w3-container w3-quarter">
-              <p><b>Sets:</b> $(format_names_ output.composition.set_names)  <b>Output:</b> $output.name <b>Crisp value:</b> $(%.1f output.defuzzify)
+              <p><b>Sets:</b> $(format-names_ output.composition.set-names)  <b>Output:</b> $output.name <b>Crisp value:</b> $(%.1f output.defuzzify)
               <svg width="500" height="400">
       """
-    html_ graph_grid_
-    html_ "<g id=\"composition\" transform =\"translate (0,400) scale (1, -1)\">"
-    write_polylines_ output.composition.set_polylines
-    write_line_ output.composition.centroid_line
-    html_
+    write_ graph-grid_
+    write_ "<g id=\"composition\" transform =\"translate (0,400) scale (1, -1)\">"
+    write-polylines_ output.composition.set-polylines
+    write-line_ output.composition.centroid-line
+    write_
       """
                 </g>
-                $graph_y_axis_
+                $graph-y-axis_
               </svg>
-              $graph_x_axis_
+              $graph-x-axis_
             </div>
       """
 
   // ------------------------------ Helpers ------------------------------
 
-  format_names_ names/List -> string:
+  format-names_ names/List -> string:
     // <tspan style="color:red">near</tspan>,  <tspan style="color:lime">safe</tspan>,  <tspan style="color:cyan">distant</tspan></p>
 
     str := ""
     for i:=0; i<names.size; i++:
       str += "<tspan style=\"color:$(colors[i])\">$names[i]</tspan>"
-      if i < names.size-1: str += ", "
+      if i < names.size - 1: str += ", "
     return str
 
-  collect_polylines sets/List -> List:
+  collect-polylines sets/List -> List:
     
     polys := []
     sets.do:
-      polys.add (svg_polyline_ it.polyline)
+      polys.add (svg-polyline_ it.polyline)
     return polys
 
-  write_polylines_ polys/List-> none:
+  write-polylines_ polys/List-> none:
     // <polyline points="0.0, 0.0 80.0,400.0 160.0, 0.0" style="stroke:red;fill:red;opacity:0.3" />
 
     for i:=0; i<polys.size; i++:
       if polys[i].size == 2:
-        html_ "<polyline points=\"$(polys[i])\"  style=\"stroke:$(colors[i]);stroke-width:5;fill:$(colors[i]);opacity:0.7\" />\n"
+        write_ "<polyline points=\"$(polys[i])\"  style=\"stroke:$(colors[i]);stroke-width:5;fill:$(colors[i]);opacity:0.7\" />\n"
       else:
-        html_ "<polyline points=\"$(polys[i])\"  style=\"stroke:$(colors[i]);fill:$(colors[i]);opacity:0.3\" />\n"
+        write_ "<polyline points=\"$(polys[i])\"  style=\"stroke:$(colors[i]);fill:$(colors[i]);opacity:0.3\" />\n"
 
-  svg_polyline_ points/List -> string:
+  svg-polyline_ points/List -> string:
     txt := ""
     points.do:
         txt += "$(%.1f 4*it.x),$(%.1f 400*it.y) "
     return txt 
 
-  nofill_polyline points_str/string -> string:
-    return "<polyline points=\"$(points_str)\" fill=\"none\" style=\"stroke:$(colors[colors.size-1]);opacity:0.8\" />\n"
+  nofill-polyline points-str/string -> string:
+    return "<polyline points=\"$(points-str)\" fill=\"none\" style=\"stroke:$(colors[colors.size - 1]);opacity:0.8\" />\n"
 
-  write_line_ line/string -> none:
-    html_ "<polyline points=\"$(line)\" fill=\"none\" stroke-dasharray=\"5,5\" style=\"stroke:$(colors[10]);stroke-width:1\" />\n"
+  write-line_ line/string -> none:
+    write_ "<polyline points=\"$(line)\" fill=\"none\" stroke-dasharray=\"5,5\" style=\"stroke:$(colors[10]);stroke-width:1\" />\n"
 
   // https://www.tutorialspoint.com/html5/html5_websocket.htm 
   // https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_client_applications
 
-  write_script_ -> none:
+  write-script_ -> none:
     name := ""
-    html_
+    write_
       """
       <script type = "text/javascript">
           var ws;
@@ -299,12 +298,12 @@ class FuzzyHTMLview:
       """
     for i:=0; i<model.inputs.size; i++:
       name = model.inputs[i].name
-      html_ "document.getElementById(\"$(name)\").addEventListener(\"change\", function() { send_num(\"$(name)\", this.value); });\n"
-    html_
+      write_ "document.getElementById(\"$(name)\").addEventListener(\"change\", function() { send_num(\"$(name)\", this.value); });\n"
+    write_
       """
           function open_ws_connection() {
             if ("WebSocket" in window) {
-                ws = new WebSocket('ws://$(addr_str):8080');
+                ws = new WebSocket('ws://$(addr-str):8080');
                 ws.onopen = function() {
                   document.getElementById("alerts").innerHTML = "-- active --";
                 };
@@ -375,7 +374,7 @@ class FuzzyHTMLview:
         }
       </style>
     """
-  graph_grid_ -> string:
+  graph-grid_ -> string:
     return """
                 <g transform="translate (0, 400) scale (1,-1)">
                   <line x1="0" y1="0" x2="400" y2="0" stroke="black"/>
@@ -394,7 +393,7 @@ class FuzzyHTMLview:
                 </g>
     """
 
-  graph_y_axis_ -> string:
+  graph-y-axis_ -> string:
     return """
                 <text x="410" y="400" fill="black" text-anchor="start">0</text>
                 <text x="410" y="320" fill="black" text-anchor="start">20</text>
@@ -404,7 +403,7 @@ class FuzzyHTMLview:
                 <text x="410" y="15" fill="black" text-anchor="start">100</text>
     """
 
-  graph_x_axis_ -> string:
+  graph-x-axis_ -> string:
     return """
               <svg width="450" height="20">
                 <g transform="translate (0, 20) scale (1, 1)">

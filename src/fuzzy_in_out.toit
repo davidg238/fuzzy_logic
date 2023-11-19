@@ -13,16 +13,20 @@ class InputOutput:
 
   constructor .name="":
 
-  add_set a_set -> none:
-    fsets.add a_set
+  add-set a-set -> none:
+    fsets.add a-set
 
-  add_all_sets sets/List-> none:
-    fsets.add_all sets
+  add-all-sets sets/List-> none:
+    fsets.add-all sets
 
   clear -> none:
     fsets.do: it.clear
 
-  set_names -> List:
+  /// Test method, not API
+  clear-all -> none:
+    fsets = []
+
+  set-names -> List:
     names := []
     fsets.do: names.add it.name
     return names
@@ -32,14 +36,14 @@ class FuzzyInput extends InputOutput:
   constructor name="" :
     super name
 
-  fuzzify crisp_in/num -> none:
-    fsets.do: it.fuzzify crisp_in
+  fuzzify crisp-in/num -> none:
+    fsets.do: it.fuzzify crisp-in
 
   stringify -> string:
-    in_str := "in: $name\n"
+    in-str := "in: $name\n"
     fsets.do:
-      in_str = in_str + "    " + it.stringify + "\n"
-    return "$in_str"
+      in-str = in-str + "    " + it.stringify + "\n"
+    return "$in-str"
 
 
 class FuzzyOutput extends InputOutput:
@@ -61,8 +65,8 @@ class FuzzyOutput extends InputOutput:
     return composition_.defuzzify
 
   stringify -> string:
-      out_str := "out: $name\n"
+      out-str := "out: $name\n"
       fsets.do:
-          out_str = out_str + "    " + it.stringify + "\n"
-      return "$out_str"        
+          out-str = out-str + "    " + it.stringify + "\n"
+      return "$out-str"        
 

@@ -1,42 +1,42 @@
 // Copyright (c) 2021 Ekorau LLC
 
-import .fuzzy_in_out show *
-import .fuzzy_rule
+import .fuzzy-in-out show *
+import .fuzzy-rule
 
 class FuzzyModel:
 
   name := ""
-  crisp_inputs := []  // The physical inputs to the model.
+  crisp-inputs := []  // The physical inputs to the model.
   inputs  := []       // The fuzzy inputs.
   rules   := []       // The fuzzy rules.
   outputs := []       // The fuzzy outputs, NOT physical outputs  See defuzzify /int.
 
   constructor .name="":                   //The model name is optional.
 
-  add_input input/FuzzyInput -> none:
+  add-input input/FuzzyInput -> none:
     inputs.add input
-    crisp_inputs.add 0.0
+    crisp-inputs.add 0.0
 
-  add_output output/FuzzyOutput -> none:
+  add-output output/FuzzyOutput -> none:
     outputs.add output
 
-  add_rule rule/FuzzyRule -> none:
+  add-rule rule/FuzzyRule -> none:
     rules.add rule
 
   changed -> none:                    // TODO For now call explicitly.
     inputs.do: it.clear
     outputs.do: it.clear
 
-  crisp_inputs list/List -> none:
+  crisp-inputs list/List -> none:
     for i:=0; i<list.size; i+= 1:
-      crisp_input i list[i]
+      crisp-input i list[i]
 
-  crisp_inputs_named name/string value/num -> none:
-    input_names := inputs.map: it.name
-    crisp_input (input_names.index_of name) value
+  crisp-inputs-named name/string value/num -> none:
+    input-names := inputs.map: it.name
+    crisp-input (input-names.index-of name) value
 
-  crisp_input index/int value/num -> none:
-    crisp_inputs[index] = value
+  crisp-input index/int value/num -> none:
+    crisp-inputs[index] = value
 
   defuzzify -> none:
     outputs.do:
@@ -46,22 +46,22 @@ class FuzzyModel:
     return outputs[index].defuzzify
 
   fuzzify -> none:
-    for i:=0; i<crisp_inputs.size; i+= 1:
-      inputs[i].fuzzify crisp_inputs[i]
+    for i:=0; i<crisp-inputs.size; i+= 1:
+      inputs[i].fuzzify crisp-inputs[i]
     rules.do: it.evaluate
 
-  is_fired index/int -> bool:  // TODO just fired?
+  is-fired index/int -> bool:  // TODO just fired?
     return rules[index].fired
 
   stringify -> string:
-    in_str := ""
+    in-str := ""
     inputs.do:
-      in_str = in_str + it.stringify + "\n"
-    out_str := ""
+      in-str = in-str + it.stringify + "\n"
+    out-str := ""
     outputs.do:
-      out_str = out_str + it.stringify + "\n"            
+      out-str = out-str + it.stringify + "\n"            
 
-    rule_str := ""
+    rule-str := ""
     rules.do:
-      rule_str = rule_str + it.stringify + "\n"     
-    return "Model: $name \n  Inputs:\n  $in_str  Outputs:\n  $out_str  Rules:\n$rule_str"
+      rule-str = rule-str + it.stringify + "\n"     
+    return "Model: $name \n  Inputs:\n  $in-str  Outputs:\n  $out-str  Rules:\n$rule-str"

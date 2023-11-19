@@ -1,18 +1,18 @@
-import .test_util show *
+import .test-util show *
 
-import fuzzy_model show FuzzyModel
+import fuzzy-model show FuzzyModel
 import composition show Composition
-import fuzzy_input show FuzzyInput
-import fuzzy_output show FuzzyOutput
-import fuzzy_set show FuzzySet
-import fuzzy_rule show FuzzyRule
+import fuzzy-input show FuzzyInput
+import fuzzy-output show FuzzyOutput
+import fuzzy-set show FuzzySet
+import fuzzy-rule show FuzzyRule
 import antecedent show Antecedent
 import consequent show Consequent
 
-import set_triangular show TriangularSet
-import set_trapezoidal show TrapezoidalSet
-import set_trapezoidal_l show LTrapezoidalSet
-import set_trapezoidal_r show RTrapezoidalSet
+import set-triangular show TriangularSet
+import set-trapezoidal show TrapezoidalSet
+import set-trapezoidal-l show LTrapezoidalSet
+import set-trapezoidal-r show RTrapezoidalSet
 
 main:
 

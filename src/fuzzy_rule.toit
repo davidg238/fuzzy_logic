@@ -13,10 +13,10 @@ class FuzzyRule:
   constructor .antecedent_ .consequent_ .name="":
 
   evaluate -> bool:
-    antecedent_power := antecedent_.evaluate
+    antecedent-power := antecedent_.evaluate
     // print "ante $antecedent_power"
-    fired = antecedent_power > 0.0? true : false
-    consequent_.evaluate antecedent_power
+    fired = antecedent-power > 0.0? true : false
+    consequent_.evaluate antecedent-power
     // print "eval conse $consequent_"
     return fired
 

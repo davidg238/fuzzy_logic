@@ -1,0 +1,75 @@
+FCL {
+  Function_block_declaration = "FUNCTION_BLOCK" Function_block_name Fb_io_var_declaration+  Function_Block_Body+ "END_FUNCTION_BLOCK"
+  Fb_io_var_declaration = Input_declaration | Output_declaration
+  
+  Input_declaration = "VAR_INPUT" Input+ "END_VAR"
+  Input = identifier":" IO_type ";"
+  
+  Output_declaration = "VAR_OUTPUT" Output+ "END_VAR"
+  Output = identifier":" IO_type ";"
+  
+  Function_Block_Body = Fuzzify_Block | Defuzzify_Block | Rule_Block
+  
+  Fuzzify_Block = "FUZZIFY" variable_name Range? Linguistic_Term+ "END_FUZZIFY"
+  
+  Defuzzify_Block = "DEFUZZIFY" variable_name Range? Linguistic_Term+ Defuzzification_Method Accuracy Default_Value "END_DEFUZZIFY"
+  
+  Rule_Block = "RULEBLOCK" And_Definition Or_Definition Activation_Method? Rule+ "END_RULEBLOCK"
+    
+  Range = "RANGE" ":=" "(" number ".." number ")" ";"
+  Linguistic_Term = "TERM" term_name ":=" Membership_Function ";"
+  Membership_Function = Singleton | Points+
+  Singleton = number
+  Points = "("number "," number ")"
+  
+  Defuzzification_Method = "METHOD" ":" Method ";"
+  Method =  "COG" | "COGS" | "COA" | "LM" | "RM" | "MM"
+  
+  Operator_Definition = And_Definition Or_Definition
+  Or_Definition = "OR"  ":" Or_Types ";"
+  Or_Types = "MAX" | "ASUM" | "BSUM"
+  And_Definition = "AND" ":" And_Types ";"
+  And_Types = "MIN" | "PROD" | "BDIF"
+  
+  Activation_Method = "ACT" ":" Act_Types ";"
+  Act_Types = "PROD" | "MIN"
+  
+  Rule = "RULE" integer ":" "if" Condition "then" Conclusion
+  Condition = Condition_A  Condition_B*
+  Condition_A = Subcondition | Variable_Name
+  Condition_B = Combinator Condition_A
+  Combinator = "and" | "or"
+  
+  Subcondition = Not_Sub | Sub
+  Not_Sub = "not" "(" Variable_Name "is" "not"? Term_Name ")"
+  Sub = Variable_Name "is" "not"? Term_Name
+  
+  Conclusion = Is_Clause* Last_Is_Clause
+  Is_Clause = Alt_Clause ","
+  Last_Is_Clause = Alt_Clause  
+  Alt_Clause = Factoid | Variable_Name
+  Factoid = Variable_Name "is" Term_Name
+  
+  Variable_Name = identifier
+  Term_Name = identifier
+  Accuracy = "ACCU" ":" Acc_Val  ";"
+  Acc_Val = "MAX"
+  
+  Default_Value = "DEFAULT" ":=" DF_Value ";"
+  DF_Value = number | "nan"
+  
+  IO_type = "REAL"
+
+  term_name = identifier
+  variable_name = identifier
+  Function_block_name = identifier
+  
+  identifier  = letter (letter | digit | "_")*
+  space  += "//" (~"\n" any)*                  --comment
+
+  integer = digit+        -- whole
+  
+  number  (a number)
+    = digit* "." digit+   -- fract
+    | integer             -- whole  
+}

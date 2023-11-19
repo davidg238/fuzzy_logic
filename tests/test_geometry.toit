@@ -2,7 +2,7 @@
 
 import btest show *
 
-import fuzzy_logic show *
+import fuzzy-logic show *
 
 import expect show *
 

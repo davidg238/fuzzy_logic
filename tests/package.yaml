@@ -1,6 +1,5 @@
 dependencies:
   btest:
-    url: github.com/davidg238/btest
-    version: ^1.0.4
+    path: ../../btest
   fuzzy_logic:
     path: ..

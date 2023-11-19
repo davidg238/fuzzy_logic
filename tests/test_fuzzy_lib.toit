@@ -3,7 +3,7 @@
 // import .test_util show test_start test_end test expect_true expect_false expect_near expect_not_null expect_runs expect_equals
 
 import btest show *
-import fuzzy_logic show *
+import fuzzy-logic show *
 
 /*
 import fuzzy_model show FuzzyModel
