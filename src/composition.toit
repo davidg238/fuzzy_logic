@@ -22,7 +22,7 @@ class Composition:
   defuzzify -> float:
     if crisp-out_ == null:
       crisp-out_ = centroid-x  collect-truncated
-    print "crisp-out_ = $(%.6f crisp-out_)"
+    // print "crisp-out_ = $(%.6f crisp-out_)"
     return crisp-out_
 
   collect-truncated -> List:

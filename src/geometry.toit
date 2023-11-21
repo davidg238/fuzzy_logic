@@ -5,8 +5,8 @@ import math show *
 RIGHT ::=  1
 ON    ::=  0
 LEFT  ::= -1
-F-error3 ::= 0.0001  // TODO floating point error
-F-error6 ::= 0.0000001  // TODO floating point error
+F-error3 ::= 0.0009  // TODO floating point error
+F-error6 ::= 0.0000009  // TODO floating point error
 
 intersection p0/Point2f p1/Point2f p2/Point2f p3/Point2f -> Point2f:
 // https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect

@@ -14,6 +14,7 @@ import .models show *
 main:
 
   amodel := get-model "driver"
+  print "Model: $amodel"
   start := Time.monotonic-us
   m-input := 35 //todo, test with 100
   amodel.crisp-input 0 m-input
@@ -22,4 +23,4 @@ main:
   m-output := amodel.defuzzify 0
   end := Time.monotonic-us
 
-  print "Time: $(%.1f (end-start)/1000.0)ms Distance: $m-input ---> Speed: $(%.1f m-output)"
+  print "Time: $(%.1f (end - start)/1000.0)ms Distance: $m-input ---> Speed: $(%.1f m-output)"

@@ -37,9 +37,9 @@ get-driver -> FuzzyModel:
   speed.add-set average
   speed.add-set fast
 
-  rule-01 := FuzzyRule (Antecedent.set small) (Consequent.output slow)     // "IF distance = small THEN speed = slow"
-  rule-02 := FuzzyRule (Antecedent.set safe) (Consequent.output average)   // "IF distance = safe THEN speed = average"
-  rule-03 := FuzzyRule (Antecedent.set big) (Consequent.output fast)       // "IF distance = big THEN speed = high"
+  rule-01 := FuzzyRule.fl-if (Antecedent.fl-set small) --fl-then=(Consequent.output slow)     // "IF distance = small THEN speed = slow"
+  rule-02 := FuzzyRule.fl-if (Antecedent.fl-set safe) --fl-then=(Consequent.output average)   // "IF distance = safe THEN speed = average"
+  rule-03 := FuzzyRule.fl-if (Antecedent.fl-set big) --fl-then=(Consequent.output fast)       // "IF distance = big THEN speed = high"
 
   model := FuzzyModel "driver"
   model.add-input distance
@@ -111,32 +111,32 @@ get-driver-advanced -> FuzzyModel:
     speedOutput.add-set quickOutput
 
 
-    distanceNearAndSpeedQuick := Antecedent.AND-sets near quickInput
-    temperatureCold := Antecedent.set cold
-    if-DistanceNearAndSpeedQuickOrTempCold := Antecedent.OR-ante-ante distanceNearAndSpeedQuick temperatureCold
+    distanceNearAndSpeedQuick := Antecedent.fl-or near quickInput
+    temperatureCold := Antecedent.fl-set cold
+    distanceNearAndSpeedQuickOrTempCold := Antecedent.fl-or distanceNearAndSpeedQuick temperatureCold
 
-    then-RiskMaxAndSpeedSlow := Consequent.output maximum
-    then-RiskMaxAndSpeedSlow.add-output slowOutput
+    riskMaxAndSpeedSlow := Consequent.output maximum
+    riskMaxAndSpeedSlow.add-output slowOutput
 
-    rule0 := FuzzyRule if-DistanceNearAndSpeedQuickOrTempCold then-RiskMaxAndSpeedSlow
+    rule0 := FuzzyRule.fl-if distanceNearAndSpeedQuickOrTempCold --fl-then=riskMaxAndSpeedSlow
     
 
-    distanceSafeAndSpeedNormal := Antecedent.AND-sets safe normalInput
-    if-DistanceSafeAndSpeedNormalOrTemperatureGood := Antecedent.OR-ante-set distanceSafeAndSpeedNormal good
+    distanceSafeAndSpeedNormal := Antecedent.fl-and safe normalInput
+    distanceSafeAndSpeedNormalOrTemperatureGood := Antecedent.fl-or distanceSafeAndSpeedNormal good
 
-    then-RiskAverageAndSpeedNormal := Consequent.output average
-    then-RiskAverageAndSpeedNormal.add-output normalOutput
+    riskAverageAndSpeedNormal := Consequent.output average
+    riskAverageAndSpeedNormal.add-output normalOutput
 
-    rule1 := FuzzyRule if-DistanceSafeAndSpeedNormalOrTemperatureGood then-RiskAverageAndSpeedNormal
+    rule1 := FuzzyRule.fl-if distanceSafeAndSpeedNormalOrTemperatureGood --fl-then=riskAverageAndSpeedNormal
 
     
-    distanceDistantAndSpeedSlow := Antecedent.AND-sets distant slowInput
-    if-DistanceDistantAndSpeedSlowOrTemperatureHot := Antecedent.OR-ante-set distanceDistantAndSpeedSlow hot
+    distanceDistantAndSpeedSlow := Antecedent.fl-and distant slowInput
+    distanceDistantAndSpeedSlowOrTemperatureHot := Antecedent.fl-or distanceDistantAndSpeedSlow hot
 
-    then-RiskMinimumSpeedQuick := Consequent.output minimum
-    then-RiskMinimumSpeedQuick.add-output quickOutput
+    riskMinimumSpeedQuick := Consequent.output minimum
+    riskMinimumSpeedQuick.add-output quickOutput
 
-    rule2 :=  FuzzyRule if-DistanceDistantAndSpeedSlowOrTemperatureHot then-RiskMinimumSpeedQuick
+    rule2 :=  FuzzyRule.fl-if distanceDistantAndSpeedSlowOrTemperatureHot --fl-then=riskMinimumSpeedQuick
     
     model := FuzzyModel "driver_advanced"
     model.add-input distance
@@ -188,8 +188,8 @@ get-casco -> FuzzyModel:
   weather.add-all-sets [anys, very-little, little-bit, medium, quite, much, very-much]
   fuzzy.add-output weather
 
-  rule-template := : |set-a set-b set-c output|
-      fuzzy.add-rule (FuzzyRule (Antecedent.AND-ante-set (Antecedent.AND-sets set-a set-b) set-c) (Consequent.output output))
+  rule-template := : |seta setb setc out|
+      fuzzy.add-rule (FuzzyRule.fl-if (Antecedent.fl-and (Antecedent.fl-and seta setb) setc) --fl-then=(Consequent.output out))
 
   rule-template.call  dry cold summer           medium
   rule-template.call  dry cold fall             very-little
@@ -257,21 +257,21 @@ get-fan-speed -> FuzzyModel:
   speed.add-all-sets [off, lowHumidity, medium, fast]
   fuzzy.add-output speed
   
-  fuzzy.add-rule (FuzzyRule (Antecedent.AND-sets veryLow dry)          (Consequent.output off))
-  fuzzy.add-rule (FuzzyRule (Antecedent.AND-sets veryLow comfortable)  (Consequent.output off))
-  fuzzy.add-rule (FuzzyRule (Antecedent.AND-sets veryLow humid)        (Consequent.output off))
-  fuzzy.add-rule (FuzzyRule (Antecedent.AND-sets veryLow sticky)       (Consequent.output lowHumidity))
-  fuzzy.add-rule (FuzzyRule (Antecedent.AND-sets low dry)              (Consequent.output off))
-  fuzzy.add-rule (FuzzyRule (Antecedent.AND-sets low comfortable)      (Consequent.output off))
-  fuzzy.add-rule (FuzzyRule (Antecedent.AND-sets low humid)            (Consequent.output lowHumidity))
-  fuzzy.add-rule (FuzzyRule (Antecedent.AND-sets low sticky)           (Consequent.output medium))
-  fuzzy.add-rule (FuzzyRule (Antecedent.AND-sets high dry)             (Consequent.output lowHumidity))
-  fuzzy.add-rule (FuzzyRule (Antecedent.AND-sets high comfortable)     (Consequent.output medium))
-  fuzzy.add-rule (FuzzyRule (Antecedent.AND-sets high humid)           (Consequent.output fast))
-  fuzzy.add-rule (FuzzyRule (Antecedent.AND-sets high sticky)          (Consequent.output fast))
-  fuzzy.add-rule (FuzzyRule (Antecedent.AND-sets veryHigh dry)         (Consequent.output medium))
-  fuzzy.add-rule (FuzzyRule (Antecedent.AND-sets veryHigh comfortable) (Consequent.output fast))
-  fuzzy.add-rule (FuzzyRule (Antecedent.AND-sets veryHigh humid)       (Consequent.output fast))
-  fuzzy.add-rule (FuzzyRule (Antecedent.AND-sets veryHigh sticky)      (Consequent.output fast))
+  fuzzy.add-rule (FuzzyRule.fl-if (Antecedent.fl-and veryLow dry)          --fl-then=(Consequent.output off))
+  fuzzy.add-rule (FuzzyRule.fl-if (Antecedent.fl-and veryLow comfortable)  --fl-then=(Consequent.output off))
+  fuzzy.add-rule (FuzzyRule.fl-if (Antecedent.fl-and veryLow humid)        --fl-then=(Consequent.output off))
+  fuzzy.add-rule (FuzzyRule.fl-if (Antecedent.fl-and veryLow sticky)       --fl-then=(Consequent.output lowHumidity))
+  fuzzy.add-rule (FuzzyRule.fl-if (Antecedent.fl-and low dry)              --fl-then=(Consequent.output off))
+  fuzzy.add-rule (FuzzyRule.fl-if (Antecedent.fl-and low comfortable)      --fl-then=(Consequent.output off))
+  fuzzy.add-rule (FuzzyRule.fl-if (Antecedent.fl-and low humid)            --fl-then=(Consequent.output lowHumidity))
+  fuzzy.add-rule (FuzzyRule.fl-if (Antecedent.fl-and low sticky)           --fl-then=(Consequent.output medium))
+  fuzzy.add-rule (FuzzyRule.fl-if (Antecedent.fl-and high dry)             --fl-then=(Consequent.output lowHumidity))
+  fuzzy.add-rule (FuzzyRule.fl-if (Antecedent.fl-and high comfortable)     --fl-then=(Consequent.output medium))
+  fuzzy.add-rule (FuzzyRule.fl-if (Antecedent.fl-and high humid)           --fl-then=(Consequent.output fast))
+  fuzzy.add-rule (FuzzyRule.fl-if (Antecedent.fl-and high sticky)          --fl-then=(Consequent.output fast))
+  fuzzy.add-rule (FuzzyRule.fl-if (Antecedent.fl-and veryHigh dry)         --fl-then=(Consequent.output medium))
+  fuzzy.add-rule (FuzzyRule.fl-if (Antecedent.fl-and veryHigh comfortable) --fl-then=(Consequent.output fast))
+  fuzzy.add-rule (FuzzyRule.fl-if (Antecedent.fl-and veryHigh humid)       --fl-then=(Consequent.output fast))
+  fuzzy.add-rule (FuzzyRule.fl-if (Antecedent.fl-and veryHigh sticky)      --fl-then=(Consequent.output fast))
 
   return fuzzy

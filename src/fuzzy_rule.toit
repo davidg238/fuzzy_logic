@@ -3,22 +3,25 @@
 import .antecedent show Antecedent
 import .consequent show Consequent
 
+interface RuleTerm:
+  term-eval -> float
+ 
 class FuzzyRule:
 
   fired := false
   antecedent_/Antecedent 
-  consequent_/Consequent 
-  name/string
+  fl-then/Consequent? := null
+  name/string := ""
 
-  constructor .antecedent_ .consequent_ .name="":
+  constructor.fl-if .antecedent_/Antecedent --.fl-then/Consequent --name="":
 
   evaluate -> bool:
-    antecedent-power := antecedent_.evaluate
+    antecedent-power := antecedent_.term-eval
     // print "ante $antecedent_power"
     fired = antecedent-power > 0.0? true : false
-    consequent_.evaluate antecedent-power
+    fl-then.evaluate antecedent-power
     // print "eval conse $consequent_"
     return fired
 
-  stringify -> string: return "$name: if $antecedent_ then $consequent_"
+  stringify -> string: return "$name: if $antecedent_ then $fl-then"
 

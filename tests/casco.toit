@@ -43,8 +43,8 @@ main:
   tiempo.add-all-sets [nada, muyPoco, poco, medio, bastante, mucho, muchisimo]
   fuzzy.add-output tiempo
 
-  rule-template := : |id set-a set-b set-c output|
-      fuzzy.add-rule (FuzzyRule (Antecedent.AND-ante-set (Antecedent.AND-sets set-a set-b) set-c) (Consequent.output output))
+  rule-template := : |id seta setb setc out|
+      fuzzy.add-rule (FuzzyRule.fl-if (Antecedent.fl-and (Antecedent.fl-and seta setb) setc) --fl-then=(Consequent.output out))
 
   rule-template.call  0 seco frio verano              medio
   rule-template.call  1 seco frio otono               muyPoco

@@ -1,5 +1,5 @@
 // Copyright (c) 2021 Ekorau LLC
-
+import .fuzzy-rule show RuleTerm
 import .geometry show *
 
 y-rising p q r -> float:
@@ -8,7 +8,7 @@ y-rising p q r -> float:
 y-falling p q r -> float:
   return 1.0 - (p - q)/(r - q)
 
-abstract class FuzzySet:
+abstract class FuzzySet implements RuleTerm:
 
   a_/float
   b_/float
@@ -55,6 +55,9 @@ abstract class FuzzySet:
     return pertinence_ > 0.0
 
   pertinence -> float:
+    return pertinence_
+
+  term-eval -> float:
     return pertinence_
 
   fuzzify crisp-val/num -> none:
@@ -114,13 +117,6 @@ The geometry must be closed for the Composition centroid algorithm to work.
     area_ = area_/2.0  
     return area_
 
-// Methods used by trial composition
-  start -> int:
-    return a_.to-int
-
-  size -> int:
-    return (d_ - a_).to-int
-
 // Test methods
   test-a -> float: return a_
   test-b -> float: return b_
@@ -150,8 +146,6 @@ class SingletonSet extends FuzzySet:
   truncated-polygon -> List: 
       return [(Point2f a_ 0.0), (Point2f a_ pertinence_), (Point2f a_ 0.0)]
 
-  size -> int:
-    return 1
 
   truncated-weighted-centroid -> float:
     return a_

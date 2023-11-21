@@ -31,7 +31,7 @@ main:
   speed.add-all-sets [off, lowHumidity, medium, fast]
   fuzzy.add-output speed
   
-  fuzzy.add-rule (FuzzyRule (Antecedent.AND-sets veryLow dry)          (Consequent.output off))
+  fuzzy.add-rule (FuzzyRule.if_ (Antecedent.AND-sets veryLow dry) --then_=(Consequent.output off))
   fuzzy.add-rule (FuzzyRule (Antecedent.AND-sets veryLow comfortable)  (Consequent.output off))
   fuzzy.add-rule (FuzzyRule (Antecedent.AND-sets veryLow humid)        (Consequent.output off))
   fuzzy.add-rule (FuzzyRule (Antecedent.AND-sets veryLow sticky)       (Consequent.output lowHumidity))
