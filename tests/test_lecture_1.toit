@@ -45,26 +45,26 @@ main:
     fuzzy.add-output quality
 
     // Building FuzzyRule
-    if-SizeSmallAndWeightSmall := Ante-AND-Terms smallSize smallWeight
+    if-SizeSmallAndWeightSmall := Ante-And-Terms smallSize smallWeight
     then-QualityBad := Consequent.output bad
     
     fuzzyRule0 := FuzzyRule.fl-if if-SizeSmallAndWeightSmall --fl-then=then-QualityBad
     fuzzy.add-rule fuzzyRule0
 
     // Building FuzzyRule
-    if-SizeSmallAndWeightLarge := Ante-AND-Terms smallSize largeWeight
+    if-SizeSmallAndWeightLarge := Ante-And-Terms smallSize largeWeight
     then-QualityMedium1 := Consequent.output medium
     fuzzyRule1 := FuzzyRule.fl-if if-SizeSmallAndWeightLarge --fl-then=then-QualityMedium1
     fuzzy.add-rule fuzzyRule1
 
     // Building FuzzyRule
-    if-SizeLargeAndWeightSmall := Ante-AND-Terms largeSize smallWeight
+    if-SizeLargeAndWeightSmall := Ante-And-Terms largeSize smallWeight
     then-QualityMedium2 := Consequent.output medium
     fuzzyRule2 := FuzzyRule.fl-if if-SizeLargeAndWeightSmall --fl-then=then-QualityMedium2
     fuzzy.add-rule fuzzyRule2
 
     // Building FuzzyRule
-    if-SizeLargeAndWeightLarge := Ante-AND-Terms largeSize largeWeight
+    if-SizeLargeAndWeightLarge := Ante-And-Terms largeSize largeWeight
     then-QualityGood := Consequent.output good
     fuzzyRule3 := FuzzyRule.fl-if if-SizeLargeAndWeightLarge --fl-then=then-QualityGood
     fuzzy.add-rule fuzzyRule3

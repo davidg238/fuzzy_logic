@@ -45,7 +45,7 @@ main:
     fuzzy.add-output tiempo
 
     rule-template := : |id set-a set-b set-c output|
-        fuzzy.add-rule (FuzzyRule.fl-if (Ante-AND-Terms (Ante-AND-Terms set-a set-b) set-c) --fl-then=(Consequent.output output))
+        fuzzy.add-rule (FuzzyRule.fl-if (Ante-And-Terms (Ante-And-Terms set-a set-b) set-c) --fl-then=(Consequent.output output))
 
     rule-template.call  0 seco frio verano              medio
     rule-template.call  1 seco frio otono               muyPoco
