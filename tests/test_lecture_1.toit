@@ -45,28 +45,28 @@ main:
     fuzzy.add-output quality
 
     // Building FuzzyRule
-    if-SizeSmallAndWeightSmall := Antecedent.AND-sets smallSize smallWeight
+    if-SizeSmallAndWeightSmall := Antecedent.fl-and (Antecedent.fl-set smallSize) (Antecedent.fl-set smallWeight)
     then-QualityBad := Consequent.output bad
     
-    fuzzyRule0 := FuzzyRule if-SizeSmallAndWeightSmall then-QualityBad
+    fuzzyRule0 := FuzzyRule.fl-if if-SizeSmallAndWeightSmall --fl-then=then-QualityBad
     fuzzy.add-rule fuzzyRule0
 
     // Building FuzzyRule
-    if-SizeSmallAndWeightLarge := Antecedent.AND-sets smallSize largeWeight
+    if-SizeSmallAndWeightLarge := Antecedent.fl-and (Antecedent.fl-set smallSize) (Antecedent.fl-set largeWeight)
     then-QualityMedium1 := Consequent.output medium
-    fuzzyRule1 := FuzzyRule if-SizeSmallAndWeightLarge then-QualityMedium1
+    fuzzyRule1 := FuzzyRule.fl-if if-SizeSmallAndWeightLarge --fl-then=then-QualityMedium1
     fuzzy.add-rule fuzzyRule1
 
     // Building FuzzyRule
-    if-SizeLargeAndWeightSmall := Antecedent.AND-sets largeSize smallWeight
+    if-SizeLargeAndWeightSmall := Antecedent.fl-and (Antecedent.fl-set largeSize) (Antecedent.fl-set smallWeight)
     then-QualityMedium2 := Consequent.output medium
-    fuzzyRule2 := FuzzyRule if-SizeLargeAndWeightSmall then-QualityMedium2
+    fuzzyRule2 := FuzzyRule.fl-if if-SizeLargeAndWeightSmall --fl-then=then-QualityMedium2
     fuzzy.add-rule fuzzyRule2
 
     // Building FuzzyRule
-    if-SizeLargeAndWeightLarge := Antecedent.AND-sets largeSize largeWeight
+    if-SizeLargeAndWeightLarge := Antecedent.fl-and (Antecedent.fl-set largeSize) (Antecedent.fl-set largeWeight)
     then-QualityGood := Consequent.output good
-    fuzzyRule3 := FuzzyRule if-SizeLargeAndWeightLarge then-QualityGood
+    fuzzyRule3 := FuzzyRule.fl-if if-SizeLargeAndWeightLarge --fl-then=then-QualityGood
     fuzzy.add-rule fuzzyRule3
 
     print "run it"
@@ -75,10 +75,10 @@ main:
     fuzzy.changed
     fuzzy.fuzzify
     print "got to here"
-    expect-near 0.75 if-SizeSmallAndWeightSmall.evaluate
-    expect-near 0.25 if-SizeSmallAndWeightLarge.evaluate
-    expect-near 0.2 if-SizeLargeAndWeightSmall.evaluate
-    expect-near 0.2 if-SizeLargeAndWeightLarge.evaluate
+    expect-near 0.75 if-SizeSmallAndWeightSmall.term-eval
+    expect-near 0.25 if-SizeSmallAndWeightLarge.term-eval
+    expect-near 0.2 if-SizeLargeAndWeightSmall.term-eval
+    expect-near 0.2 if-SizeLargeAndWeightLarge.term-eval
 
     expect-near 0.37692466 (fuzzy.defuzzify 0) // 0.3698 on the paper
     print "... all done"

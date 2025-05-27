@@ -24,9 +24,7 @@ import set_trapezoidal_r show RTrapezoidalSet
 
 main:
 
-  throw "Tests to be revised"
-/*  
-  test_start
+  throw "Tests to be revised - extensive API migration needed"
 
 /// Test FuzzySet
 
@@ -496,6 +494,4 @@ main:
 
     expect_near 19.375 (fuzzy.defuzzify 0)
 
-  test_end
-
-*/
+  test-end

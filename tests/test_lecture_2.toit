@@ -56,22 +56,22 @@ main:
         fuzzy.add-output speed
 
         // Building FuzzyRules
-        fuzzy.add-rule (FuzzyRule.if_ (Antecedent.AND-sets veryLow dry) --then_=(Consequent.output off))
-        fuzzy.add-rule (FuzzyRule (Antecedent.AND-sets veryLow comfortable)  (Consequent.output off))
-        fuzzy.add-rule (FuzzyRule (Antecedent.AND-sets veryLow humid)        (Consequent.output off))
-        fuzzy.add-rule (FuzzyRule (Antecedent.AND-sets veryLow sticky)       (Consequent.output lowHumidity))
-        fuzzy.add-rule (FuzzyRule (Antecedent.AND-sets low dry)              (Consequent.output off))
-        fuzzy.add-rule (FuzzyRule (Antecedent.AND-sets low comfortable)      (Consequent.output off))
-        fuzzy.add-rule (FuzzyRule (Antecedent.AND-sets low humid)            (Consequent.output lowHumidity))
-        fuzzy.add-rule (FuzzyRule (Antecedent.AND-sets low sticky)           (Consequent.output medium))
-        fuzzy.add-rule (FuzzyRule (Antecedent.AND-sets high dry)             (Consequent.output lowHumidity))
-        fuzzy.add-rule (FuzzyRule (Antecedent.AND-sets high comfortable)     (Consequent.output medium))
-        fuzzy.add-rule (FuzzyRule (Antecedent.AND-sets high humid)           (Consequent.output fast))
-        fuzzy.add-rule (FuzzyRule (Antecedent.AND-sets high sticky)          (Consequent.output fast))
-        fuzzy.add-rule (FuzzyRule (Antecedent.AND-sets veryHigh dry)         (Consequent.output medium))
-        fuzzy.add-rule (FuzzyRule (Antecedent.AND-sets veryHigh comfortable) (Consequent.output fast))
-        fuzzy.add-rule (FuzzyRule (Antecedent.AND-sets veryHigh humid)       (Consequent.output fast))
-        fuzzy.add-rule (FuzzyRule (Antecedent.AND-sets veryHigh sticky)      (Consequent.output fast))
+        fuzzy.add-rule (FuzzyRule.fl-if (Antecedent.fl-and (Antecedent.fl-set veryLow) (Antecedent.fl-set dry)) --fl-then=(Consequent.output off))
+        fuzzy.add-rule (FuzzyRule.fl-if (Antecedent.fl-and (Antecedent.fl-set veryLow) (Antecedent.fl-set comfortable)) --fl-then=(Consequent.output off))
+        fuzzy.add-rule (FuzzyRule.fl-if (Antecedent.fl-and (Antecedent.fl-set veryLow) (Antecedent.fl-set humid)) --fl-then=(Consequent.output off))
+        fuzzy.add-rule (FuzzyRule.fl-if (Antecedent.fl-and (Antecedent.fl-set veryLow) (Antecedent.fl-set sticky)) --fl-then=(Consequent.output lowHumidity))
+        fuzzy.add-rule (FuzzyRule.fl-if (Antecedent.fl-and (Antecedent.fl-set low) (Antecedent.fl-set dry)) --fl-then=(Consequent.output off))
+        fuzzy.add-rule (FuzzyRule.fl-if (Antecedent.fl-and (Antecedent.fl-set low) (Antecedent.fl-set comfortable)) --fl-then=(Consequent.output off))
+        fuzzy.add-rule (FuzzyRule.fl-if (Antecedent.fl-and (Antecedent.fl-set low) (Antecedent.fl-set humid)) --fl-then=(Consequent.output lowHumidity))
+        fuzzy.add-rule (FuzzyRule.fl-if (Antecedent.fl-and (Antecedent.fl-set low) (Antecedent.fl-set sticky)) --fl-then=(Consequent.output medium))
+        fuzzy.add-rule (FuzzyRule.fl-if (Antecedent.fl-and (Antecedent.fl-set high) (Antecedent.fl-set dry)) --fl-then=(Consequent.output lowHumidity))
+        fuzzy.add-rule (FuzzyRule.fl-if (Antecedent.fl-and (Antecedent.fl-set high) (Antecedent.fl-set comfortable)) --fl-then=(Consequent.output medium))
+        fuzzy.add-rule (FuzzyRule.fl-if (Antecedent.fl-and (Antecedent.fl-set high) (Antecedent.fl-set humid)) --fl-then=(Consequent.output fast))
+        fuzzy.add-rule (FuzzyRule.fl-if (Antecedent.fl-and (Antecedent.fl-set high) (Antecedent.fl-set sticky)) --fl-then=(Consequent.output fast))
+        fuzzy.add-rule (FuzzyRule.fl-if (Antecedent.fl-and (Antecedent.fl-set veryHigh) (Antecedent.fl-set dry)) --fl-then=(Consequent.output medium))
+        fuzzy.add-rule (FuzzyRule.fl-if (Antecedent.fl-and (Antecedent.fl-set veryHigh) (Antecedent.fl-set comfortable)) --fl-then=(Consequent.output fast))
+        fuzzy.add-rule (FuzzyRule.fl-if (Antecedent.fl-and (Antecedent.fl-set veryHigh) (Antecedent.fl-set humid)) --fl-then=(Consequent.output fast))
+        fuzzy.add-rule (FuzzyRule.fl-if (Antecedent.fl-and (Antecedent.fl-set veryHigh) (Antecedent.fl-set sticky)) --fl-then=(Consequent.output fast))
         // run it
         fuzzy.crisp-input 0 20.0
         fuzzy.crisp-input 1 65.0
@@ -84,83 +84,83 @@ main:
 
 
     /*
-        if_VeryLowAndDry := Antecedent.AND_sets veryLow dry
+        if_VeryLowAndDry := Antecedent.fl-and (Antecedent.fl-set veryLow) (Antecedent.fl-set dry)
         then_Off1 := Consequent.output off
-        fuzzyRule0 := FuzzyRule 0 if_VeryLowAndDry then_Off1
-        fuzzy.add_rule fuzzyRule0
+        fuzzyRule0 := FuzzyRule.fl-if if_VeryLowAndDry --fl-then=then_Off1 --name="0"
+        fuzzy.add-rule fuzzyRule0
 
-        if_VeryLowAndComfortable := Antecedent.AND_sets veryLow comfortable
+        if_VeryLowAndComfortable := Antecedent.fl-and (Antecedent.fl-set veryLow) (Antecedent.fl-set comfortable)
         then_Off2 := Consequent.output off
-        fuzzyRule1 := FuzzyRule 1 if_VeryLowAndComfortable then_Off2
-        fuzzy.add_rule fuzzyRule1
+        fuzzyRule1 := FuzzyRule.fl-if if_VeryLowAndComfortable --fl-then=then_Off2 --name="1"
+        fuzzy.add-rule fuzzyRule1
 
-        if_VeryLowAndHumid := Antecedent.AND_sets veryLow humid
+        if_VeryLowAndHumid := Antecedent.fl-and (Antecedent.fl-set veryLow) (Antecedent.fl-set humid)
         then_Off3 := Consequent.output off
-        fuzzyRule2 := FuzzyRule 2 if_VeryLowAndHumid then_Off3
-        fuzzy.add_rule fuzzyRule2
+        fuzzyRule2 := FuzzyRule.fl-if if_VeryLowAndHumid --fl-then=then_Off3 --name="2"
+        fuzzy.add-rule fuzzyRule2
 
-        if_VeryLowAndSticky := Antecedent.AND_sets veryLow sticky
+        if_VeryLowAndSticky := Antecedent.fl-and (Antecedent.fl-set veryLow) (Antecedent.fl-set sticky)
         then_Low1 := Consequent.output lowHumidity
-        fuzzyRule3 := FuzzyRule 3 if_VeryLowAndSticky then_Low1
-        fuzzy.add_rule fuzzyRule3
+        fuzzyRule3 := FuzzyRule.fl-if if_VeryLowAndSticky --fl-then=then_Low1 --name="3"
+        fuzzy.add-rule fuzzyRule3
 
-        if_LowAndDry := Antecedent.AND_sets low dry
+        if_LowAndDry := Antecedent.fl-and (Antecedent.fl-set low) (Antecedent.fl-set dry)
         then_Off4 := Consequent.output off
-        fuzzyRule4 := FuzzyRule 4 if_LowAndDry then_Off4
-        fuzzy.add_rule fuzzyRule4
+        fuzzyRule4 := FuzzyRule.fl-if if_LowAndDry --fl-then=then_Off4 --name="4"
+        fuzzy.add-rule fuzzyRule4
 
-        if_LowAndComfortable := Antecedent.AND_sets low comfortable
+        if_LowAndComfortable := Antecedent.fl-and (Antecedent.fl-set low) (Antecedent.fl-set comfortable)
         then_Off5 := Consequent.output off
-        fuzzyRule5 := FuzzyRule 5 if_LowAndComfortable then_Off5
-        fuzzy.add_rule fuzzyRule5
+        fuzzyRule5 := FuzzyRule.fl-if if_LowAndComfortable --fl-then=then_Off5 --name="5"
+        fuzzy.add-rule fuzzyRule5
 
-        if_LowAndHumid := Antecedent.AND_sets low humid
+        if_LowAndHumid := Antecedent.fl-and (Antecedent.fl-set low) (Antecedent.fl-set humid)
         then_Low2 := Consequent.output lowHumidity
-        fuzzyRule6 := FuzzyRule 6 if_LowAndHumid then_Low2
-        fuzzy.add_rule fuzzyRule6
+        fuzzyRule6 := FuzzyRule.fl-if if_LowAndHumid --fl-then=then_Low2 --name="6"
+        fuzzy.add-rule fuzzyRule6
 
-        if_LowAndSticky := Antecedent.AND_sets low sticky
+        if_LowAndSticky := Antecedent.fl-and (Antecedent.fl-set low) (Antecedent.fl-set sticky)
         then_Medium1 := Consequent.output medium
-        fuzzyRule7 := FuzzyRule 7 if_LowAndSticky then_Medium1
-        fuzzy.add_rule fuzzyRule7
+        fuzzyRule7 := FuzzyRule.fl-if if_LowAndSticky --fl-then=then_Medium1 --name="7"
+        fuzzy.add-rule fuzzyRule7
 
-        if_HighAndDry := Antecedent.AND_sets high dry
+        if_HighAndDry := Antecedent.fl-and (Antecedent.fl-set high) (Antecedent.fl-set dry)
         then_Low3 := Consequent.output lowHumidity
-        fuzzyRule8 := FuzzyRule 8 if_HighAndDry then_Low3
-        fuzzy.add_rule fuzzyRule8
+        fuzzyRule8 := FuzzyRule.fl-if if_HighAndDry --fl-then=then_Low3 --name="8"
+        fuzzy.add-rule fuzzyRule8
 
-        if_HighAndComfortable := Antecedent.AND_sets high comfortable
+        if_HighAndComfortable := Antecedent.fl-and (Antecedent.fl-set high) (Antecedent.fl-set comfortable)
         then_Medium2 := Consequent.output medium
-        fuzzyRule9 := FuzzyRule 9 if_HighAndComfortable then_Medium2
-        fuzzy.add_rule fuzzyRule9
+        fuzzyRule9 := FuzzyRule.fl-if if_HighAndComfortable --fl-then=then_Medium2 --name="9"
+        fuzzy.add-rule fuzzyRule9
 
-        if_HighAndHumid := Antecedent.AND_sets high humid
+        if_HighAndHumid := Antecedent.fl-and (Antecedent.fl-set high) (Antecedent.fl-set humid)
         then_Fast1 := Consequent.output fast
-        fuzzyRule10 := FuzzyRule 10 if_HighAndHumid then_Fast1
-        fuzzy.add_rule fuzzyRule10
+        fuzzyRule10 := FuzzyRule.fl-if if_HighAndHumid --fl-then=then_Fast1 --name="10"
+        fuzzy.add-rule fuzzyRule10
 
-        if_HighAndSticky := Antecedent.AND_sets high sticky
+        if_HighAndSticky := Antecedent.fl-and (Antecedent.fl-set high) (Antecedent.fl-set sticky)
         then_Fast2 := Consequent.output fast
-        fuzzyRule11 := FuzzyRule 11 if_HighAndSticky then_Fast2
-        fuzzy.add_rule fuzzyRule11
+        fuzzyRule11 := FuzzyRule.fl-if if_HighAndSticky --fl-then=then_Fast2 --name="11"
+        fuzzy.add-rule fuzzyRule11
 
-        if_VeryHighAndDry := Antecedent.AND_sets veryHigh dry
+        if_VeryHighAndDry := Antecedent.fl-and (Antecedent.fl-set veryHigh) (Antecedent.fl-set dry)
         then_Medium3 := Consequent.output medium
-        fuzzyRule12 := FuzzyRule 12 if_VeryHighAndDry then_Medium3
-        fuzzy.add_rule fuzzyRule12
+        fuzzyRule12 := FuzzyRule.fl-if if_VeryHighAndDry --fl-then=then_Medium3 --name="12"
+        fuzzy.add-rule fuzzyRule12
 
-        if_VeryHighAndComfortable := Antecedent.AND_sets veryHigh comfortable
+        if_VeryHighAndComfortable := Antecedent.fl-and (Antecedent.fl-set veryHigh) (Antecedent.fl-set comfortable)
         then_Fast3 := Consequent.output fast
-        fuzzyRule13 := FuzzyRule 13 if_VeryHighAndComfortable then_Fast3
-        fuzzy.add_rule fuzzyRule13
+        fuzzyRule13 := FuzzyRule.fl-if if_VeryHighAndComfortable --fl-then=then_Fast3 --name="13"
+        fuzzy.add-rule fuzzyRule13
   
-        if_VeryHighAndHumid := Antecedent.AND_sets veryHigh humid
+        if_VeryHighAndHumid := Antecedent.fl-and (Antecedent.fl-set veryHigh) (Antecedent.fl-set humid)
         then_Fast4 := Consequent.output fast
-        fuzzyRule14 := FuzzyRule 14 if_VeryHighAndHumid then_Fast4
-        fuzzy.add_rule fuzzyRule14
+        fuzzyRule14 := FuzzyRule.fl-if if_VeryHighAndHumid --fl-then=then_Fast4 --name="14"
+        fuzzy.add-rule fuzzyRule14
 
-        if_VeryHighAndSticky := Antecedent.AND_sets veryHigh sticky
+        if_VeryHighAndSticky := Antecedent.fl-and (Antecedent.fl-set veryHigh) (Antecedent.fl-set sticky)
         then_Fast5 := Consequent.output fast
-        fuzzyRule15 := FuzzyRule 15 if_VeryHighAndSticky then_Fast5
-        fuzzy.add_rule fuzzyRule15
+        fuzzyRule15 := FuzzyRule.fl-if if_VeryHighAndSticky --fl-then=then_Fast5 --name="15"
+        fuzzy.add-rule fuzzyRule15
 */

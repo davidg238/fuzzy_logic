@@ -5,4 +5,7 @@ packages:
   ..:
     path: ..
   btest:
-    path: ../../btest
+    url: github.com/davidg238/btest
+    name: btest
+    version: 1.1.1
+    hash: e2b7eef3e1f27c1fc086eb10064f2418f3518bc5
