@@ -31,22 +31,22 @@ main:
   speed.add-all-sets [off, lowHumidity, medium, fast]
   fuzzy.add-output speed
   
-  fuzzy.add-rule (FuzzyRule.fl-if (Ante-And-Terms veryLow dry) --fl-then=(Consequent.output off))
-  fuzzy.add-rule (FuzzyRule.fl-if (Ante-And-Terms veryLow comfortable) --fl-then=(Consequent.output off))
-  fuzzy.add-rule (FuzzyRule.fl-if (Ante-And-Terms veryLow humid) --fl-then=(Consequent.output off))
-  fuzzy.add-rule (FuzzyRule.fl-if (Ante-And-Terms veryLow sticky) --fl-then=(Consequent.output lowHumidity))
-  fuzzy.add-rule (FuzzyRule.fl-if (Ante-And-Terms low dry) --fl-then=(Consequent.output off))
-  fuzzy.add-rule (FuzzyRule.fl-if (Ante-And-Terms low comfortable) --fl-then=(Consequent.output off))
-  fuzzy.add-rule (FuzzyRule.fl-if (Ante-And-Terms low humid) --fl-then=(Consequent.output lowHumidity))
-  fuzzy.add-rule (FuzzyRule.fl-if (Ante-And-Terms low sticky) --fl-then=(Consequent.output medium))
-  fuzzy.add-rule (FuzzyRule.fl-if (Ante-And-Terms high dry) --fl-then=(Consequent.output lowHumidity))
-  fuzzy.add-rule (FuzzyRule.fl-if (Ante-And-Terms high comfortable) --fl-then=(Consequent.output medium))
-  fuzzy.add-rule (FuzzyRule.fl-if (Ante-And-Terms high humid) --fl-then=(Consequent.output fast))
-  fuzzy.add-rule (FuzzyRule.fl-if (Ante-And-Terms high sticky) --fl-then=(Consequent.output fast))
-  fuzzy.add-rule (FuzzyRule.fl-if (Ante-And-Terms veryHigh dry) --fl-then=(Consequent.output medium))
-  fuzzy.add-rule (FuzzyRule.fl-if (Ante-And-Terms veryHigh comfortable) --fl-then=(Consequent.output fast))
-  fuzzy.add-rule (FuzzyRule.fl-if (Ante-And-Terms veryHigh humid) --fl-then=(Consequent.output fast))
-  fuzzy.add-rule (FuzzyRule.fl-if (Ante-And-Terms veryHigh sticky) --fl-then=(Consequent.output fast))
+  fuzzy.add-rule (FuzzyRule.fl-if (Ante-And veryLow dry) --fl-then=(Consequent.output off))
+  fuzzy.add-rule (FuzzyRule.fl-if (Ante-And veryLow comfortable) --fl-then=(Consequent.output off))
+  fuzzy.add-rule (FuzzyRule.fl-if (Ante-And veryLow humid) --fl-then=(Consequent.output off))
+  fuzzy.add-rule (FuzzyRule.fl-if (Ante-And veryLow sticky) --fl-then=(Consequent.output lowHumidity))
+  fuzzy.add-rule (FuzzyRule.fl-if (Ante-And low dry) --fl-then=(Consequent.output off))
+  fuzzy.add-rule (FuzzyRule.fl-if (Ante-And low comfortable) --fl-then=(Consequent.output off))
+  fuzzy.add-rule (FuzzyRule.fl-if (Ante-And low humid) --fl-then=(Consequent.output lowHumidity))
+  fuzzy.add-rule (FuzzyRule.fl-if (Ante-And low sticky) --fl-then=(Consequent.output medium))
+  fuzzy.add-rule (FuzzyRule.fl-if (Ante-And high dry) --fl-then=(Consequent.output lowHumidity))
+  fuzzy.add-rule (FuzzyRule.fl-if (Ante-And high comfortable) --fl-then=(Consequent.output medium))
+  fuzzy.add-rule (FuzzyRule.fl-if (Ante-And high humid) --fl-then=(Consequent.output fast))
+  fuzzy.add-rule (FuzzyRule.fl-if (Ante-And high sticky) --fl-then=(Consequent.output fast))
+  fuzzy.add-rule (FuzzyRule.fl-if (Ante-And veryHigh dry) --fl-then=(Consequent.output medium))
+  fuzzy.add-rule (FuzzyRule.fl-if (Ante-And veryHigh comfortable) --fl-then=(Consequent.output fast))
+  fuzzy.add-rule (FuzzyRule.fl-if (Ante-And veryHigh humid) --fl-then=(Consequent.output fast))
+  fuzzy.add-rule (FuzzyRule.fl-if (Ante-And veryHigh sticky) --fl-then=(Consequent.output fast))
 
 
   result := 0.0
