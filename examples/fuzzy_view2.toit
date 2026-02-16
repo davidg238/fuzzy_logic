@@ -4,11 +4,8 @@ import encoding.json
 import http
 
 import .models
-import ..html.graph_layout
-import ..html.svg_graph
-import ..html.svg_linegraph
 
-class FuzzyHTMLview:
+class FuzzyHTMLview2:
 
   // colors := ["red", "cyan", "lime", "blue"]
   colors := ["aqua", "blue", "teal", "fuchsia", "green", "lime", "maroon", "navy", "olive", "purple", "red", "silver", "yellow", "black"] // , white, gray (or grey)
@@ -22,11 +19,9 @@ class FuzzyHTMLview:
 
   use session/Session -> none:
     task --background=true::
-      i := 1
       while in := session.receive:
         print "received: $in"
         handle-msg in
-        model.changed
         model.fuzzify
         model.defuzzify
 
@@ -40,32 +35,36 @@ class FuzzyHTMLview:
   update-compositions session/Session -> none:
     session.send "ping"
 
-  write-homepage_ -> none:
-    write_
+  homepage -> string:
+    return 
       """
-      <!DOCTYPE html>
-        <html>
-            <head>
-                <title>Fuzzy Logic Models</title>
-            </head>
-            <body>
-              <div id="models" class="w3-row-padding">
-                <h2>Models</h2>
-              </div>
+        <!DOCTYPE html>
+          <html>
+              <head>
+                  <title>Fuzzy Logic Models</title>
+              </head>
+              <body>
+                <div id="models" class="w3-row-padding">
+                  <h2>Fuzzy Logic Models</h2>
+                </div>
+                $(model-list)
+              </body>
+          </html>
       """
+  model-list -> string:
+    str := "<div class=\"w3-padding-large\">\n<ul>"
     for i:=0; i<model-names.size; i++:
-      write_
-        """
-        <div class="w3-padding-large">
-          <a class="click" href="http://$(addr-str):8080/$model-names[i]/inputs">$model-names[i]</a>
-        </div>
-        """
-    write_ "</body>\n</html>"
-
+      str += "<li><a class=\"click\" href=\"http://$(addr-str):8080/$(model-names[i])\">$(model-names[i])</a></li>\n"
+    str = str + "</ul>\n</div>\n"
+    return str
+ 
+/*
+Write strings in chunks to the writer, to minimize memory requirements (hence use of write_, rather than answering a page string).
+*/
   write path/string awriter/http.ResponseWriter -> none:
     writer = awriter
     if path == "/":
-      write-homepage_
+      write_ homepage
       return
     parts := split-path path[1..]
     new := get-model parts[0]
@@ -77,7 +76,7 @@ class FuzzyHTMLview:
         model = new
         model.fuzzify
         model.defuzzify
-    write-page_ parts
+    write-page_
 
   split-path path/string -> List:
     return path.trim.split --at-first=false "/"
@@ -94,89 +93,53 @@ class FuzzyHTMLview:
       </html>
     """
 
-  write-page_ parts/List -> none:
-  // TODO: improve
-    if parts.size == 1:
-      write-model_ 0
-    if parts[1] == null:
-      write_ (page-unknown "Facet empty")
-    else if parts[1] == "inputs":
-      write-model_ 0
-    else if parts[1] == "rules":
-      write-model_ 1
-    else if parts[1] == "outputs":
-      write-model_ 2
-    else:
-      write_ (page-unknown "Facet not understood")
-
-  write-model_ tab/int -> none:
+  write-page_ -> none:
     write_
       """
       <!DOCTYPE HTML>
       <html>
-      <head>
-      <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+        <head>
+          <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
       """
-    write_ style_
-    write_ "</head>\n"
-    write_ (tab==0? "<body onload=\"open_ws_connection()\">\n" : "<body>\n")
-    write-navigation-div tab
-    write-body-div_ tab
-    write_ "</body>\n"
-    if tab==0: write-script_
-    write_ "</html>\n"
+    write_ style_elem
+    write_ "</head>"
+    write_ "<body onload=\"open_ws_connection()\">"
+    write-navigation-div
+    write-body-div-content_
+    write_ "</body>"
+    write_ script-elem
+    write_ "</html>"
 
-  write-navigation-div tab/int -> none:
-    write_
-      """
-      <div class="w3-row-padding">
-          <a class="click" href="http://$(addr-str):8080">Home</a>
-      </div>
-      <div class="w3-row-padding">
-      """
-    write-links_ tab
-    write_ "</div>\n"
-
-  write-links_ tab/int -> none:
-  // TODO: improve
-    if tab == 0:
-      write_ "Inputs <a class=\"click\" href=\"http://$(addr-str):8080/$model.name/rules\">rules</a> <a class=\"click\" href=\"http://$(addr-str):8080/$model.name/outputs\">outputs</a>"
-    else if tab == 1:
-      write_ "<a class=\"click\" href=\"http://$(addr-str):8080/$model.name/inputs\">inputs</a> Rules <a class=\"click\" href=\"http://$(addr-str):8080/$model.name/outputs\">outputs</a>"
-    else:
-      write_ "<a class=\"click\" href=\"http://$(addr-str):8080/$model.name/inputs\">inputs</a> <a class=\"click\" href=\"http://$(addr-str):8080/$model.name/rules\">rules</a> Outputs"
-
-  write-body-div_ tab/int -> none:
+  write-navigation-div -> none:
     write_
       """
         <div class="w3-row-padding">
-          <h4>$model.name / $tabs[tab]</h4>
+          <a class="click" href="http://$(addr-str):8080">Return to list of Fuzzy Models</a>
+        </div>
+        <h2>Fuzzy Model: $model.name</h2>
+        <div class="w3-row-padding">
         </div>
       """
-    if tab == 0:      write-inputs_
-    else if tab == 1: write-rules_
-    else:             write-outputs_
-    write_ "</div>"
 
-  // ------------------------------ Inputs ------------------------------
 
-  write-inputs_  -> none:
+  write-body-div-content_ -> none:
     write_ "<div id=\"inputs\" class=\"w3-row-padding\">"
     for i:=0; i<model.inputs.size; i++:
-      write-input_ i model.inputs[i] model.crisp-inputs[i]
+      write-input_ model.inputs[i] model.crisp-inputs[i]
     write_ "</div>"
 
-  write-input_ i/int input/FuzzyInput crisp-in/num-> none:
-    write_ "<div id=\"in$i\" class=\"w3-container w3-quarter\">"
-    // write_ "<p>"
-    write_ "<b>Sets:</b> $(format-names_ input.set-names)"
-    // graph
+    write-rules_
+    write-outputs_
     
-    x-layout := GraphLayout.range input.range
-    y-layout := GraphLayout 0 1
-    graph := SVGlinegraph writer
-    graph.write --v-width=400 --v-height=300 --xLabel="$input.name" --x-layout=x-layout --yLabel="%" --y-layout=y-layout --polylines=input.polylines
-/*
+  // ------------------------------ Inputs ------------------------------
+
+
+  write-input_ input/FuzzyInput crisp-in/num-> none:
+    write_
+      """
+        <div id="in1" class="w3-container w3-quarter">
+          <p><b>Input:</b> $input.name <b>Sets:</b> $(format-names_ input.set-names)
+      """
     write_ "<svg width=\"500\" height=\"400\">"
     write_ graph-grid_
     write_ "<g transform =\"translate (0,400) scale (1, -1)\">"
@@ -185,10 +148,11 @@ class FuzzyHTMLview:
     write_ graph-y-axis_
     write_ "</svg>"
     write_ graph-x-axis_
-*/
-    // slider
-    write_ "<input type=\"range\" min=\"1\" max=\"100\" value=$crisp-in class=\"slider\" id=$input.name>"
-    write_ "</div>"
+    write_
+      """
+        <input type="range" min="1" max="100" value=$crisp-in class="slider" id=$input.name>
+        </div>
+      """
 
   // ------------------------------ Rules ------------------------------
   write-rules_ -> none:
@@ -276,9 +240,8 @@ class FuzzyHTMLview:
   // https://www.tutorialspoint.com/html5/html5_websocket.htm 
   // https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_client_applications
 
-  write-script_ -> none:
-    name := ""
-    write_
+  script-elem -> string:
+    return
       """
       <script type = "text/javascript">
           var ws;
@@ -302,14 +265,9 @@ class FuzzyHTMLview:
               if (el != null) {
                 el.innerHTML = value;
               };
-            }); */
+            });
           }
-      """
-    for i:=0; i<model.inputs.size; i++:
-      name = model.inputs[i].name
-      write_ "document.getElementById(\"$(name)\").addEventListener(\"change\", function() { send_num(\"$(name)\", this.value); });\n"
-    write_
-      """
+          $(js-event-listeners)
           function open_ws_connection() {
             if ("WebSocket" in window) {
                 ws = new WebSocket('ws://$(addr-str):8080');
@@ -330,8 +288,15 @@ class FuzzyHTMLview:
           }
       </script>
       """
+  js-event-listeners -> string:
+    str := ""
+    name := ""
+    for i:=0; i<model.inputs.size; i++:
+      name = model.inputs[i].name
+      str = str + "document.getElementById(\"$(name)\").addEventListener(\"change\", function() { send_num(\"$(name)\", this.value); });\n"
+    return str
 
-  style_ -> string:
+  style-elem -> string:
     return """
       <style>
         .tab {

@@ -1,22 +1,9 @@
 
 import btest show *
+import ..examples.models show get-model
 
-import fuzzy-logic show FuzzyModel Composition FuzzyInput FuzzyOutput FuzzySet FuzzyRule Antecedent Consequent TriangularSet TrapezoidalSet LTrapezoidalSet RTrapezoidalSet Antecedent-And
-/*
-import fuzzy_model show FuzzyModel
-import composition show Composition
-import fuzzy_input show FuzzyInput
-import fuzzy_output show FuzzyOutput
-import fuzzy_set show FuzzySet
-import fuzzy_rule show FuzzyRule
-import antecedent show Antecedent
-import consequent show Consequent
 
-import set_triangular show TriangularSet
-import set_trapezoidal show TrapezoidalSet
-import set_trapezoidal_l show LTrapezoidalSet
-import set_trapezoidal_r show RTrapezoidalSet
-*/
+import fuzzy-logic show FuzzyModel Composition FuzzyInput FuzzyOutput FuzzySet FuzzyRule Antecedent Consequent TriangularSet TrapezoidalSet LTrapezoidalSet RTrapezoidalSet
 
 // From: http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.486.1238&rep=rep1&type=pdf
 
@@ -26,59 +13,14 @@ main:
 
     test "Fuzzy" "testFromLectureSystemsTwo":
 
-        fuzzy := FuzzyModel
-
-        // FuzzyInput
-        veryLow :=  FuzzySet 5.0 5.0 5.0 15.0
-        low :=      FuzzySet 10.0 20.0 20.0 30.0
-        high :=     FuzzySet 25.0 30.0 30.0 35.0
-        veryHigh := FuzzySet 30.0 50.0 50.0 50.0
-        temperature := FuzzyInput "temperature"
-        temperature.add-all-sets [veryLow, low, high, veryHigh]
-        fuzzy.add-input temperature
-
-        // FuzzyInput
-        dry :=          FuzzySet 5.0 5.0 5.0 30.0
-        comfortable :=  FuzzySet 20.0 35.0 35.0 50.0
-        humid :=        FuzzySet 40.0 55.0 55.0 70.0
-        sticky :=       FuzzySet 60.0 100.0 100.0 100.0
-        humidity := FuzzyInput "humidity"
-        humidity.add-all-sets [dry, comfortable, humid, sticky]
-        fuzzy.add-input humidity
-
-        // FuzzyOutput
-        off :=          FuzzySet 0.0 0.0 0.0 0.0
-        lowHumidity :=  FuzzySet 30.0 45.0 45.0 60.0
-        medium :=       FuzzySet 50.0 65.0 65.0 80.0
-        fast :=         FuzzySet 70.0 90.0 95.0 95.0
-        speed := FuzzyOutput "speed"
-        speed.add-all-sets [off, lowHumidity, medium, fast]
-        fuzzy.add-output speed
-
-        // Building FuzzyRules
-        fuzzy.add-rule (FuzzyRule.fl-if (Antecedent-And veryLow dry) --fl-then=(Consequent.output off))
-        fuzzy.add-rule (FuzzyRule.fl-if (Antecedent-And veryLow comfortable) --fl-then=(Consequent.output off))
-        fuzzy.add-rule (FuzzyRule.fl-if (Antecedent-And veryLow humid) --fl-then=(Consequent.output off))
-        fuzzy.add-rule (FuzzyRule.fl-if (Antecedent-And veryLow sticky) --fl-then=(Consequent.output lowHumidity))
-        fuzzy.add-rule (FuzzyRule.fl-if (Antecedent-And low dry) --fl-then=(Consequent.output off))
-        fuzzy.add-rule (FuzzyRule.fl-if (Antecedent-And low comfortable) --fl-then=(Consequent.output off))
-        fuzzy.add-rule (FuzzyRule.fl-if (Antecedent-And low humid) --fl-then=(Consequent.output lowHumidity))
-        fuzzy.add-rule (FuzzyRule.fl-if (Antecedent-And low sticky) --fl-then=(Consequent.output medium))
-        fuzzy.add-rule (FuzzyRule.fl-if (Antecedent-And high dry) --fl-then=(Consequent.output lowHumidity))
-        fuzzy.add-rule (FuzzyRule.fl-if (Antecedent-And high comfortable) --fl-then=(Consequent.output medium))
-        fuzzy.add-rule (FuzzyRule.fl-if (Antecedent-And high humid) --fl-then=(Consequent.output fast))
-        fuzzy.add-rule (FuzzyRule.fl-if (Antecedent-And high sticky) --fl-then=(Consequent.output fast))
-        fuzzy.add-rule (FuzzyRule.fl-if (Antecedent-And veryHigh dry) --fl-then=(Consequent.output medium))
-        fuzzy.add-rule (FuzzyRule.fl-if (Antecedent-And veryHigh comfortable) --fl-then=(Consequent.output fast))
-        fuzzy.add-rule (FuzzyRule.fl-if (Antecedent-And veryHigh humid) --fl-then=(Consequent.output fast))
-        fuzzy.add-rule (FuzzyRule.fl-if (Antecedent-And veryHigh sticky) --fl-then=(Consequent.output fast))
+        fuzzy := get-model "air-conditioning"
         // run it
         fuzzy.crisp-input 0 20.0
         fuzzy.crisp-input 1 65.0
         fuzzy.changed
         fuzzy.fuzzify
 
-        expect-near 50.568535 (fuzzy.defuzzify 0) // This value was not extracted from the paper
+        expect-near 50.9340659 (fuzzy.defuzzify 0) // This value was not extracted from the paper
 
     test-end
 

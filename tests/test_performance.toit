@@ -65,15 +65,15 @@ main:
           if rule_count >= 50: break  // Limit to 50 rules
           
           // Create compound antecedent
-          ante1 := Antecedent.fl_set fuzzy.inputs[0].sets[i1]
-          ante2 := Antecedent.fl_set fuzzy.inputs[1].sets[i2]
-          ante3 := Antecedent.fl_set fuzzy.inputs[2].sets[i3]
+          ante1 := Antecedent.fl-set fuzzy.inputs[0].sets[i1]
+          ante2 := Antecedent.fl-set fuzzy.inputs[1].sets[i2]
+          ante3 := Antecedent.fl-set fuzzy.inputs[2].sets[i3]
           
-          compound := Antecedent.AND_ante_ante ante1 ante2
-          compound = Antecedent.AND_ante_ante compound ante3
+          compound := Antecedent.fl-and ante1 ante2
+          compound = Antecedent.fl-and compound ante3
           
           consequent := Consequent.output output.sets[rule_count % 20]
-          rule := FuzzyRule compound consequent
+          rule := FuzzyRule.fl-if compound --fl-then=consequent
           fuzzy.add_rule rule
           rule_count++
     
@@ -115,9 +115,9 @@ main:
     fuzzy.add_output output
     
     // Add rules
-    fuzzy.add_rule (FuzzyRule (Antecedent.fl_set low) (Consequent.output slow))
-    fuzzy.add_rule (FuzzyRule (Antecedent.fl_set medium) (Consequent.output normal))
-    fuzzy.add_rule (FuzzyRule (Antecedent.fl_set high) (Consequent.output fast))
+    fuzzy.add_rule (FuzzyRule.fl-if (Antecedent.fl-set low) --fl-then=(Consequent.output slow))
+    fuzzy.add_rule (FuzzyRule.fl-if (Antecedent.fl-set medium) --fl-then=(Consequent.output normal))
+    fuzzy.add_rule (FuzzyRule.fl-if (Antecedent.fl-set high) --fl-then=(Consequent.output fast))
     
     // Run many inference cycles
     start_time := Time.monotonic_us

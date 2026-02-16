@@ -9,6 +9,9 @@ class Consequent:
   constructor.output set/FuzzySet:
     this.add-output set
 
+  constructor.outputs sets/List:
+    sets_ = sets
+
   add-output fuzzy-set/FuzzySet -> none:
     sets_.add fuzzy-set
 

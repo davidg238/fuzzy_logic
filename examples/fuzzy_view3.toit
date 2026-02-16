@@ -5,10 +5,9 @@ import http
 
 import .models
 import ..html.graph_layout
-import ..html.svg_graph
 import ..html.svg_linegraph
 
-class FuzzyHTMLview:
+class FuzzyHTMLview3:
 
   // colors := ["red", "cyan", "lime", "blue"]
   colors := ["aqua", "blue", "teal", "fuchsia", "green", "lime", "maroon", "navy", "olive", "purple", "red", "silver", "yellow", "black"] // , white, gray (or grey)
@@ -161,21 +160,22 @@ class FuzzyHTMLview:
   // ------------------------------ Inputs ------------------------------
 
   write-inputs_  -> none:
-    write_ "<div id=\"inputs\" class=\"w3-row-padding\">"
+    write_ "<div id=\"inputs\" class=\"flex-row\">"
     for i:=0; i<model.inputs.size; i++:
       write-input_ i model.inputs[i] model.crisp-inputs[i]
     write_ "</div>"
 
   write-input_ i/int input/FuzzyInput crisp-in/num-> none:
-    write_ "<div id=\"in$i\" class=\"w3-container w3-quarter\">"
+    write_ "<div id=\"in$i\" class=\"flex-column\">\n"
     // write_ "<p>"
-    write_ "<b>Sets:</b> $(format-names_ input.set-names)"
+    write_ "<div><b>Sets:</b> $(format-names_ input.set-names)</div>\n"
     // graph
-    
+    write_ "<div>"
     x-layout := GraphLayout.range input.range
     y-layout := GraphLayout 0 1
     graph := SVGlinegraph writer
     graph.write --v-width=400 --v-height=300 --xLabel="$input.name" --x-layout=x-layout --yLabel="%" --y-layout=y-layout --polylines=input.polylines
+    write_ "</div>"
 /*
     write_ "<svg width=\"500\" height=\"400\">"
     write_ graph-grid_
@@ -187,8 +187,8 @@ class FuzzyHTMLview:
     write_ graph-x-axis_
 */
     // slider
-    write_ "<input type=\"range\" min=\"1\" max=\"100\" value=$crisp-in class=\"slider\" id=$input.name>"
-    write_ "</div>"
+    write_ "<div><input type=\"range\" min=\"1\" max=\"100\" value=$crisp-in class=\"slider\" id=$input.name></div>\n"
+    write_ "</div>\n"
 
   // ------------------------------ Rules ------------------------------
   write-rules_ -> none:
@@ -334,6 +334,14 @@ class FuzzyHTMLview:
   style_ -> string:
     return """
       <style>
+        .flex-row {
+          display: flex;
+          flex-direction: row;
+        }
+        .flex-column {
+          display: flex;
+          flex-direction: column;
+        }
         .tab {
           overflow: hidden;
           border: 1px solid #ccc;

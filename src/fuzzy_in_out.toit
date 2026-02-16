@@ -9,22 +9,33 @@ seg idx/int list/List -> List:
 class InputOutput:
 
   fsets/List := []
+  range_/List? := null
   name/string
+
+  constructor.sets .fsets/List --.name="":
 
   constructor .name="":
 
+
   add-set a-set -> none:
     fsets.add a-set
+    range_ = null
 
   add-all-sets sets/List-> none:
     fsets.add-all sets
+    range_ = null
 
   clear -> none:
     fsets.do: it.clear
+    range_ = null
 
-  /// Test method, not API
-  clear-all -> none:
-    fsets = []
+  range -> List:
+    if range_ == null:
+      range_ = [0, 0]
+      fsets.do:
+        range_[0] = min range_[0] it.range[0]
+        range_[1] = max range_[1] it.range[1]
+    return range_
 
   set-names -> List:
     names := []
@@ -33,8 +44,16 @@ class InputOutput:
 
 class FuzzyInput extends InputOutput:
 
-  constructor name="" :
+  constructor.sets sets/List --name="":
+    super.sets sets --name=name
+
+  constructor name="":
     super name
+    
+  polylines -> List:
+    polys := []
+    fsets.do: polys.add it.polyline
+    return polys
 
   fuzzify crisp-in/num -> none:
     fsets.do: it.fuzzify crisp-in
@@ -49,6 +68,10 @@ class FuzzyInput extends InputOutput:
 class FuzzyOutput extends InputOutput:
 
   composition_ /Composition? := null
+
+  constructor.sets sets/List --name="":
+    super.sets sets --name=name
+    composition_ = Composition this
 
   constructor name="":
       super name

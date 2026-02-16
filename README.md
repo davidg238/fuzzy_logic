@@ -2,15 +2,13 @@
 
 An adaption of the [Embedded Fuzzy Logic Library](https://github.com/zerokol/eFLL) to Toit.  
 
-Still very much a work in progress.  
-
 ## Visualization of models
 
 A toy web server provides visualization of the execution of the fuzzy models.  
-The code runs on either the host or device.
+The server can run on either host or device.
 - run the webserver in examples, e.g. `jag run -d host server.toit`
 - look at the URL printed to the console, like: `Open a browser on: http://192.168.0.130:8080`
-- a model index will be shown, click the links to view the models (currently driver, driver_advanced, casco)
+- a model index will be shown, click the links to view the models (currently driver, driver_advanced, casco, fan speed, air-conditioning)
 - on the inputs page, move the sliders to change inputs, then click the 'outputs' link, to view the results
 
 ![model: advanced_driver](./outputs.png)
@@ -37,12 +35,9 @@ The code runs on either the host or device.
 * [jFuzzyLogic](https://jfuzzylogic.sourceforge.net/html/manual.html)
 * [fuzzylite](https://www.fuzzylite.com/)
 
+* [Free HTML pretty printer](https://www.freeformatter.com/)
+
 #### Notes:
-
-Question:  If I construct a composite polygon, by removing the interior edges of overlapping polygons, is the centroid of the composite polygon equal to the sum of the weighted centroids.  
-Answer:  Yes, if you construct a composite polygon by removing the interior edges of overlapping polygons, then the centroid of the composite polygon is equal to the sum of the weighted centroids of the individual polygons.  
-
-This is because the centroid of a composite polygon is simply the weighted average of the centroids of its constituent polygons, weighted by the area of each polygon. When you remove the interior edges of the overlapping polygons, you effectively create a new polygon whose area is equal to the sum of the areas of the original polygons. Therefore, the centroid of the new polygon is simply the weighted average of the centroids of the original polygons.  
 
 To calculate the weighted centroid of the composite polygon, you can follow these steps:  
  - Compute the area and centroid of each individual polygon using the formulae for polygon area and centroid.
@@ -52,3 +47,8 @@ To calculate the weighted centroid of the composite polygon, you can follow thes
  - Divide the sum of the weighted centroids by the total area of the composite polygon to obtain the centroid coordinates of the composite polygon.
 
 By following these steps, you can obtain the centroid of the composite polygon as the sum of the weighted centroids of the individual polygons.
+
+2. Samples:
+
+`java -jar jFuzzyLogic.jar -e ./fuzzy_logic/examples_fcl/ip.fcl -1.2 -7 0.75 -2.3`  
+`java -jar jFuzzyLogic.jar -e ./fuzzy_logic/examples_fcl/z.fcl 3.5 6.5`

@@ -1,0 +1,94 @@
+FUNCTION_BLOCK fbName
+
+VAR_INPUT
+	city : REAL;
+	occupation_type : REAL;
+	scoring : REAL;
+	scoring_partner : REAL;
+	sel : REAL;
+END_VAR
+
+VAR_OUTPUT
+	credLimMul : REAL;
+	qualify : REAL;
+END_VAR
+
+FUZZIFY city
+	TERM bsas := trape 0.0 0.0 1899.0 1900.0;
+	TERM other := trape 1900.0 1900.0 10000.0 10000.0;
+END_FUZZIFY
+
+FUZZIFY occupation_type
+	TERM good := trape 8.5 9.0 11.0 11.5;
+	TERM other_1 := trape 0.0 0.0 8.0 8.5;
+	TERM other_2 := trape 11.5 12.0 20.0 20.0;
+END_FUZZIFY
+
+FUZZIFY scoring
+	TERM high := trape 685.0 752.5 900.0 951.0;
+	TERM low := trape 0.0 0.0 370.5 555.5;
+	TERM midHigh := trape 392.0 478.0 480.0 1000.0;
+	TERM midLow := trape 175.2 394.4 492.40000000000003 744.7999999999998;
+	TERM veryHigh := trape 895.0 979.5 1000.0 1000.0;
+END_FUZZIFY
+
+FUZZIFY scoring_partner
+	TERM fakeRange :=  (0.0, 0.0) (1000.0, 0.0) ;
+	TERM low := trian 0.0 0.0 420.0;
+	TERM midLow := trape 0.0 420.0 550.0 700.0;
+	TERM noPartner := trape -100.0 -100.0 -1.0 0.0;
+END_FUZZIFY
+
+FUZZIFY sel
+	TERM a := sigm 0.01 4500.0;
+	TERM b := trape 2000.0 3000.0 5000.0 10000.0;
+	TERM c1 := trape 1300.0 2000.0 3000.0 5000.0;
+	TERM c2 := trape 900.0 1300.0 2000.0 3000.0;
+	TERM c3 := trape 600.0 900.0 1300.0 2000.0;
+	TERM d1 := trape 400.0 600.0 900.0 1300.0;
+	TERM low := trape -100.0 0.0 600.0 900.0;
+END_FUZZIFY
+
+DEFUZZIFY credLimMul
+	TERM high := trian 2.435000000000001 2.4450000000000007 3.379999999999999;
+	TERM low := trian -1.8399999999999999 -1.8200000000000003 -0.3600000000000001;
+	TERM midHigh := trian 0.8200000000000001 2.2 2.98;
+	TERM midLow := trian -0.42999999999999994 0.8000000000000002 1.7400000000000002;
+	TERM veryHigh := trian 3.1600000000000006 3.979999999999999 3.9799999999999995;
+	ACCU : SUM;
+	METHOD : COG;
+	DEFAULT := 0.0;
+	RANGE := (-2.0 .. 4.0);
+END_DEFUZZIFY
+
+DEFUZZIFY qualify
+	TERM accept := trian 3.0 4.0 5.0;
+	TERM manual_accept := trian 2.0 3.0 4.0;
+	TERM manual_reject := trian 1.0 2.0 3.0;
+	TERM reject := trian 0.0 1.0 2.0;
+	ACCU : SUM;
+	METHOD : COG;
+	DEFAULT := 0.0;
+	RANGE := (0.0 .. 5.0);
+END_DEFUZZIFY
+
+RULEBLOCK Rules
+	ACT : MIN;
+	AND : MIN;
+	RULE 1 : IF scoring is veryHigh THEN qualify is accept , credLimMul is veryHigh WITH 0.9999999999999999;
+	RULE 2 : IF scoring is high THEN qualify is accept , credLimMul is high WITH 0.28999999999999976;
+	RULE 3 : IF scoring is midHigh THEN qualify is manual_accept , credLimMul is midHigh WITH 0.2599999999999999;
+	RULE 4 : IF scoring is midLow THEN qualify is manual_reject , credLimMul is midLow WITH 0.5099999999999999;
+	RULE 5 : IF scoring is low THEN qualify is reject , credLimMul is low WITH 0.6299999999999999;
+	RULE 6 : IF (sel is a) or (sel is b) THEN qualify is accept , credLimMul is veryHigh WITH 0.34999999999999987;
+	RULE 7 : IF sel is c1 THEN qualify is accept , credLimMul is high WITH 0.8499999999999999;
+	RULE 8 : IF sel is c2 THEN qualify is manual_accept , credLimMul is midHigh WITH 0.8099999999999998;
+	RULE 9 : IF sel is c3 THEN qualify is manual_reject , credLimMul is midLow WITH 0.5099999999999997;
+	RULE 10 : IF (sel is d1) or (sel is low) THEN qualify is reject , credLimMul is low WITH 0.4099999999999997;
+	RULE 11 : IF not (occupation_type is good) THEN qualify is reject , credLimMul is low;
+	RULE 12 : IF (city is other) and (((scoring is midLow) or (scoring is low))) THEN qualify is reject , credLimMul is low;
+	RULE 13 : IF scoring_partner is midLow THEN qualify is manual_reject , credLimMul is midLow;
+	RULE 14 : IF scoring_partner is low THEN qualify is reject , credLimMul is low;
+END_RULEBLOCK
+
+END_FUNCTION_BLOCK

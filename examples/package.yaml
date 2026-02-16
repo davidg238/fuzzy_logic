@@ -1,5 +1,5 @@
 dependencies:
-  fuzzy_logic:
+  fuzzy-logic:
     path: ..
   http:
     url: github.com/toitlang/pkg-http

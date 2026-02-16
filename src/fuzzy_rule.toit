@@ -23,5 +23,9 @@ class FuzzyRule:
     // print "eval conse $consequent_"
     return fired
 
-  stringify -> string: return "$name: if $antecedent_ then $fl-then"
+  stringify -> string:
+    prefix := ""
+    if not name.is-empty:
+      prefix = "$name: "
+    return "$(prefix)if $antecedent_ then $fl-then"
 

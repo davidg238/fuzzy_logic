@@ -37,6 +37,7 @@ class FuzzyModel:
 
   crisp-input index/int value/num -> none:
     crisp-inputs[index] = value
+    changed
 
   defuzzify -> none:
     outputs.do:

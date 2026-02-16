@@ -1,5 +1,5 @@
 prefixes:
-  fuzzy_logic: ..
+  fuzzy-logic: ..
   http: pkg-http
   websocket: pkg-websocket
 packages:

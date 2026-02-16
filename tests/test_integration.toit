@@ -40,27 +40,27 @@ main:
     // Rules for temperature control
     rules := [
       // Cold conditions - need heating
-      FuzzyRule.fl-if (Antecedent-And cold falling_fast) --fl-then=(Consequent.output high),
-      FuzzyRule.fl-if (Antecedent-And cold falling) --fl-then=(Consequent.output high),
-      FuzzyRule.fl-if (Antecedent-And cold stable) --fl-then=(Consequent.output medium),
-      FuzzyRule.fl-if (Antecedent-And cold rising) --fl-then=(Consequent.output low),
-      FuzzyRule.fl-if (Antecedent-And cold rising_fast) --fl-then=(Consequent.output off),
+      FuzzyRule.fl-if (AntecedentAnd cold falling_fast) --fl-then=(Consequent.output high),
+      FuzzyRule.fl-if (AntecedentAnd cold falling) --fl-then=(Consequent.output high),
+      FuzzyRule.fl-if (AntecedentAnd cold stable) --fl-then=(Consequent.output medium),
+      FuzzyRule.fl-if (AntecedentAnd cold rising) --fl-then=(Consequent.output low),
+      FuzzyRule.fl-if (AntecedentAnd cold rising_fast) --fl-then=(Consequent.output off),
       
       // Cool conditions
-      FuzzyRule.fl-if (Antecedent-And cool falling) --fl-then=(Consequent.output medium),
-      FuzzyRule.fl-if (Antecedent-And cool stable) --fl-then=(Consequent.output low),
-      FuzzyRule.fl-if (Antecedent-And cool rising) --fl-then=(Consequent.output off),
+      FuzzyRule.fl-if (AntecedentAnd cool falling) --fl-then=(Consequent.output medium),
+      FuzzyRule.fl-if (AntecedentAnd cool stable) --fl-then=(Consequent.output low),
+      FuzzyRule.fl-if (AntecedentAnd cool rising) --fl-then=(Consequent.output off),
       
       // Warm conditions
-      FuzzyRule.fl-if (Antecedent-And warm falling) --fl-then=(Consequent.output low),
-      FuzzyRule.fl-if (Antecedent-And warm stable) --fl-then=(Consequent.output off),
-      FuzzyRule.fl-if (Antecedent-And warm rising) --fl-then=(Consequent.output off),
+      FuzzyRule.fl-if (AntecedentAnd warm falling) --fl-then=(Consequent.output low),
+      FuzzyRule.fl-if (AntecedentAnd warm stable) --fl-then=(Consequent.output off),
+      FuzzyRule.fl-if (AntecedentAnd warm rising) --fl-then=(Consequent.output off),
       
       // Hot conditions - no heating needed
-      FuzzyRule.fl-if (Antecedent-And hot falling_fast) --fl-then=(Consequent.output off),
-      FuzzyRule.fl-if (Antecedent-And hot falling) --fl-then=(Consequent.output off),
-      FuzzyRule.fl-if (Antecedent-And hot stable) --fl-then=(Consequent.output off),
-      FuzzyRule.fl-if (Antecedent-And hot rising) --fl-then=(Consequent.output off),
+      FuzzyRule.fl-if (AntecedentAnd hot falling_fast) --fl-then=(Consequent.output off),
+      FuzzyRule.fl-if (AntecedentAnd hot falling) --fl-then=(Consequent.output off),
+      FuzzyRule.fl-if (AntecedentAnd hot stable) --fl-then=(Consequent.output off),
+      FuzzyRule.fl-if (AntecedentAnd hot rising) --fl-then=(Consequent.output off),
     ]
     
     rules.do: | rule | fuzzy.add_rule rule
@@ -122,34 +122,34 @@ main:
     // Investment rules
     investment_rules := [
       // High volatility scenarios
-      FuzzyRule.fl-if (Antecedent-And very_high small) --fl-then=(Consequent.output avoid),
-      FuzzyRule.fl-if (Antecedent-And very_high medium) --fl-then=(Consequent.output avoid),
-      FuzzyRule.fl-if (Antecedent-And very_high large) --fl-then=(Consequent.output conservative),
-      FuzzyRule.fl-if (Antecedent-And very_high mega) --fl-then=(Consequent.output conservative),
+      FuzzyRule.fl-if (AntecedentAnd very_high small) --fl-then=(Consequent.output avoid),
+      FuzzyRule.fl-if (AntecedentAnd very_high medium) --fl-then=(Consequent.output avoid),
+      FuzzyRule.fl-if (AntecedentAnd very_high large) --fl-then=(Consequent.output conservative),
+      FuzzyRule.fl-if (AntecedentAnd very_high mega) --fl-then=(Consequent.output conservative),
       
       // High volatility
-      FuzzyRule.fl-if (Antecedent-And high small) --fl-then=(Consequent.output avoid),
-      FuzzyRule.fl-if (Antecedent-And high medium) --fl-then=(Consequent.output conservative),
-      FuzzyRule.fl-if (Antecedent-And high large) --fl-then=(Consequent.output balanced),
-      FuzzyRule.fl-if (Antecedent-And high mega) --fl-then=(Consequent.output balanced),
+      FuzzyRule.fl-if (AntecedentAnd high small) --fl-then=(Consequent.output avoid),
+      FuzzyRule.fl-if (AntecedentAnd high medium) --fl-then=(Consequent.output conservative),
+      FuzzyRule.fl-if (AntecedentAnd high large) --fl-then=(Consequent.output balanced),
+      FuzzyRule.fl-if (AntecedentAnd high mega) --fl-then=(Consequent.output balanced),
       
       // Moderate volatility
-      FuzzyRule.fl-if (Antecedent-And moderate small) --fl-then=(Consequent.output conservative),
-      FuzzyRule.fl-if (Antecedent-And moderate medium) --fl-then=(Consequent.output balanced),
-      FuzzyRule.fl-if (Antecedent-And moderate large) --fl-then=(Consequent.output aggressive),
-      FuzzyRule.fl-if (Antecedent-And moderate mega) --fl-then=(Consequent.output aggressive),
+      FuzzyRule.fl-if (AntecedentAnd moderate small) --fl-then=(Consequent.output conservative),
+      FuzzyRule.fl-if (AntecedentAnd moderate medium) --fl-then=(Consequent.output balanced),
+      FuzzyRule.fl-if (AntecedentAnd moderate large) --fl-then=(Consequent.output aggressive),
+      FuzzyRule.fl-if (AntecedentAnd moderate mega) --fl-then=(Consequent.output aggressive),
       
       // Low volatility
-      FuzzyRule.fl-if (Antecedent-And low small) --fl-then=(Consequent.output balanced),
-      FuzzyRule.fl-if (Antecedent-And low medium) --fl-then=(Consequent.output aggressive),
-      FuzzyRule.fl-if (Antecedent-And low large) --fl-then=(Consequent.output max_invest),
-      FuzzyRule.fl-if (Antecedent-And low mega) --fl-then=(Consequent.output max_invest),
+      FuzzyRule.fl-if (AntecedentAnd low small) --fl-then=(Consequent.output balanced),
+      FuzzyRule.fl-if (AntecedentAnd low medium) --fl-then=(Consequent.output aggressive),
+      FuzzyRule.fl-if (AntecedentAnd low large) --fl-then=(Consequent.output max_invest),
+      FuzzyRule.fl-if (AntecedentAnd low mega) --fl-then=(Consequent.output max_invest),
       
       // Very low volatility
-      FuzzyRule.fl-if (Antecedent-And very_low small) --fl-then=(Consequent.output aggressive),
-      FuzzyRule.fl-if (Antecedent-And very_low medium) --fl-then=(Consequent.output max_invest),
-      FuzzyRule.fl-if (Antecedent-And very_low large) --fl-then=(Consequent.output max_invest),
-      FuzzyRule.fl-if (Antecedent-And very_low mega) --fl-then=(Consequent.output max_invest),
+      FuzzyRule.fl-if (AntecedentAnd very_low small) --fl-then=(Consequent.output aggressive),
+      FuzzyRule.fl-if (AntecedentAnd very_low medium) --fl-then=(Consequent.output max_invest),
+      FuzzyRule.fl-if (AntecedentAnd very_low large) --fl-then=(Consequent.output max_invest),
+      FuzzyRule.fl-if (AntecedentAnd very_low mega) --fl-then=(Consequent.output max_invest),
     ]
     
     investment_rules.do: | rule | fuzzy.add_rule rule
@@ -209,34 +209,34 @@ main:
     // Traffic light timing rules
     traffic_rules := [
       // Main road jam - prioritize main road
-      FuzzyRule.fl-if (Antecedent-And jam side_none) --fl-then=(Consequent.output very_long),
-      FuzzyRule.fl-if (Antecedent-And jam side_light) --fl-then=(Consequent.output very_long),
-      FuzzyRule.fl-if (Antecedent-And jam side_moderate) --fl-then=(Consequent.output long),
-      FuzzyRule.fl-if (Antecedent-And jam side_heavy) --fl-then=(Consequent.output long),
+      FuzzyRule.fl-if (AntecedentAnd jam side_none) --fl-then=(Consequent.output very_long),
+      FuzzyRule.fl-if (AntecedentAnd jam side_light) --fl-then=(Consequent.output very_long),
+      FuzzyRule.fl-if (AntecedentAnd jam side_moderate) --fl-then=(Consequent.output long),
+      FuzzyRule.fl-if (AntecedentAnd jam side_heavy) --fl-then=(Consequent.output long),
       
       // Main road heavy traffic
-      FuzzyRule.fl-if (Antecedent-And heavy side_none) --fl-then=(Consequent.output long),
-      FuzzyRule.fl-if (Antecedent-And heavy side_light) --fl-then=(Consequent.output long),
-      FuzzyRule.fl-if (Antecedent-And heavy side_moderate) --fl-then=(Consequent.output normal),
-      FuzzyRule.fl-if (Antecedent-And heavy side_heavy) --fl-then=(Consequent.output normal),
+      FuzzyRule.fl-if (AntecedentAnd heavy side_none) --fl-then=(Consequent.output long),
+      FuzzyRule.fl-if (AntecedentAnd heavy side_light) --fl-then=(Consequent.output long),
+      FuzzyRule.fl-if (AntecedentAnd heavy side_moderate) --fl-then=(Consequent.output normal),
+      FuzzyRule.fl-if (AntecedentAnd heavy side_heavy) --fl-then=(Consequent.output normal),
       
       // Main road moderate traffic
-      FuzzyRule.fl-if (Antecedent-And moderate side_none) --fl-then=(Consequent.output normal),
-      FuzzyRule.fl-if (Antecedent-And moderate side_light) --fl-then=(Consequent.output normal),
-      FuzzyRule.fl-if (Antecedent-And moderate side_moderate) --fl-then=(Consequent.output short),
-      FuzzyRule.fl-if (Antecedent-And moderate side_heavy) --fl-then=(Consequent.output short),
+      FuzzyRule.fl-if (AntecedentAnd moderate side_none) --fl-then=(Consequent.output normal),
+      FuzzyRule.fl-if (AntecedentAnd moderate side_light) --fl-then=(Consequent.output normal),
+      FuzzyRule.fl-if (AntecedentAnd moderate side_moderate) --fl-then=(Consequent.output short),
+      FuzzyRule.fl-if (AntecedentAnd moderate side_heavy) --fl-then=(Consequent.output short),
       
       // Main road light traffic
-      FuzzyRule.fl-if (Antecedent-And light side_none) --fl-then=(Consequent.output short),
-      FuzzyRule.fl-if (Antecedent-And light side_light) --fl-then=(Consequent.output short),
-      FuzzyRule.fl-if (Antecedent-And light side_moderate) --fl-then=(Consequent.output very_short),
-      FuzzyRule.fl-if (Antecedent-And light side_heavy) --fl-then=(Consequent.output very_short),
+      FuzzyRule.fl-if (AntecedentAnd light side_none) --fl-then=(Consequent.output short),
+      FuzzyRule.fl-if (AntecedentAnd light side_light) --fl-then=(Consequent.output short),
+      FuzzyRule.fl-if (AntecedentAnd light side_moderate) --fl-then=(Consequent.output very_short),
+      FuzzyRule.fl-if (AntecedentAnd light side_heavy) --fl-then=(Consequent.output very_short),
       
       // Main road no traffic
-      FuzzyRule.fl-if (Antecedent-And none side_none) --fl-then=(Consequent.output very_short),
-      FuzzyRule.fl-if (Antecedent-And none side_light) --fl-then=(Consequent.output very_short),
-      FuzzyRule.fl-if (Antecedent-And none side_moderate) --fl-then=(Consequent.output very_short),
-      FuzzyRule.fl-if (Antecedent-And none side_heavy) --fl-then=(Consequent.output very_short),
+      FuzzyRule.fl-if (AntecedentAnd none side_none) --fl-then=(Consequent.output very_short),
+      FuzzyRule.fl-if (AntecedentAnd none side_light) --fl-then=(Consequent.output very_short),
+      FuzzyRule.fl-if (AntecedentAnd none side_moderate) --fl-then=(Consequent.output very_short),
+      FuzzyRule.fl-if (AntecedentAnd none side_heavy) --fl-then=(Consequent.output very_short),
     ]
     
     traffic_rules.do: | rule | fuzzy.add_rule rule

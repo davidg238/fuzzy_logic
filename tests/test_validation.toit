@@ -3,6 +3,8 @@
 
 import btest show *
 import fuzzy-logic show *
+import math show *
+
 
 main:
   test "Validation" "mathematical properties":
@@ -16,25 +18,25 @@ main:
     fuzzySet3.max 0.8
     
     // Test commutativity: A AND B = B AND A
-    antecedent_ab := Antecedent.AND_sets fuzzySet1 fuzzySet2
-    antecedent_ba := Antecedent.AND_sets fuzzySet2 fuzzySet1
-    expect_near antecedent_ab.evaluate antecedent_ba.evaluate
+    antecedent_ab := AntecedentAnd fuzzySet1 fuzzySet2
+    antecedent_ba := AntecedentAnd fuzzySet2 fuzzySet1
+    expect_near antecedent_ab.term-eval antecedent_ba.term-eval
     
     // Test associativity: (A AND B) AND C = A AND (B AND C)
-    antecedent_ab_c := Antecedent.AND_ante_set antecedent_ab fuzzySet3
-    antecedent_bc := Antecedent.AND_sets fuzzySet2 fuzzySet3
-    antecedent_a_bc := Antecedent.AND_set_ante fuzzySet1 antecedent_bc
-    expect_near antecedent_ab_c.evaluate antecedent_a_bc.evaluate
+    antecedent_ab_c := Antecedent.fl-and antecedent_ab fuzzySet3
+    antecedent_bc := Antecedent.fl-and fuzzySet2 fuzzySet3
+    antecedent_a_bc := Antecedent.fl-and fuzzySet1 antecedent_bc
+    expect_near antecedent_ab_c.term-eval antecedent_a_bc.term-eval
     
     // Test OR commutativity: A OR B = B OR A
-    or_antecedent_ab := Antecedent.OR_sets fuzzySet1 fuzzySet2
-    or_antecedent_ba := Antecedent.OR_sets fuzzySet2 fuzzySet1
-    expect_near or_antecedent_ab.evaluate or_antecedent_ba.evaluate
+    or_antecedent_ab := Antecedent.fl-or fuzzySet1 fuzzySet2
+    or_antecedent_ba := Antecedent.fl-or fuzzySet2 fuzzySet1
+    expect_near or_antecedent_ab.term-eval or_antecedent_ba.term-eval
     
     // Test De Morgan's laws approximation
     // NOT(A AND B) ≈ (NOT A) OR (NOT B)
     // Using complement (1 - x) for NOT operation
-    not_and := 1.0 - antecedent_ab.evaluate
+    not_and := 1.0 - antecedent_ab.term-eval
     not_a := 1.0 - fuzzySet1.pertinence
     not_b := 1.0 - fuzzySet2.pertinence
     not_a_or_not_b := math.max not_a not_b
@@ -65,26 +67,26 @@ main:
     triangular := FuzzySet 0.0 10.0 10.0 20.0 "precise_tri"
     
     // Test exact points
-    triangular.set_pertinence 0.0
+    triangular.fuzzify 0.0
     expect_near 0.0 triangular.pertinence
     
-    triangular.set_pertinence 10.0
+    triangular.fuzzify 10.0
     expect_near 1.0 triangular.pertinence
     
-    triangular.set_pertinence 20.0
+    triangular.fuzzify 20.0
     expect_near 0.0 triangular.pertinence
     
     // Test interpolated points
-    triangular.set_pertinence 5.0
+    triangular.fuzzify 5.0
     expect_near 0.5 triangular.pertinence
     
-    triangular.set_pertinence 15.0
+    triangular.fuzzify 15.0
     expect_near 0.5 triangular.pertinence
     
-    triangular.set_pertinence 7.5
+    triangular.fuzzify 7.5
     expect_near 0.75 triangular.pertinence
     
-    triangular.set_pertinence 17.5
+    triangular.fuzzify 17.5
     expect_near 0.25 triangular.pertinence
 
   test "Validation" "centroid calculation accuracy":
@@ -123,7 +125,7 @@ main:
     output.add_set out_set
     fuzzy.add_output output
     
-    rule := FuzzyRule (Antecedent.fl_set set1) (Consequent.output out_set)
+    rule := FuzzyRule.fl-if (Antecedent.fl_set set1) --fl-then=(Consequent.output out_set)
     fuzzy.add_rule rule
     
     // Simulate rapid successive calls (as if from multiple threads)
@@ -135,7 +137,7 @@ main:
       result := fuzzy.defuzzify 0
       
       // Results should be consistent and deterministic
-      if previous_result != null and input_val == ((i-1) % 100).to_float:
+      if previous_result != null and input_val == ((i - 1) % 100).to_float:
         expect_near previous_result result
       
       previous_result = result
@@ -159,16 +161,16 @@ main:
       output.add_set out_set
       model.add_output output
       
-      rule := FuzzyRule (Antecedent.fl_set set) (Consequent.output out_set)
+      rule := FuzzyRule.fl-if (Antecedent.fl_set set) --fl-then=(Consequent.output out_set)
       model.add_rule rule
       
       models.add model
     
     // Test all models work
-    models.do_with_index: | model, i |
-      model.crisp_input 0 (i.to_float + 15.0)
-      model.fuzzify
-      result := model.defuzzify 0
+    for i := 0; i < models.size; i++:
+      it.crisp_input 0 (i.to_float + 15.0)
+      it.fuzzify
+      result := it.defuzzify 0
       expect_true result >= 0.0
     
     // Clear references to allow garbage collection
@@ -177,18 +179,18 @@ main:
   test "Robustness" "numeric stability":
     // Test with very small and very large numbers
     small_set := FuzzySet 1e-10 1e-9 1e-8 1e-7 "tiny"
-    small_set.set_pertinence 1e-9
+    small_set.fuzzify 1e-9
     expect_true small_set.pertinence >= 0.0
     expect_true small_set.pertinence <= 1.0
     
     large_set := FuzzySet 1e6 1e7 1e8 1e9 "huge"
-    large_set.set_pertinence 5e7
+    large_set.fuzzify 5e7
     expect_true large_set.pertinence >= 0.0
     expect_true large_set.pertinence <= 1.0
     
     // Test with numbers close to machine precision
     precision_set := FuzzySet 0.0000001 0.0000002 0.0000003 0.0000004 "precision"
-    precision_set.set_pertinence 0.00000025
+    precision_set.fuzzify 0.00000025
     expect_true precision_set.pertinence >= 0.0
     expect_true precision_set.pertinence <= 1.0
 
@@ -210,8 +212,8 @@ main:
     output.add_set result_high
     fuzzy.add_output output
     
-    rule1 := FuzzyRule (Antecedent.fl_set low) (Consequent.output result_low)
-    rule2 := FuzzyRule (Antecedent.fl_set high) (Consequent.output result_high)
+    rule1 := FuzzyRule.fl-if (Antecedent.fl_set low) --fl-then=(Consequent.output result_low)
+    rule2 := FuzzyRule.fl-if (Antecedent.fl_set high) --fl-then=(Consequent.output result_high)
     fuzzy.add_rule rule1
     fuzzy.add_rule rule2
     

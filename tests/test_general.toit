@@ -2,7 +2,7 @@
 
 import btest show *
 
-import fuzzy-logic show *
+import fuzzy_logic show *
 
 main:
   fuzzy := FuzzyModel

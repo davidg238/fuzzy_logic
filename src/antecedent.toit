@@ -12,18 +12,18 @@ abstract class Antecedent implements RuleTerm:
   constructor .term1 .term2:
 
   constructor.fl-set fuzzy-set/FuzzySet:
-    return Ante-Set fuzzy-set
+    return AntecedentSet fuzzy-set
 
   constructor.fl-and terma/RuleTerm termb/RuleTerm:
-    return Antecedent-And terma termb
+    return AntecedentAnd terma termb
 
   constructor.fl-or terma/RuleTerm termb/RuleTerm:
-    return Antecedent-Or terma termb
+    return AntecedentOr terma termb
   
   abstract term-eval -> float
 
 
-class Ante-Set extends Antecedent:
+class AntecedentSet extends Antecedent:
 
   constructor term:
     super term null
@@ -39,7 +39,7 @@ class Ante-Set extends Antecedent:
 //  if the operator is OR, check if one has pertinence bigger then 0.0
 
 
-class Antecedent-And extends Antecedent:
+class AntecedentAnd extends Antecedent:
 
   constructor term1/RuleTerm term2/RuleTerm:
     super term1 term2
@@ -50,7 +50,7 @@ class Antecedent-And extends Antecedent:
   term-eval -> float:
     return max 0.0 (min term1.term-eval term2.term-eval)
 
-class Antecedent-Or extends Antecedent:
+class AntecedentOr extends Antecedent:
 
   constructor term1/RuleTerm term2/RuleTerm:
     super term1 term2

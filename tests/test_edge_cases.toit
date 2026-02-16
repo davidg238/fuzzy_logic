@@ -23,11 +23,13 @@ main:
 
   test "FuzzySet" "invalid parameter handling":
     // Test with reversed parameters (should handle gracefully)
-    try:
+    ex := catch:
       invalidSet := FuzzySet 10.0 5.0 15.0 20.0 "invalid"
       // Should either throw or auto-correct
-    catch e:
+      expect_true false  // Should not be reached if an exception is thrown.
+    if ex:
       // Expected behavior - invalid parameters should be caught
+      print "Correctly caught invalid parameters: $ex"
 
   test "FuzzyInput" "empty sets":
     fuzzyInput := FuzzyInput "empty_input"
@@ -69,11 +71,11 @@ main:
     fuzzySet1.max 0.0
     fuzzySet2.max 0.0
     
-    andAntecedent := Antecedent.AND_sets fuzzySet1 fuzzySet2
-    expect_near 0.0 andAntecedent.evaluate
+    andAntecedent := Antecedent.fl-and fuzzySet1 fuzzySet2
+    expect_near 0.0 andAntecedent.term-eval
     
-    orAntecedent := Antecedent.OR_sets fuzzySet1 fuzzySet2
-    expect_near 0.0 orAntecedent.evaluate
+    orAntecedent := Antecedent.fl-or fuzzySet1 fuzzySet2
+    expect_near 0.0 orAntecedent.term-eval
 
   test "FuzzyModel" "no rules model":
     fuzzy := FuzzyModel "empty_model"

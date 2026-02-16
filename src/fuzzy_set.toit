@@ -64,6 +64,9 @@ abstract class FuzzySet implements RuleTerm:
     pertinence_ = lookup_ crisp-val.to-float
     clear-geometry-cache
 
+  range -> List:
+    return [a_, d_]
+
   abstract lookup_ val/float -> float
 
   max val/float -> none:
@@ -94,7 +97,8 @@ The geometry must be closed for the Composition centroid algorithm to work.
 
   stype: return ""
 
-  stringify: return "$name/$(stype):[$a_, $b_, $c_, $d_]/$(%.3f pertinence_)"
+//  stringify: return "$name/$(stype):[$a_, $b_, $c_, $d_]/$(%.3f pertinence_)"
+  stringify: return "$name/$(%.1f pertinence_)"
 
 /// ----- Geometry methods ----------------------------------------------------
 
