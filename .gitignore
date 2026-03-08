@@ -2,3 +2,4 @@
 examples/.packages
 tests/.packages
 tests/.jaguar
+.aider*
