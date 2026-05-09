@@ -100,3 +100,39 @@ def test_unsupported_membership_function_raises(fcl_dir):
                 parse_fcl(text)
             return
     pytest.skip("no .fcl uses gbell/gauss/sigm")
+
+
+import subprocess
+
+
+def test_cli_writes_json(fcl_dir, tmp_path):
+    out = tmp_path / "tipper.json"
+    rc = subprocess.run(
+        ["uv", "run", "fcl2json", str(fcl_dir / "tipper.fcl"), "--output", str(out)],
+        cwd=Path(__file__).resolve().parents[1],   # cwd = python/
+        capture_output=True, text=True,
+    )
+    assert rc.returncode == 0, rc.stderr
+    assert out.exists()
+    import json as _json
+    obj = _json.loads(out.read_text())
+    assert obj["name"] == "tipper"
+    assert obj["defuzz_method"] == "COG"
+
+
+def test_cli_all_option(fcl_dir, tmp_path):
+    rc = subprocess.run(
+        ["uv", "run", "fcl2json", "--all", str(fcl_dir), "--out-dir", str(tmp_path)],
+        cwd=Path(__file__).resolve().parents[1],
+        capture_output=True, text=True,
+    )
+    # --all may exit non-zero if some .fcl uses unsupported MFs; the test
+    # accepts that, but we want to confirm it produces .json for the supported
+    # files. Don't assert returncode=0; assert at least the supported subset
+    # produced output.
+    supported = {"tipper", "container-crane", "triage", "block", "ip", "ip2",
+                 "tipping", "tipping2", "z"}
+    jsons = sorted(p.stem for p in tmp_path.glob("*.json"))
+    for name in supported:
+        if (fcl_dir / f"{name}.fcl").exists():
+            assert name in jsons, f"missing {name}.json (stderr: {rc.stderr})"
