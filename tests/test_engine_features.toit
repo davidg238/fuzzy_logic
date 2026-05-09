@@ -2,6 +2,7 @@
 
 import btest show *
 import fuzzy-logic show *
+import fuzzy-logic.json-loader show load-model
 
 main:
   test-start
@@ -67,5 +68,29 @@ main:
         --weight=0.0
     rule.evaluate
     expect-near 0.0 out-set.pertinence
+
+  test "Engine" "NOT and weight together via JSON":
+    model := load-model {
+      "name": "combined",
+      "inputs": [{"name": "x", "terms": [
+        {"name": "lo", "a": 0, "b": 0,  "c": 0,  "d": 10},
+        {"name": "hi", "a": 0, "b": 10, "c": 10, "d": 10},
+      ]}],
+      "outputs": [{"name": "y", "terms": [
+        {"name": "off", "a": 0, "b": 0, "c": 0, "d": 0},
+        {"name": "on",  "a": 0, "b": 5, "c": 5, "d": 10},
+      ]}],
+      "rules": [
+        {"weight": 0.5,
+         "if": {"op": "not", "arg": {"op": "is", "var": "x", "term": "lo"}},
+         "then": [{"var": "y", "term": "on"}]},
+      ],
+    }
+    // x=8: "lo" pertinence = 0.2 (y-falling 8 0 10 → 1 - 0.8). NOT = 0.8.
+    // Rule weight 0.5 → consequent activated at 0.4.
+    // "on" set 0,5,5,10 (TriangularSet) truncated at h=0.4: centroid by symmetry = 5.0.
+    model.crisp-input 0 8.0
+    model.fuzzify
+    expect-near 5.0 (model.defuzzify 0)
 
   test-end
