@@ -84,6 +84,25 @@ main:
       hand-model.fuzzify
       expect-near (hand-model.defuzzify 0) (json-model.defuzzify 0)
 
+  test "ModelsViaJson" "air-conditioning model matches hand-coded":
+    json-model := load-model AIR-CONDITIONING-JSON
+    hand-model := get-air-conditioning
+    // (temperature, humidity)
+    vectors := [
+      [ 8.0, 15.0],
+      [18.0, 40.0],
+      [28.0, 55.0],
+      [40.0, 80.0],
+    ]
+    vectors.do: | v/List |
+      json-model.crisp-input 0 v[0]
+      json-model.crisp-input 1 v[1]
+      json-model.fuzzify
+      hand-model.crisp-input 0 v[0]
+      hand-model.crisp-input 1 v[1]
+      hand-model.fuzzify
+      expect-near (hand-model.defuzzify 0) (json-model.defuzzify 0)
+
   test-end
 
 DRIVER-JSON ::= {
@@ -380,5 +399,58 @@ FAN-SPEED-JSON ::= {
     and2-rule_ "termperature" "veryHigh" "humidity" "comfortable" "speed" "fast",
     and2-rule_ "termperature" "veryHigh" "humidity" "humid"       "speed" "fast",
     and2-rule_ "termperature" "veryHigh" "humidity" "sticky"      "speed" "fast",
+  ],
+}
+
+AIR-CONDITIONING-JSON ::= {
+  "name": "air-conditioning",
+  "inputs": [
+    {
+      "name": "temperature",
+      "terms": [
+        {"name": "veryLow",  "a":  5.0, "b":  5.0, "c":  5.0, "d": 15.0},
+        {"name": "low",      "a": 10.0, "b": 20.0, "c": 20.0, "d": 30.0},
+        {"name": "high",     "a": 25.0, "b": 30.0, "c": 30.0, "d": 35.0},
+        {"name": "veryHigh", "a": 30.0, "b": 50.0, "c": 50.0, "d": 50.0},
+      ],
+    },
+    {
+      "name": "humidity",
+      "terms": [
+        {"name": "dry",         "a":  5.0, "b":   5.0, "c":   5.0, "d":  30.0},
+        {"name": "comfortable", "a": 20.0, "b":  35.0, "c":  35.0, "d":  50.0},
+        {"name": "humid",       "a": 40.0, "b":  55.0, "c":  55.0, "d":  70.0},
+        {"name": "sticky",      "a": 60.0, "b": 100.0, "c": 100.0, "d": 100.0},
+      ],
+    },
+  ],
+  "outputs": [
+    {
+      "name": "speed",
+      "terms": [
+        {"name": "off",         "a":  0.0, "b":  0.0, "c":  0.0, "d":  0.0},
+        {"name": "lowHumidity", "a": 30.0, "b": 45.0, "c": 45.0, "d": 60.0},
+        {"name": "medium",      "a": 50.0, "b": 65.0, "c": 65.0, "d": 80.0},
+        {"name": "fast",        "a": 70.0, "b": 90.0, "c": 95.0, "d": 95.0},
+      ],
+    },
+  ],
+  "rules": [
+    and2-rule_ "temperature" "veryLow"  "humidity" "dry"         "speed" "off",
+    and2-rule_ "temperature" "veryLow"  "humidity" "comfortable" "speed" "off",
+    and2-rule_ "temperature" "veryLow"  "humidity" "humid"       "speed" "off",
+    and2-rule_ "temperature" "veryLow"  "humidity" "sticky"      "speed" "lowHumidity",
+    and2-rule_ "temperature" "low"      "humidity" "dry"         "speed" "off",
+    and2-rule_ "temperature" "low"      "humidity" "comfortable" "speed" "off",
+    and2-rule_ "temperature" "low"      "humidity" "humid"       "speed" "lowHumidity",
+    and2-rule_ "temperature" "low"      "humidity" "sticky"      "speed" "medium",
+    and2-rule_ "temperature" "high"     "humidity" "dry"         "speed" "lowHumidity",
+    and2-rule_ "temperature" "high"     "humidity" "comfortable" "speed" "medium",
+    and2-rule_ "temperature" "high"     "humidity" "humid"       "speed" "fast",
+    and2-rule_ "temperature" "high"     "humidity" "sticky"      "speed" "fast",
+    and2-rule_ "temperature" "veryHigh" "humidity" "dry"         "speed" "medium",
+    and2-rule_ "temperature" "veryHigh" "humidity" "comfortable" "speed" "fast",
+    and2-rule_ "temperature" "veryHigh" "humidity" "humid"       "speed" "fast",
+    and2-rule_ "temperature" "veryHigh" "humidity" "sticky"      "speed" "fast",
   ],
 }
