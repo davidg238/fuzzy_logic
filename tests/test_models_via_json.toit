@@ -103,6 +103,25 @@ main:
       hand-model.fuzzify
       expect-near (hand-model.defuzzify 0) (json-model.defuzzify 0)
 
+  test "ModelsViaJson" "container-crane model matches hand-coded":
+    json-model := load-model CONTAINER-CRANE-JSON
+    hand-model := get-container-crane
+    // (distance, angle) covering rule branches
+    vectors := [
+      [-3.0, -25.0],
+      [ 3.0,   0.0],
+      [ 8.0,   5.0],
+      [15.0,  25.0],
+    ]
+    vectors.do: | v/List |
+      json-model.crisp-input 0 v[0]
+      json-model.crisp-input 1 v[1]
+      json-model.fuzzify
+      hand-model.crisp-input 0 v[0]
+      hand-model.crisp-input 1 v[1]
+      hand-model.fuzzify
+      expect-near (hand-model.defuzzify 0) (json-model.defuzzify 0)
+
   test-end
 
 DRIVER-JSON ::= {
@@ -452,5 +471,55 @@ AIR-CONDITIONING-JSON ::= {
     and2-rule_ "temperature" "veryHigh" "humidity" "comfortable" "speed" "fast",
     and2-rule_ "temperature" "veryHigh" "humidity" "humid"       "speed" "fast",
     and2-rule_ "temperature" "veryHigh" "humidity" "sticky"      "speed" "fast",
+  ],
+}
+
+CONTAINER-CRANE-JSON ::= {
+  "name": "container-crane",
+  "inputs": [
+    // Order matches `FuzzyInput.sets [d-too-far, d-far, d-medium, d-close, d-zero]`
+    // in examples/models.toit get-container-crane.
+    {
+      "name": "distance",
+      "terms": [
+        {"name": "too_far", "a": -5, "b": -5, "c": -5, "d":  0},
+        {"name": "far",     "a": 10, "b": 22, "c": 22, "d": 22},
+        {"name": "medium",  "a":  5, "b": 10, "c": 10, "d": 22},
+        {"name": "close",   "a":  0, "b":  5, "c":  5, "d": 10},
+        {"name": "d-zero",  "a": -5, "b":  0, "c":  0, "d":  5},
+      ],
+    },
+    {
+      "name": "angle",
+      "terms": [
+        {"name": "neg-big",   "a": -50, "b": -50, "c": -50, "d": -5},
+        {"name": "neg-small", "a": -50, "b":  -5, "c":  -5, "d":  0},
+        // a-zero in examples/models.toit is `5 0 0 5` (note a > b).
+        {"name": "a-zero",    "a":   5, "b":   0, "c":   0, "d":  5},
+        {"name": "pos-small", "a":   0, "b":   5, "c":   5, "d": 50},
+        {"name": "pos-big",   "a":   5, "b":  50, "c":  50, "d": 50},
+      ],
+    },
+  ],
+  "outputs": [
+    {
+      "name": "power",
+      "terms": [
+        // All output sets are 4-equal singletons.
+        {"name": "neg-high",   "a": -27, "b": -27, "c": -27, "d": -27},
+        {"name": "neg-medium", "a": -12, "b": -12, "c": -12, "d": -12},
+        {"name": "p-zero",     "a":   0, "b":   0, "c":   0, "d":   0},
+        {"name": "pos-medium", "a":  12, "b":  12, "c":  12, "d":  12},
+        {"name": "pos-high",   "a":  27, "b":  27, "c":  27, "d":  27},
+      ],
+    },
+  ],
+  "rules": [
+    and2-rule_ "distance" "far"    "angle" "a-zero"    "power" "pos-medium",
+    and2-rule_ "distance" "far"    "angle" "neg-small" "power" "pos-high",
+    and2-rule_ "distance" "far"    "angle" "neg-big"   "power" "pos-medium",
+    and2-rule_ "distance" "medium" "angle" "neg-small" "power" "neg-medium",
+    and2-rule_ "distance" "close"  "angle" "pos-small" "power" "pos-medium",
+    and2-rule_ "distance" "d-zero" "angle" "a-zero"    "power" "p-zero",
   ],
 }
