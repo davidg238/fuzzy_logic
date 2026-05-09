@@ -1,9 +1,6 @@
-// Copyright (c) 2021 Ekorau LLC
+// Copyright (c) 2021, 2026 Ekorau LLC
 
 import .composition show Composition
-
-seg idx/int list/List -> List:
-    return [list[idx], list[idx + 1]]
 
 class InputOutput:
 
@@ -20,7 +17,7 @@ class InputOutput:
     fsets.add a-set
     range_ = null
 
-  add-all-sets sets/List-> none:
+  add-all-sets sets/List -> none:
     fsets.add-all sets
     range_ = null
 
@@ -40,6 +37,7 @@ class InputOutput:
     names := []
     fsets.do: names.add it.name
     return names
+
 
 class FuzzyInput extends InputOutput:
 
@@ -68,22 +66,21 @@ class FuzzyOutput extends InputOutput:
     composition_ = Composition this
 
   constructor name="":
-      super name
-      composition_ = Composition this
+    super name
+    composition_ = Composition this
 
   clear -> none:
     composition_.clear
     super
 
   composition -> Composition:
-      return composition_
+    return composition_
 
   defuzzify -> float:
     return composition_.defuzzify
 
   stringify -> string:
-      out-str := "out: $name\n"
-      fsets.do:
-          out-str = out-str + "    " + it.stringify + "\n"
-      return "$out-str"        
-
+    out-str := "out: $name\n"
+    fsets.do:
+      out-str = out-str + "    " + it.stringify + "\n"
+    return "$out-str"
