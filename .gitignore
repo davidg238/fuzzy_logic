@@ -3,3 +3,6 @@ examples/.packages
 tests/.packages
 tests/.jaguar
 .aider*
+*.db
+*.db-shm
+*.db-wal
