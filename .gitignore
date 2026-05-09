@@ -6,3 +6,4 @@ tests/.jaguar
 *.db
 *.db-shm
 *.db-wal
+.claude/worktrees/
