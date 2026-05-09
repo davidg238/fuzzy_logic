@@ -1,7 +1,7 @@
 // Copyright (c) 2021, 2026 Ekorau LLC
 
 import .fuzzy_in_out show FuzzyOutput
-import .fuzzy_set show FuzzySet SingletonSet
+import .fuzzy_set show SingletonSet
 
 /*
 A composition aggregates the truncated areas of every pertinent set
