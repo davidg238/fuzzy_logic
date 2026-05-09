@@ -65,6 +65,25 @@ main:
       hand-model.fuzzify
       expect-near (hand-model.defuzzify 0) (json-model.defuzzify 0)
 
+  test "ModelsViaJson" "fan-speed model matches hand-coded":
+    json-model := load-model FAN-SPEED-JSON
+    hand-model := get-fan-speed
+    // (temperature, humidity)
+    vectors := [
+      [ 2.0, 15.0],
+      [15.0, 40.0],
+      [28.0, 55.0],
+      [40.0, 80.0],
+    ]
+    vectors.do: | v/List |
+      json-model.crisp-input 0 v[0]
+      json-model.crisp-input 1 v[1]
+      json-model.fuzzify
+      hand-model.crisp-input 0 v[0]
+      hand-model.crisp-input 1 v[1]
+      hand-model.fuzzify
+      expect-near (hand-model.defuzzify 0) (json-model.defuzzify 0)
+
   test-end
 
 DRIVER-JSON ::= {
@@ -293,5 +312,73 @@ CASCO-JSON ::= {
     casco-rule_ "puddled" "heat"     "fall"   "anys",
     casco-rule_ "puddled" "heat"     "winter" "anys",
     casco-rule_ "puddled" "heat"     "spring" "very_little",
+  ],
+}
+
+// Helper: AND of two "is" expressions, as the simple AND used by fan-speed,
+// air-conditioning, and container-crane.
+and2-rule_ var-a/string term-a/string var-b/string term-b/string out-var/string out-term/string -> Map:
+  return {
+    "if": {
+      "op": "and",
+      "args": [
+        {"op": "is", "var": var-a, "term": term-a},
+        {"op": "is", "var": var-b, "term": term-b},
+      ],
+    },
+    "then": [{"var": out-var, "term": out-term}],
+  }
+
+FAN-SPEED-JSON ::= {
+  "name": "fan-speed",
+  "inputs": [
+    // NOTE: matches the typo in examples/models.toit ("termperature").
+    {
+      "name": "termperature",
+      "terms": [
+        {"name": "veryLow",  "a": -5, "b": -5, "c":  0, "d": 15},
+        {"name": "low",      "a": 10, "b": 20, "c": 20, "d": 30},
+        {"name": "high",     "a": 25, "b": 30, "c": 30, "d": 35},
+        {"name": "veryHigh", "a": 30, "b": 45, "c": 50, "d": 50},
+      ],
+    },
+    {
+      "name": "humidity",
+      "terms": [
+        {"name": "dry",         "a": -5, "b": -5,  "c":   0, "d":  30},
+        {"name": "comfortable", "a": 20, "b": 35,  "c":  35, "d":  50},
+        {"name": "humid",       "a": 40, "b": 55,  "c":  55, "d":  70},
+        {"name": "sticky",      "a": 60, "b": 100, "c": 105, "d": 105},
+      ],
+    },
+  ],
+  "outputs": [
+    {
+      "name": "speed",
+      "terms": [
+        {"name": "off",         "a":  0, "b":  0, "c":  0, "d":  0},
+        {"name": "lowHumidity", "a": 30, "b": 45, "c": 45, "d": 60},
+        {"name": "medium",      "a": 50, "b": 65, "c": 65, "d": 80},
+        {"name": "fast",        "a": 70, "b": 90, "c": 95, "d": 95},
+      ],
+    },
+  ],
+  "rules": [
+    and2-rule_ "termperature" "veryLow"  "humidity" "dry"         "speed" "off",
+    and2-rule_ "termperature" "veryLow"  "humidity" "comfortable" "speed" "off",
+    and2-rule_ "termperature" "veryLow"  "humidity" "humid"       "speed" "off",
+    and2-rule_ "termperature" "veryLow"  "humidity" "sticky"      "speed" "lowHumidity",
+    and2-rule_ "termperature" "low"      "humidity" "dry"         "speed" "off",
+    and2-rule_ "termperature" "low"      "humidity" "comfortable" "speed" "off",
+    and2-rule_ "termperature" "low"      "humidity" "humid"       "speed" "lowHumidity",
+    and2-rule_ "termperature" "low"      "humidity" "sticky"      "speed" "medium",
+    and2-rule_ "termperature" "high"     "humidity" "dry"         "speed" "lowHumidity",
+    and2-rule_ "termperature" "high"     "humidity" "comfortable" "speed" "medium",
+    and2-rule_ "termperature" "high"     "humidity" "humid"       "speed" "fast",
+    and2-rule_ "termperature" "high"     "humidity" "sticky"      "speed" "fast",
+    and2-rule_ "termperature" "veryHigh" "humidity" "dry"         "speed" "medium",
+    and2-rule_ "termperature" "veryHigh" "humidity" "comfortable" "speed" "fast",
+    and2-rule_ "termperature" "veryHigh" "humidity" "humid"       "speed" "fast",
+    and2-rule_ "termperature" "veryHigh" "humidity" "sticky"      "speed" "fast",
   ],
 }
