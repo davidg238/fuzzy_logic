@@ -71,8 +71,10 @@ RULE_ID: /[A-Za-z0-9_]+/
 ?not_expr: "NOT"i atom                          -> not_expr
          | atom
 ?atom: "(" expr ")"
+     | is_not_expr
      | is_expr
-is_expr: NAME "IS"i ("NOT"i)? NAME              -> is_expr
+is_expr:     NAME "IS"i NAME
+is_not_expr: NAME "IS"i "NOT"i NAME
 
 consequent_list: consequent ("," consequent)*
 consequent: NAME "IS"i NAME
