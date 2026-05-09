@@ -1,4 +1,4 @@
-// Copyright (c) 2021, 2022 Ekorau LLC
+// Copyright (c) 2021, 2022, 2026 Ekorau LLC
 
 import .antecedent
 import .composition
@@ -7,6 +7,5 @@ import .fuzzy-in-out
 import .fuzzy-model
 import .fuzzy-rule
 import .fuzzy-set
-import .geometry
 
 export *

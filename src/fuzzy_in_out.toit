@@ -1,7 +1,6 @@
 // Copyright (c) 2021 Ekorau LLC
 
 import .composition show Composition
-import .geometry show Point2f NoPoint2f
 
 seg idx/int list/List -> List:
     return [list[idx], list[idx + 1]]
