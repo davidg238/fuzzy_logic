@@ -6,7 +6,26 @@
 
 **Architecture:** Single `fuzzy_logic` Toit package. Engine modules in `src/` with no public geometry vocabulary. JSON loader is a new module that builds engine objects from a `Map`, with no transitive http/websocket/encoding.json dependencies — embeddable use cases pay zero RPC cost. RPC service and Python tooling are out of scope for this plan (Plan B).
 
-**Tech Stack:** Toit (engine, tests), `btest` test framework. Test runner: `toit run tests/<file>.toit`.
+**Tech Stack:** Toit (engine, tests), `btest` test framework. Test runner: `jag toit run tests/<file>.toit` (the `toit` CLI is bundled with `jag`).
+
+## Baseline (verified 2026-05-08, branch `worktree-restructure-engine`)
+
+| Test file | Status before plan starts |
+|---|---|
+| `tests/test_casco.toit` | PASSES (9/9 cases) — uses current API, golden numbers |
+| `tests/test_casco_runtime.toit` | runs (print-only, no asserts) |
+| `tests/test_geometry.toit` | PASSES (10/10 cases) — centroid behavior, no Point2f imports |
+| `tests/test_lecture_1.toit` | PASSES (5/5 cases) — uses current API |
+| `tests/test_lecture_2.toit` | PASSES (1/1 case) — uses current API |
+| `tests/test_api_usability.toit` | partial (7/9 pass) — uses current API |
+| `tests/test_integration.toit` | partial (22/25 pass) — uses current API |
+| `tests/test_all_additional.toit` | compile fail (pre-rename API) |
+| `tests/test_edge_cases.toit` | compile fail (hallucinated API: `composition.union`, `set.truncated`) |
+| `tests/test_fuzzy_lib.toit` | compile fail + throws on entry |
+| `tests/test_general.toit` | compile fail (pre-rename API: `Antecedent-And`) |
+| `tests/test_performance.toit` | compile fail (hallucinated API: `output.sets[i]` indexing) |
+| `tests/test_validation.toit` | compile fail (hallucinated API: `composition.union`, `set.truncated`) |
+| `tests/test09.toit` | not yet checked — assumed legacy |
 
 **Spec:** [`docs/superpowers/specs/2026-05-08-fuzzy-logic-restructure-design.md`](../specs/2026-05-08-fuzzy-logic-restructure-design.md)
 
@@ -42,12 +61,17 @@
 - `examples/fuzzy_view.toit`, `fuzzy_view2.toit`, `fuzzy_view3.toit`
 - `examples/server.toit`, `examples/test.toit`, `examples/advanced_01.toit`
 - `examples/fcl.ohm`, `examples/fuzzy_language.ohm` (Ohm grammars superseded by Python Lark in Plan B)
-- `tests/test_fuzzy_lib.toit` (throws on import)
+- `tests/test_fuzzy_lib.toit` (compile fail + throws on entry)
 - `tests/test_general.toit` (uses pre-rename API: `Antecedent-And`, `add-all-sets`, untyped `FuzzyInput "name"`)
-- `tests/test_lecture_1.toit`, `tests/test_lecture_2.toit` (older API patterns; equivalent coverage moved into new tests)
+- `tests/test_validation.toit` (compile fail, hallucinated API: `composition.union`, `set.truncated`, `is_fired` argument shape, `crisp_in =` setter)
+- `tests/test_edge_cases.toit` (compile fail, hallucinated API: `calculate_set_pertinences`, `crisp_in =` setter, `set.truncated`)
+- `tests/test_performance.toit` (compile fail, hallucinated API: `output.sets[i]` list indexing)
 - `tests/test09.toit` (legacy)
 - `tests/test_all_additional.toit`, `tests/ADDITIONAL_TESTS.md` (audit in Phase 5)
 - `tests/casco.toit` (script-style print-only tests; replaced by JSON-based equivalent)
+
+**Tests preserved (passing or near-passing under current API):**
+- `tests/test_casco.toit`, `tests/test_casco_runtime.toit`, `tests/test_geometry.toit`, `tests/test_lecture_1.toit`, `tests/test_lecture_2.toit` — all keep passing through Phase 4. `test_api_usability.toit` and `test_integration.toit` are partial; Phase 5 audits and either fixes or deletes them.
 - `docs/todo.md`
 - `llms/instructions-long.md`, `llms/sketch-setup.md`
 - `.aider.chat.history.md`, `.aider.input.history`, `.aider.tags.cache.v4/`
@@ -88,7 +112,7 @@ rm examples/fuzzy_view.toit examples/fuzzy_view2.toit examples/fuzzy_view3.toit 
 - [ ] **Step 3: Verify the remaining example still compiles**
 
 ```bash
-toit run examples/simple_01.toit
+jag toit run examples/simple_01.toit
 ```
 Expected: prints `Time: ... Distance: 35 ---> Speed: ...` (driver model output).
 
@@ -106,47 +130,77 @@ are superseded by the Python Lark grammar in Plan B."
 
 ---
 
-### Task 2: Delete stale tests
+### Task 2: Delete stale and hallucinated-API tests
 
 **Files:**
-- Delete: `tests/test_fuzzy_lib.toit`, `tests/test_general.toit`, `tests/test_lecture_1.toit`, `tests/test_lecture_2.toit`, `tests/test09.toit`, `tests/test_all_additional.toit`, `tests/ADDITIONAL_TESTS.md`
+- Delete: `tests/test_fuzzy_lib.toit`, `tests/test_general.toit`, `tests/test_validation.toit`, `tests/test_edge_cases.toit`, `tests/test_performance.toit`, `tests/test09.toit`, `tests/test_all_additional.toit`, `tests/ADDITIONAL_TESTS.md`
 
-- [ ] **Step 1: Verify each is genuinely stale**
+- [ ] **Step 1: Confirm the baseline classification**
+
+For each file below, run `jag toit run <file>` and confirm the failure mode matches what's listed. These all currently fail at compile time — no runnable assertions are being lost.
+
+| File | Expected failure |
+|---|---|
+| `tests/test_fuzzy_lib.toit` | compile error on `antecedent5.evaluate` (and a `throw` on entry); pre-rename API |
+| `tests/test_general.toit` | compile error on `Antecedent-And` (pre-rename API) |
+| `tests/test_validation.toit` | compile error on `composition.union`, `set.truncated`, `is_fired index` shape |
+| `tests/test_edge_cases.toit` | compile error on `set.truncated`, `calculate_set_pertinences`, `crisp_in =` |
+| `tests/test_performance.toit` | compile error on `output.sets[i]` (sets is not subscriptable) |
+| `tests/test09.toit`, `tests/test_all_additional.toit` | legacy — confirm via header inspection |
 
 ```bash
-head -30 tests/test_fuzzy_lib.toit tests/test_general.toit tests/test_lecture_1.toit \
-        tests/test_lecture_2.toit tests/test09.toit tests/test_all_additional.toit
+for f in tests/test_fuzzy_lib.toit tests/test_general.toit \
+         tests/test_validation.toit tests/test_edge_cases.toit \
+         tests/test_performance.toit tests/test09.toit \
+         tests/test_all_additional.toit; do
+  echo "=== $f ==="
+  jag toit run "$f" 2>&1 | tail -3
+done
 ```
-Confirm: `test_fuzzy_lib.toit` has `throw "Tests to be revised"`; the others use pre-rename API forms (`Antecedent-And`, `set_pertinence`, `add-all-sets`, untyped `FuzzyInput "name"`).
 
 - [ ] **Step 2: Delete the files**
 
 ```bash
 rm tests/test_fuzzy_lib.toit tests/test_general.toit \
-   tests/test_lecture_1.toit tests/test_lecture_2.toit \
-   tests/test09.toit tests/test_all_additional.toit \
+   tests/test_validation.toit tests/test_edge_cases.toit \
+   tests/test_performance.toit tests/test09.toit \
+   tests/test_all_additional.toit \
    tests/ADDITIONAL_TESTS.md
 ```
 
-- [ ] **Step 3: Verify the remaining test files still compile**
+- [ ] **Step 3: Verify the remaining test files still compile or run**
 
 ```bash
 for f in tests/test_*.toit; do
   echo "=== $f ==="
-  toit compile --analyze "$f" 2>&1 | head -5
+  jag toit run "$f" 2>&1 | tail -3
 done
 ```
-Expected: each emits zero errors (analyze-only, no execution).
+Expected (per the baseline table): `test_casco`, `test_casco_runtime`, `test_geometry`, `test_lecture_1`, `test_lecture_2` complete cleanly. `test_api_usability` and `test_integration` show partial pass/fail — that's the known-baseline state, addressed in Phase 5.
 
 - [ ] **Step 4: Commit**
 
 ```bash
 git add -A tests/
-git commit -m "chore: drop stale tests
+git commit -m "chore: drop stale and hallucinated-API tests
 
-test_fuzzy_lib throws on entry. test_general, test_lecture_1/2, test09
-and test_all_additional use pre-rename API surfaces. Replacement
-coverage lands in Phase 5."
+test_fuzzy_lib throws on entry and references a pre-rename
+Antecedent.evaluate.
+
+test_general uses Antecedent-And (the dash-form class that was
+renamed to Antecedent.fl-and).
+
+test_validation, test_edge_cases, and test_performance reference
+methods that have never existed in this codebase
+(composition.union, FuzzySet.truncated, FuzzyInput.crisp_in=,
+FuzzyInput.calculate_set_pertinences, indexable FuzzyOutput.sets).
+
+test09 and test_all_additional are legacy script-style tests.
+
+The remaining test files (test_casco, test_casco_runtime,
+test_geometry, test_lecture_1, test_lecture_2, test_api_usability,
+test_integration) keep their current behavior; new coverage lands
+in Phase 5."
 ```
 
 ---
@@ -302,7 +356,7 @@ main:
 - [ ] **Step 2: Run the test, expect failure**
 
 ```bash
-toit run tests/test_engine_features.toit
+jag toit run tests/test_engine_features.toit
 ```
 Expected: compile error — `Antecedent.fl-not` not defined.
 
@@ -390,7 +444,7 @@ class AntecedentNot extends Antecedent:
 - [ ] **Step 4: Run the test, expect pass**
 
 ```bash
-toit run tests/test_engine_features.toit
+jag toit run tests/test_engine_features.toit
 ```
 Expected: all tests in the "fl-not inverts pertinence" and "fl-not nests under fl-and" groups pass; "ok" lines for each test.
 
@@ -457,7 +511,7 @@ Append to `tests/test_engine_features.toit` before `test-end`:
 - [ ] **Step 2: Run the test, expect failure**
 
 ```bash
-toit run tests/test_engine_features.toit
+jag toit run tests/test_engine_features.toit
 ```
 Expected: compile error — `--weight` named argument not recognized on `FuzzyRule.fl-if`.
 
@@ -502,14 +556,14 @@ class FuzzyRule:
 - [ ] **Step 4: Run the test, expect pass**
 
 ```bash
-toit run tests/test_engine_features.toit
+jag toit run tests/test_engine_features.toit
 ```
 Expected: all tests pass.
 
 - [ ] **Step 5: Run `examples/simple_01.toit` to confirm no regression**
 
 ```bash
-toit run examples/simple_01.toit
+jag toit run examples/simple_01.toit
 ```
 Expected: same `Time: ... Distance: 35 ---> Speed: ...` output as before (default weight = 1.0).
 
@@ -590,7 +644,7 @@ main:
 - [ ] **Step 2: Run the test, expect failure**
 
 ```bash
-toit run tests/test_json_loader.toit
+jag toit run tests/test_json_loader.toit
 ```
 Expected: compile error — module `fuzzy-logic.json-loader` not found.
 
@@ -642,7 +696,7 @@ build-sets_ specs/List -> List:
 - [ ] **Step 4: Run the test, expect pass**
 
 ```bash
-toit run tests/test_json_loader.toit
+jag toit run tests/test_json_loader.toit
 ```
 Expected: the "loads inputs and outputs with terms" test passes.
 
@@ -757,7 +811,7 @@ Append to `tests/test_json_loader.toit` before `test-end`:
 - [ ] **Step 2: Run, expect failure**
 
 ```bash
-toit run tests/test_json_loader.toit
+jag toit run tests/test_json_loader.toit
 ```
 Expected: tests "loads simple IS rule", "loads AND, OR, NOT, weight", "loads multi-output consequent" fail because rules aren't built yet.
 
@@ -857,7 +911,7 @@ build-consequent_ specs/List set-index/Map -> Consequent:
 - [ ] **Step 4: Run, expect pass**
 
 ```bash
-toit run tests/test_json_loader.toit
+jag toit run tests/test_json_loader.toit
 ```
 Expected: all four tests pass.
 
@@ -940,7 +994,7 @@ DRIVER-JSON ::= {
 - [ ] **Step 2: Run the test, expect pass**
 
 ```bash
-toit run tests/test_models_via_json.toit
+jag toit run tests/test_models_via_json.toit
 ```
 Expected: "driver model matches hand-coded" passes.
 
@@ -973,7 +1027,7 @@ For the `casco` model: re-use the nine TEST cases already documented in `tests/t
 
 After each model is added, run:
 ```bash
-toit run tests/test_models_via_json.toit
+jag toit run tests/test_models_via_json.toit
 ```
 Expected: every block passes. If a block fails, the JSON literal does not match the hand-coded model — fix the literal, do not mutate the engine.
 
@@ -1017,7 +1071,7 @@ These formulas hold for every non-singleton subclass (the degeneracies at a==b a
 - [ ] **Step 1: Read the current `src/fuzzy_set.toit:11-128`** (base class definition + geometry methods)
 
 ```bash
-toit run examples/simple_01.toit
+jag toit run examples/simple_01.toit
 ```
 Note the current driver-model output — used as a sanity reference.
 
@@ -1242,7 +1296,7 @@ for f in tests/test_engine_features.toit tests/test_json_loader.toit \
          tests/test_api_usability.toit tests/test_integration.toit \
          tests/test_performance.toit; do
   echo "=== $f ==="
-  toit run "$f" || echo "FAILED: $f"
+  jag toit run "$f" || echo "FAILED: $f"
 done
 ```
 Expected: every test passes. The `test_models_via_json.toit` block is the most important confirmation — JSON-loaded models still match the hand-coded ones.
@@ -1252,7 +1306,7 @@ If `expect-near` fails: the closed-form formula is wrong for that subclass — r
 - [ ] **Step 4: Run `examples/simple_01.toit` and confirm output matches the Step 1 reference**
 
 ```bash
-toit run examples/simple_01.toit
+jag toit run examples/simple_01.toit
 ```
 Expected: same `Time: ... Distance: 35 ---> Speed: ...` value as in Step 1 (within float tolerance).
 
@@ -1334,7 +1388,7 @@ class Composition:
 ```bash
 for f in tests/test_*.toit; do
   echo "=== $f ==="
-  toit run "$f" || echo "FAILED: $f"
+  jag toit run "$f" || echo "FAILED: $f"
 done
 ```
 Expected: every test still passes.
@@ -1399,7 +1453,7 @@ export *
 ```bash
 for f in tests/test_*.toit; do
   echo "=== $f ==="
-  toit run "$f" || echo "FAILED: $f"
+  jag toit run "$f" || echo "FAILED: $f"
 done
 ```
 Expected: every test passes.
@@ -1407,7 +1461,7 @@ Expected: every test passes.
 - [ ] **Step 5: Run the example to sanity-check**
 
 ```bash
-toit run examples/simple_01.toit
+jag toit run examples/simple_01.toit
 ```
 Expected: same `Distance: 35 ---> Speed: ...` output.
 
@@ -1536,7 +1590,7 @@ class FuzzyOutput extends InputOutput:
 ```bash
 for f in tests/test_*.toit; do
   echo "=== $f ==="
-  toit run "$f" || echo "FAILED: $f"
+  jag toit run "$f" || echo "FAILED: $f"
 done
 ```
 Expected: every test passes.
@@ -1572,7 +1626,7 @@ ls tests/*.toit
 ```bash
 for f in tests/*.toit; do
   echo "=== $f ==="
-  toit compile --analyze "$f" 2>&1 | head -10
+  jag toit compile --analyze "$f" 2>&1 | head -10
 done
 ```
 Expected: zero analyzer errors. If a file emits errors (e.g. missing imports, deleted symbols), open the file and either update it to the current API or move it to the delete list with a brief justification in the commit message.
@@ -1590,7 +1644,7 @@ rm tests/casco.toit
 ```bash
 for f in tests/test_*.toit; do
   echo "=== $f ==="
-  toit run "$f" || echo "FAILED: $f"
+  jag toit run "$f" || echo "FAILED: $f"
 done
 ```
 Expected: all green.
@@ -1688,7 +1742,7 @@ main:
 - [ ] **Step 2: Run, expect pass**
 
 ```bash
-toit run tests/test_closed_form_centroid.toit
+jag toit run tests/test_closed_form_centroid.toit
 ```
 Expected: all tests pass. If any centroid value disagrees with the inline math, the closed-form formula in `fuzzy_set.toit` is wrong — fix that file (not the test).
 
@@ -1748,7 +1802,7 @@ import fuzzy-logic.json-loader show load-model
 - [ ] **Step 2: Run, expect pass**
 
 ```bash
-toit run tests/test_engine_features.toit
+jag toit run tests/test_engine_features.toit
 ```
 Expected: every test in the file passes.
 
@@ -1774,7 +1828,7 @@ output, defuzzifies to the expected centroid."
 ```bash
 for f in tests/test_*.toit; do
   echo "=== $f ==="
-  toit run "$f" || echo "FAILED: $f"
+  jag toit run "$f" || echo "FAILED: $f"
 done
 ```
 Expected: every test prints "ok" lines and ends without "FAILED:".
@@ -1784,7 +1838,7 @@ If any test fails, fix it before declaring the plan done. Do not introduce skips
 - [ ] **Step 2: Run the example smoke test**
 
 ```bash
-toit run examples/simple_01.toit
+jag toit run examples/simple_01.toit
 ```
 Expected: same driver-model output as at the start of the plan.
 
@@ -1805,7 +1859,7 @@ Expected: empty.
 - [ ] **Step 4: Verify the JSON loader has no transitive RPC deps**
 
 ```bash
-toit compile --analyze src/json_loader.toit 2>&1
+jag toit compile --analyze src/json_loader.toit 2>&1
 ```
 Expected: no errors.
 
