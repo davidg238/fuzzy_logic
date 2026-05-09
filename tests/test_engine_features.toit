@@ -32,4 +32,40 @@ main:
     expr := Antecedent.fl-and a (Antecedent.fl-not (Antecedent.fl-set b))
     expect-near 0.6 expr.term-eval
 
+  test "FuzzyRule" "weight scales antecedent power":
+    in-set := FuzzySet 0.0 10.0 10.0 20.0 "a"
+    out-set := FuzzySet 0.0 10.0 10.0 20.0 "b"
+
+    in-set.max 1.0  // antecedent power = 1.0
+
+    // weight = 1.0 (default): consequent receives full power
+    rule-default := FuzzyRule.fl-if
+        (Antecedent.fl-set in-set)
+        --fl-then=(Consequent.output out-set)
+    out-set.clear
+    in-set.max 1.0
+    rule-default.evaluate
+    expect-near 1.0 out-set.pertinence
+
+    // weight = 0.5: consequent receives 0.5
+    out-set.clear
+    in-set.max 1.0
+    rule-half := FuzzyRule.fl-if
+        (Antecedent.fl-set in-set)
+        --fl-then=(Consequent.output out-set)
+        --weight=0.5
+    rule-half.evaluate
+    expect-near 0.5 out-set.pertinence
+
+  test "FuzzyRule" "weight=0 mutes the rule":
+    in-set := FuzzySet 0.0 10.0 10.0 20.0 "a"
+    out-set := FuzzySet 0.0 10.0 10.0 20.0 "b"
+    in-set.max 1.0
+    rule := FuzzyRule.fl-if
+        (Antecedent.fl-set in-set)
+        --fl-then=(Consequent.output out-set)
+        --weight=0.0
+    rule.evaluate
+    expect-near 0.0 out-set.pertinence
+
   test-end
