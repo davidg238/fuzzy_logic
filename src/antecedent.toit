@@ -1,4 +1,4 @@
-// Copyright (c) 2021, 2022 Ekorau LLC
+// Copyright (c) 2021, 2022, 2026 Ekorau LLC
 
 import math
 import .fuzzy_set show FuzzySet
@@ -19,7 +19,10 @@ abstract class Antecedent implements RuleTerm:
 
   constructor.fl-or terma/RuleTerm termb/RuleTerm:
     return AntecedentOr terma termb
-  
+
+  constructor.fl-not term/RuleTerm:
+    return AntecedentNot term
+
   abstract term-eval -> float
 
 
@@ -60,3 +63,14 @@ class AntecedentOr extends Antecedent:
 
   term-eval -> float:
     return max 0.0 (max term1.term-eval term2.term-eval)
+
+class AntecedentNot extends Antecedent:
+
+  constructor term/RuleTerm:
+    super term null
+
+  stringify -> string:
+    return "(not $term1)"
+
+  term-eval -> float:
+    return 1.0 - term1.term-eval
