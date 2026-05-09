@@ -39,6 +39,32 @@ main:
       expect-near (hand-model.defuzzify 0) (json-model.defuzzify 0)
       expect-near (hand-model.defuzzify 1) (json-model.defuzzify 1)
 
+  test "ModelsViaJson" "casco model matches hand-coded":
+    json-model := load-model CASCO-JSON
+    hand-model := get-casco
+    // (humidity, temperature, season) tuples from tests/test_casco.toit
+    vectors := [
+      [54.82, 20.0,   6.0],
+      [12.65,  1.928, 6.0],
+      [25.9,   8.55,  6.0],
+      [71.69,  8.554, 6.0],
+      [71.69, 27.83,  9.036],
+      [16.27, 27.83,  9.036],
+      [82.53, 27.83, 10.63],
+      [ 7.831,27.83, 10.63],
+      [ 7.831, 7.952,10.63],
+    ]
+    vectors.do: | v/List |
+      json-model.crisp-input 0 v[0]
+      json-model.crisp-input 1 v[1]
+      json-model.crisp-input 2 v[2]
+      json-model.fuzzify
+      hand-model.crisp-input 0 v[0]
+      hand-model.crisp-input 1 v[1]
+      hand-model.crisp-input 2 v[2]
+      hand-model.fuzzify
+      expect-near (hand-model.defuzzify 0) (json-model.defuzzify 0)
+
   test-end
 
 DRIVER-JSON ::= {
@@ -167,5 +193,105 @@ DRIVER-ADVANCED-JSON ::= {
         {"var": "throttle", "term": "quick_o"},
       ],
     },
+  ],
+}
+
+// Helper: AND of three "is" expressions, nested as ((a AND b) AND c) to mirror
+// the hand-coded `Antecedent.fl-and (Antecedent.fl-and seta setb) setc`.
+casco-rule_ humidity-term/string temp-term/string season-term/string out-term/string -> Map:
+  return {
+    "if": {
+      "op": "and",
+      "args": [
+        {"op": "and", "args": [
+          {"op": "is", "var": "humidity",    "term": humidity-term},
+          {"op": "is", "var": "temperature", "term": temp-term},
+        ]},
+        {"op": "is", "var": "season", "term": season-term},
+      ],
+    },
+    "then": [{"var": "weather", "term": out-term}],
+  }
+
+CASCO-JSON ::= {
+  "name": "casco",
+  "inputs": [
+    {
+      "name": "humidity",
+      "terms": [
+        {"name": "dry",     "a":  0.0,  "b":   0.0, "c":   0.0, "d":  42.5},
+        {"name": "wet",     "a": 37.5,  "b":  60.0, "c":  60.0, "d":  82.5},
+        {"name": "puddled", "a": 77.5,  "b": 100.0, "c": 100.0, "d": 100.0},
+      ],
+    },
+    {
+      "name": "temperature",
+      "terms": [
+        {"name": "cold",     "a": -5.0, "b": -5.0, "c": -5.0, "d": 12.5},
+        {"name": "tempered", "a":  7.5, "b": 17.5, "c": 17.5, "d": 27.5},
+        {"name": "heat",     "a": 22.5, "b": 45.0, "c": 45.0, "d": 45.0},
+      ],
+    },
+    {
+      "name": "season",
+      "terms": [
+        {"name": "summer", "a": 0.0, "b":  0.0, "c":  0.0, "d":  3.5},
+        {"name": "fall",   "a": 2.5, "b":  4.5, "c":  4.5, "d":  6.5},
+        {"name": "winter", "a": 5.5, "b":  7.5, "c":  7.5, "d":  9.5},
+        {"name": "spring", "a": 8.5, "b": 12.0, "c": 12.0, "d": 12.0},
+      ],
+    },
+  ],
+  "outputs": [
+    {
+      "name": "weather",
+      "terms": [
+        {"name": "anys",        "a":  0.0, "b":  0.0, "c":  0.0, "d":  0.0},
+        {"name": "very_little", "a":  0.0, "b":  0.0, "c":  0.0, "d":  5.5},
+        {"name": "little_bit",  "a":  4.5, "b":  7.5, "c":  7.5, "d": 10.5},
+        {"name": "medium",      "a":  9.5, "b": 12.5, "c": 12.5, "d": 15.5},
+        {"name": "quite",       "a": 14.5, "b": 17.5, "c": 17.5, "d": 20.5},
+        {"name": "much",        "a": 19.5, "b": 22.5, "c": 22.5, "d": 25.5},
+        {"name": "very_much",   "a": 24.5, "b": 30.0, "c": 30.0, "d": 30.0},
+      ],
+    },
+  ],
+  "rules": [
+    casco-rule_ "dry"     "cold"     "summer" "medium",
+    casco-rule_ "dry"     "cold"     "fall"   "very_little",
+    casco-rule_ "dry"     "cold"     "winter" "very_little",
+    casco-rule_ "dry"     "cold"     "spring" "very_little",
+    casco-rule_ "wet"     "cold"     "summer" "very_little",
+    casco-rule_ "wet"     "cold"     "fall"   "very_little",
+    casco-rule_ "wet"     "cold"     "winter" "very_little",
+    casco-rule_ "wet"     "cold"     "spring" "very_little",
+    casco-rule_ "puddled" "cold"     "spring" "anys",
+    casco-rule_ "puddled" "cold"     "fall"   "anys",
+    casco-rule_ "puddled" "cold"     "winter" "anys",
+    casco-rule_ "puddled" "cold"     "spring" "anys",
+    casco-rule_ "dry"     "tempered" "summer" "quite",
+    casco-rule_ "dry"     "tempered" "fall"   "medium",
+    casco-rule_ "dry"     "tempered" "winter" "little_bit",
+    casco-rule_ "dry"     "tempered" "spring" "quite",
+    casco-rule_ "wet"     "tempered" "summer" "medium",
+    casco-rule_ "wet"     "tempered" "fall"   "little_bit",
+    casco-rule_ "wet"     "tempered" "winter" "little_bit",
+    casco-rule_ "wet"     "tempered" "spring" "medium",
+    casco-rule_ "puddled" "tempered" "spring" "very_little",
+    casco-rule_ "puddled" "tempered" "fall"   "anys",
+    casco-rule_ "puddled" "tempered" "winter" "anys",
+    casco-rule_ "puddled" "tempered" "spring" "very_little",
+    casco-rule_ "dry"     "heat"     "summer" "much",
+    casco-rule_ "dry"     "heat"     "fall"   "medium",
+    casco-rule_ "dry"     "heat"     "winter" "medium",
+    casco-rule_ "dry"     "heat"     "spring" "much",
+    casco-rule_ "wet"     "heat"     "summer" "quite",
+    casco-rule_ "wet"     "heat"     "fall"   "quite",
+    casco-rule_ "wet"     "heat"     "winter" "quite",
+    casco-rule_ "wet"     "heat"     "spring" "medium",
+    casco-rule_ "puddled" "heat"     "summer" "very_little",
+    casco-rule_ "puddled" "heat"     "fall"   "anys",
+    casco-rule_ "puddled" "heat"     "winter" "anys",
+    casco-rule_ "puddled" "heat"     "spring" "very_little",
   ],
 }
