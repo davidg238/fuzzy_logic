@@ -1,17 +1,12 @@
 # eFLL  (embedded Fuzzy Logic Library)
 
-An adaption of the [Embedded Fuzzy Logic Library](https://github.com/zerokol/eFLL) to Toit.  
+An adaption of the [Embedded Fuzzy Logic Library](https://github.com/zerokol/eFLL) to Toit.
 
-## Visualization of models
+> **Note (2026-05-08):** this package is mid-restructure. The HTML/SVG view code described below has been removed; FCL loading and a Python visualizer are landing in [Plan B](docs/superpowers/plans/). See [the design spec](docs/superpowers/specs/2026-05-08-fuzzy-logic-restructure-design.md) for the new architecture. The sections below describe pre-restructure state and will be rewritten when Plan B lands.
 
-A toy web server provides visualization of the execution of the fuzzy models.  
-The server can run on either host or device.
-- run the webserver in examples, e.g. `jag run -d host server.toit`
-- look at the URL printed to the console, like: `Open a browser on: http://192.168.0.130:8080`
-- a model index will be shown, click the links to view the models (currently driver, driver_advanced, casco, fan speed, air-conditioning)
-- on the inputs page, move the sliders to change inputs, then click the 'outputs' link, to view the results
+## Visualization of models (pre-restructure — broken)
 
-![model: advanced_driver](./outputs.png)
+The links and instructions below reference deleted files (`server.toit`, `outputs.png`) and a polygon-clipping centroid implementation that has since been replaced by closed-form math.
 
 
 ### ToDos
