@@ -29,7 +29,6 @@ class Composition:
     subset := []
     foutput_.fsets.do:
       if it.is-pertinent:
-        it.truncate
         subset.add it
     subset.sort --in-place: | a b | (a.a_.compare-to b.a_)
     return subset
@@ -71,20 +70,6 @@ class Composition:
 
   centroid-line -> string:
     return scale-svg-polyline_ [Point2f crisp-out_ 0, Point2f crisp-out_ 1]
-
-  set-polylines -> List:
-    list := []
-    subset := collect-truncated
-    subset.do:
-      list.add (svg-polyline_ it)
-    return list
-
-  svg-polyline_ set/FuzzySet -> string:
-    txt := ""
-    points := set.truncated-polygon
-    points.do:
-        txt += "$(%.1f 4*it.x),$(%.1f 400*it.y) "
-    return txt
 
   scale-svg-polyline_ points/List -> string:
     txt := ""

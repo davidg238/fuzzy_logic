@@ -49,11 +49,6 @@ class FuzzyInput extends InputOutput:
 
   constructor name="":
     super name
-    
-  polylines -> List:
-    polys := []
-    fsets.do: polys.add it.polyline
-    return polys
 
   fuzzify crisp-in/num -> none:
     fsets.do: it.fuzzify crisp-in
