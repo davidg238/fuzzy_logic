@@ -45,5 +45,5 @@ By following these steps, you can obtain the centroid of the composite polygon a
 
 2. Samples:
 
-`java -jar jFuzzyLogic.jar -e ./fuzzy_logic/examples_fcl/ip.fcl -1.2 -7 0.75 -2.3`  
-`java -jar jFuzzyLogic.jar -e ./fuzzy_logic/examples_fcl/z.fcl 3.5 6.5`
+`java -jar jFuzzyLogic.jar -e ./fuzzy_logic/fcl/ip.fcl -1.2 -7 0.75 -2.3`  
+`java -jar jFuzzyLogic.jar -e ./fuzzy_logic/fcl/z.fcl 3.5 6.5`
