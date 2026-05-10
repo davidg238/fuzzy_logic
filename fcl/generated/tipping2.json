@@ -1,0 +1,281 @@
+{
+  "name": "tipper",
+  "defuzz_method": "COG",
+  "inputs": [
+    {
+      "name": "service",
+      "terms": [
+        {
+          "name": "poor",
+          "a": 0,
+          "b": 0,
+          "c": 2.5,
+          "d": 5
+        },
+        {
+          "name": "good",
+          "a": 2.5,
+          "b": 5,
+          "c": 5,
+          "d": 7.5
+        },
+        {
+          "name": "excellent",
+          "a": 5,
+          "b": 7.5,
+          "c": 10,
+          "d": 10
+        }
+      ]
+    },
+    {
+      "name": "food",
+      "terms": [
+        {
+          "name": "rancid",
+          "a": 0,
+          "b": 0,
+          "c": 2.5,
+          "d": 7.5
+        },
+        {
+          "name": "delicious",
+          "a": 2.5,
+          "b": 7.5,
+          "c": 10,
+          "d": 10
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "mTip",
+      "terms": [
+        {
+          "name": "cheap",
+          "a": 0,
+          "b": 5,
+          "c": 5,
+          "d": 10
+        },
+        {
+          "name": "average",
+          "a": 10,
+          "b": 15,
+          "c": 15,
+          "d": 20
+        },
+        {
+          "name": "generous",
+          "a": 20,
+          "b": 25,
+          "c": 25,
+          "d": 30
+        }
+      ]
+    },
+    {
+      "name": "tsTip",
+      "terms": [
+        {
+          "name": "cheap",
+          "a": 5,
+          "b": 5,
+          "c": 5,
+          "d": 5
+        },
+        {
+          "name": "average",
+          "a": 15,
+          "b": 15,
+          "c": 15,
+          "d": 15
+        },
+        {
+          "name": "generous",
+          "a": 25,
+          "b": 25,
+          "c": 25,
+          "d": 25
+        }
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "name": "1",
+      "if": {
+        "op": "or",
+        "args": [
+          {
+            "op": "is",
+            "var": "service",
+            "term": "poor"
+          },
+          {
+            "op": "is",
+            "var": "food",
+            "term": "rancid"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "mTip",
+          "term": "cheap"
+        }
+      ]
+    },
+    {
+      "name": "2",
+      "if": {
+        "op": "is",
+        "var": "service",
+        "term": "good"
+      },
+      "then": [
+        {
+          "var": "mTip",
+          "term": "average"
+        }
+      ]
+    },
+    {
+      "name": "3",
+      "weight": 0.5,
+      "if": {
+        "op": "or",
+        "args": [
+          {
+            "op": "is",
+            "var": "service",
+            "term": "excellent"
+          },
+          {
+            "op": "is",
+            "var": "food",
+            "term": "delicious"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "mTip",
+          "term": "generous"
+        }
+      ]
+    },
+    {
+      "name": "4",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "service",
+            "term": "excellent"
+          },
+          {
+            "op": "is",
+            "var": "food",
+            "term": "delicious"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "mTip",
+          "term": "generous"
+        }
+      ]
+    },
+    {
+      "name": "1",
+      "if": {
+        "op": "or",
+        "args": [
+          {
+            "op": "is",
+            "var": "service",
+            "term": "poor"
+          },
+          {
+            "op": "is",
+            "var": "food",
+            "term": "rancid"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "tsTip",
+          "term": "cheap"
+        }
+      ]
+    },
+    {
+      "name": "2",
+      "if": {
+        "op": "is",
+        "var": "service",
+        "term": "good"
+      },
+      "then": [
+        {
+          "var": "tsTip",
+          "term": "average"
+        }
+      ]
+    },
+    {
+      "name": "3",
+      "weight": 0.5,
+      "if": {
+        "op": "or",
+        "args": [
+          {
+            "op": "is",
+            "var": "service",
+            "term": "excellent"
+          },
+          {
+            "op": "is",
+            "var": "food",
+            "term": "delicious"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "tsTip",
+          "term": "generous"
+        }
+      ]
+    },
+    {
+      "name": "4",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "service",
+            "term": "excellent"
+          },
+          {
+            "op": "is",
+            "var": "food",
+            "term": "delicious"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "tsTip",
+          "term": "generous"
+        }
+      ]
+    }
+  ]
+}

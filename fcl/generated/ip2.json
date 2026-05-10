@@ -1,0 +1,350 @@
+{
+  "name": "ipPhi0",
+  "defuzz_method": "COG",
+  "inputs": [
+    {
+      "name": "phi",
+      "terms": [
+        {
+          "name": "Z",
+          "a": -5,
+          "b": 0,
+          "c": 0,
+          "d": 5
+        },
+        {
+          "name": "PS",
+          "a": 0,
+          "b": 5,
+          "c": 5,
+          "d": 10
+        },
+        {
+          "name": "NS",
+          "a": -10,
+          "b": -5,
+          "c": -5,
+          "d": 0
+        },
+        {
+          "name": "PB",
+          "a": 5,
+          "b": 10,
+          "c": 60,
+          "d": 70
+        },
+        {
+          "name": "NB",
+          "a": -70,
+          "b": -60,
+          "c": -10,
+          "d": -5
+        }
+      ]
+    },
+    {
+      "name": "dphidt",
+      "terms": [
+        {
+          "name": "Z",
+          "a": -8,
+          "b": 0,
+          "c": 0,
+          "d": 8
+        },
+        {
+          "name": "PS",
+          "a": 0,
+          "b": 8,
+          "c": 8,
+          "d": 200
+        },
+        {
+          "name": "NS",
+          "a": -200,
+          "b": -8,
+          "c": -8,
+          "d": 0
+        },
+        {
+          "name": "PB",
+          "a": 8,
+          "b": 200,
+          "c": 500,
+          "d": 500
+        },
+        {
+          "name": "NB",
+          "a": -500,
+          "b": -500,
+          "c": -200,
+          "d": -8
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "force",
+      "terms": [
+        {
+          "name": "Z",
+          "a": -20,
+          "b": 0,
+          "c": 0,
+          "d": 20
+        },
+        {
+          "name": "PS",
+          "a": 30,
+          "b": 50,
+          "c": 50,
+          "d": 70
+        },
+        {
+          "name": "NS",
+          "a": -70,
+          "b": -50,
+          "c": -50,
+          "d": -30
+        },
+        {
+          "name": "PB",
+          "a": 190,
+          "b": 200,
+          "c": 200,
+          "d": 210
+        },
+        {
+          "name": "NB",
+          "a": -210,
+          "b": -200,
+          "c": -200,
+          "d": -190
+        }
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "name": "1",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "phi",
+            "term": "PS"
+          },
+          {
+            "op": "or",
+            "args": [
+              {
+                "op": "is",
+                "var": "dphidt",
+                "term": "PS"
+              },
+              {
+                "op": "is",
+                "var": "dphidt",
+                "term": "Z"
+              }
+            ]
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "force",
+          "term": "PS"
+        }
+      ]
+    },
+    {
+      "name": "2",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "phi",
+            "term": "PS"
+          },
+          {
+            "op": "is",
+            "var": "dphidt",
+            "term": "PB"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "force",
+          "term": "PB"
+        }
+      ]
+    },
+    {
+      "name": "3",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "phi",
+            "term": "NS"
+          },
+          {
+            "op": "or",
+            "args": [
+              {
+                "op": "is",
+                "var": "dphidt",
+                "term": "NS"
+              },
+              {
+                "op": "is",
+                "var": "dphidt",
+                "term": "Z"
+              }
+            ]
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "force",
+          "term": "NS"
+        }
+      ]
+    },
+    {
+      "name": "4",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "phi",
+            "term": "NS"
+          },
+          {
+            "op": "is",
+            "var": "dphidt",
+            "term": "NB"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "force",
+          "term": "NB"
+        }
+      ]
+    },
+    {
+      "name": "5",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "and",
+            "args": [
+              {
+                "op": "is",
+                "var": "phi",
+                "term": "PB"
+              },
+              {
+                "op": "not",
+                "arg": {
+                  "op": "is",
+                  "var": "dphidt",
+                  "term": "NB"
+                }
+              }
+            ]
+          },
+          {
+            "op": "not",
+            "arg": {
+              "op": "is",
+              "var": "dphidt",
+              "term": "NS"
+            }
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "force",
+          "term": "PB"
+        }
+      ]
+    },
+    {
+      "name": "6",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "and",
+            "args": [
+              {
+                "op": "is",
+                "var": "phi",
+                "term": "NB"
+              },
+              {
+                "op": "not",
+                "arg": {
+                  "op": "is",
+                  "var": "dphidt",
+                  "term": "PB"
+                }
+              }
+            ]
+          },
+          {
+            "op": "not",
+            "arg": {
+              "op": "is",
+              "var": "dphidt",
+              "term": "PS"
+            }
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "force",
+          "term": "NB"
+        }
+      ]
+    },
+    {
+      "name": "7",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "phi",
+            "term": "Z"
+          },
+          {
+            "op": "is",
+            "var": "dphidt",
+            "term": "Z"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "force",
+          "term": "Z"
+        }
+      ]
+    }
+  ]
+}

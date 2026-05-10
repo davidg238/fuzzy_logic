@@ -1,0 +1,143 @@
+{
+  "name": "tipper",
+  "defuzz_method": "COG",
+  "inputs": [
+    {
+      "name": "service",
+      "terms": [
+        {
+          "name": "poor",
+          "a": 0,
+          "b": 0,
+          "c": 0,
+          "d": 4
+        },
+        {
+          "name": "good",
+          "a": 1,
+          "b": 4,
+          "c": 6,
+          "d": 10
+        },
+        {
+          "name": "excellent",
+          "a": 6,
+          "b": 9,
+          "c": 10,
+          "d": 10
+        }
+      ]
+    },
+    {
+      "name": "food",
+      "terms": [
+        {
+          "name": "rancid",
+          "a": 0,
+          "b": 0,
+          "c": 1,
+          "d": 3
+        },
+        {
+          "name": "delicious",
+          "a": 7,
+          "b": 9,
+          "c": 10,
+          "d": 10
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "tip",
+      "terms": [
+        {
+          "name": "cheap",
+          "a": 0,
+          "b": 5,
+          "c": 5,
+          "d": 10
+        },
+        {
+          "name": "average",
+          "a": 10,
+          "b": 15,
+          "c": 15,
+          "d": 20
+        },
+        {
+          "name": "generous",
+          "a": 20,
+          "b": 25,
+          "c": 25,
+          "d": 30
+        }
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "name": "10",
+      "if": {
+        "op": "or",
+        "args": [
+          {
+            "op": "is",
+            "var": "service",
+            "term": "poor"
+          },
+          {
+            "op": "is",
+            "var": "food",
+            "term": "rancid"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "tip",
+          "term": "cheap"
+        }
+      ]
+    },
+    {
+      "name": "20",
+      "if": {
+        "op": "is",
+        "var": "service",
+        "term": "good"
+      },
+      "then": [
+        {
+          "var": "tip",
+          "term": "average"
+        }
+      ]
+    },
+    {
+      "name": "30",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "service",
+            "term": "excellent"
+          },
+          {
+            "op": "is",
+            "var": "food",
+            "term": "delicious"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "tip",
+          "term": "generous"
+        }
+      ]
+    }
+  ]
+}

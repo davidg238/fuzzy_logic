@@ -1,0 +1,212 @@
+{
+  "name": "ip",
+  "defuzz_method": "COG",
+  "inputs": [
+    {
+      "name": "x",
+      "terms": [
+        {
+          "name": "ok",
+          "a": -2,
+          "b": 0,
+          "c": 0,
+          "d": 2
+        },
+        {
+          "name": "left",
+          "a": -2,
+          "b": -2,
+          "c": -2,
+          "d": 0
+        },
+        {
+          "name": "right",
+          "a": 0,
+          "b": 2,
+          "c": 2,
+          "d": 2
+        }
+      ]
+    },
+    {
+      "name": "dxdt",
+      "terms": [
+        {
+          "name": "ok",
+          "a": -10,
+          "b": 0,
+          "c": 0,
+          "d": 5
+        },
+        {
+          "name": "left",
+          "a": -10,
+          "b": -10,
+          "c": -10,
+          "d": 0
+        },
+        {
+          "name": "right",
+          "a": 0,
+          "b": 10,
+          "c": 10,
+          "d": 10
+        }
+      ]
+    },
+    {
+      "name": "phi",
+      "terms": [
+        {
+          "name": "ok",
+          "a": -1,
+          "b": 0,
+          "c": 0,
+          "d": 1
+        },
+        {
+          "name": "left",
+          "a": 0,
+          "b": 1,
+          "c": 1,
+          "d": 1
+        },
+        {
+          "name": "right",
+          "a": -1,
+          "b": -1,
+          "c": -1,
+          "d": 0
+        }
+      ]
+    },
+    {
+      "name": "dphidt",
+      "terms": [
+        {
+          "name": "ok",
+          "a": -10,
+          "b": 0,
+          "c": 0,
+          "d": 10
+        },
+        {
+          "name": "left",
+          "a": 0,
+          "b": 10,
+          "c": 10,
+          "d": 10
+        },
+        {
+          "name": "right",
+          "a": -10,
+          "b": -10,
+          "c": -10,
+          "d": 0
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "force",
+      "terms": [
+        {
+          "name": "zero",
+          "a": -1,
+          "b": 0,
+          "c": 0,
+          "d": 1
+        },
+        {
+          "name": "left",
+          "a": -201,
+          "b": -200,
+          "c": -200,
+          "d": -199
+        },
+        {
+          "name": "right",
+          "a": 199,
+          "b": 200,
+          "c": 200,
+          "d": 201
+        }
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "name": "1",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "phi",
+            "term": "right"
+          },
+          {
+            "op": "is",
+            "var": "dphidt",
+            "term": "right"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "force",
+          "term": "right"
+        }
+      ]
+    },
+    {
+      "name": "2",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "phi",
+            "term": "left"
+          },
+          {
+            "op": "is",
+            "var": "dphidt",
+            "term": "left"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "force",
+          "term": "left"
+        }
+      ]
+    },
+    {
+      "name": "3",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "phi",
+            "term": "ok"
+          },
+          {
+            "op": "is",
+            "var": "dphidt",
+            "term": "ok"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "force",
+          "term": "zero"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,228 @@
+{
+  "name": "ip",
+  "defuzz_method": "COG",
+  "inputs": [
+    {
+      "name": "x",
+      "terms": [
+        {
+          "name": "ok",
+          "a": -0.1,
+          "b": 0,
+          "c": 0,
+          "d": 0.1
+        },
+        {
+          "name": "left",
+          "a": -2,
+          "b": -2,
+          "c": -2,
+          "d": 0
+        },
+        {
+          "name": "right",
+          "a": 0,
+          "b": 2,
+          "c": 2,
+          "d": 2
+        }
+      ]
+    },
+    {
+      "name": "dxdt",
+      "terms": [
+        {
+          "name": "ok",
+          "a": -1,
+          "b": 0,
+          "c": 0,
+          "d": 1
+        },
+        {
+          "name": "left",
+          "a": -1,
+          "b": -1,
+          "c": -1,
+          "d": 0
+        },
+        {
+          "name": "right",
+          "a": 0,
+          "b": 1,
+          "c": 1,
+          "d": 1
+        },
+        {
+          "name": "tooRight",
+          "a": 3,
+          "b": 4,
+          "c": 4,
+          "d": 4
+        },
+        {
+          "name": "tooLeft",
+          "a": -4,
+          "b": -4,
+          "c": -4,
+          "d": -3
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "force",
+      "terms": [
+        {
+          "name": "zero",
+          "a": -1,
+          "b": 0,
+          "c": 0,
+          "d": 1
+        },
+        {
+          "name": "left",
+          "a": -101,
+          "b": -100,
+          "c": -100,
+          "d": -99
+        },
+        {
+          "name": "right",
+          "a": 99,
+          "b": 100,
+          "c": 100,
+          "d": 101
+        }
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "name": "1",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "x",
+            "term": "right"
+          },
+          {
+            "op": "not",
+            "arg": {
+              "op": "is",
+              "var": "dxdt",
+              "term": "tooLeft"
+            }
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "force",
+          "term": "left"
+        }
+      ]
+    },
+    {
+      "name": "2",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "x",
+            "term": "left"
+          },
+          {
+            "op": "not",
+            "arg": {
+              "op": "is",
+              "var": "dxdt",
+              "term": "tooRight"
+            }
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "force",
+          "term": "right"
+        }
+      ]
+    },
+    {
+      "name": "3",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "x",
+            "term": "ok"
+          },
+          {
+            "op": "is",
+            "var": "dxdt",
+            "term": "right"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "force",
+          "term": "left"
+        }
+      ]
+    },
+    {
+      "name": "4",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "x",
+            "term": "ok"
+          },
+          {
+            "op": "is",
+            "var": "dxdt",
+            "term": "left"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "force",
+          "term": "right"
+        }
+      ]
+    },
+    {
+      "name": "5",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "x",
+            "term": "ok"
+          },
+          {
+            "op": "is",
+            "var": "dxdt",
+            "term": "ok"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "force",
+          "term": "zero"
+        }
+      ]
+    }
+  ]
+}

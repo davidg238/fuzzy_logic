@@ -1,0 +1,274 @@
+{
+  "name": "container_crane",
+  "defuzz_method": "COGS",
+  "inputs": [
+    {
+      "name": "distance",
+      "terms": [
+        {
+          "name": "too_far",
+          "a": -5,
+          "b": -5,
+          "c": -5,
+          "d": 0
+        },
+        {
+          "name": "zero",
+          "a": -5,
+          "b": 0,
+          "c": 0,
+          "d": 5
+        },
+        {
+          "name": "close",
+          "a": 0,
+          "b": 5,
+          "c": 5,
+          "d": 10
+        },
+        {
+          "name": "medium",
+          "a": 5,
+          "b": 10,
+          "c": 10,
+          "d": 22
+        },
+        {
+          "name": "far",
+          "a": 10,
+          "b": 22,
+          "c": 22,
+          "d": 22
+        }
+      ]
+    },
+    {
+      "name": "angle",
+      "terms": [
+        {
+          "name": "neg_big",
+          "a": -50,
+          "b": -50,
+          "c": -50,
+          "d": -5
+        },
+        {
+          "name": "neg_small",
+          "a": -50,
+          "b": -5,
+          "c": -5,
+          "d": 0
+        },
+        {
+          "name": "zero",
+          "a": -5,
+          "b": 0,
+          "c": 0,
+          "d": 5
+        },
+        {
+          "name": "pos_small",
+          "a": 0,
+          "b": 5,
+          "c": 5,
+          "d": 50
+        },
+        {
+          "name": "pos_big",
+          "a": 5,
+          "b": 50,
+          "c": 50,
+          "d": 50
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "power",
+      "terms": [
+        {
+          "name": "neg_high",
+          "a": -27,
+          "b": -27,
+          "c": -27,
+          "d": -27
+        },
+        {
+          "name": "neg_medium",
+          "a": -12,
+          "b": -12,
+          "c": -12,
+          "d": -12
+        },
+        {
+          "name": "zero",
+          "a": 0,
+          "b": 0,
+          "c": 0,
+          "d": 0
+        },
+        {
+          "name": "pos_medium",
+          "a": 12,
+          "b": 12,
+          "c": 12,
+          "d": 12
+        },
+        {
+          "name": "pos_high",
+          "a": 27,
+          "b": 27,
+          "c": 27,
+          "d": 27
+        }
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "name": "1",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "distance",
+            "term": "far"
+          },
+          {
+            "op": "is",
+            "var": "angle",
+            "term": "zero"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "power",
+          "term": "pos_medium"
+        }
+      ]
+    },
+    {
+      "name": "2",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "distance",
+            "term": "far"
+          },
+          {
+            "op": "is",
+            "var": "angle",
+            "term": "neg_small"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "power",
+          "term": "pos_high"
+        }
+      ]
+    },
+    {
+      "name": "3",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "distance",
+            "term": "far"
+          },
+          {
+            "op": "is",
+            "var": "angle",
+            "term": "neg_big"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "power",
+          "term": "pos_medium"
+        }
+      ]
+    },
+    {
+      "name": "4",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "distance",
+            "term": "medium"
+          },
+          {
+            "op": "is",
+            "var": "angle",
+            "term": "neg_small"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "power",
+          "term": "neg_medium"
+        }
+      ]
+    },
+    {
+      "name": "5",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "distance",
+            "term": "close"
+          },
+          {
+            "op": "is",
+            "var": "angle",
+            "term": "pos_small"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "power",
+          "term": "pos_medium"
+        }
+      ]
+    },
+    {
+      "name": "6",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "distance",
+            "term": "zero"
+          },
+          {
+            "op": "is",
+            "var": "angle",
+            "term": "zero"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "power",
+          "term": "zero"
+        }
+      ]
+    }
+  ]
+}
