@@ -54,6 +54,41 @@ class FuzzyModel:
   is-fired index/int -> bool:  // TODO just fired?
     return rules[index].fired
 
+  /**
+  Returns runtime state as a $Map shaped for the RPC `/state` push.
+
+  Distinct from the topology serialization: this is just the dynamic
+  data — per-input crisp value and term pertinences, per-output crisp
+  value and term pertinences, per-rule name and fired flag.
+  */
+  serialize-state -> Map:
+    in-states := []
+    inputs.size.repeat: | i |
+      input := inputs[i]
+      in-states.add {
+        "name":  input.name,
+        "crisp": crisp-inputs[i],
+        "terms": input.fsets.map: | s | {"name": s.name, "pertinence": s.pertinence},
+      }
+
+    out-states := []
+    outputs.do: | output |
+      // Defuzzify caches its result; calling it before any pertinence is
+      // set isn't meaningful, so guard with `is-pertinent`.
+      any-pertinent := output.fsets.any: | s | s.is-pertinent
+      crisp := any-pertinent ? output.defuzzify : 0.0
+      out-states.add {
+        "name":  output.name,
+        "crisp": crisp,
+        "terms": output.fsets.map: | s | {"name": s.name, "pertinence": s.pertinence},
+      }
+
+    return {
+      "inputs":  in-states,
+      "outputs": out-states,
+      "rules":   rules.map: | rule | {"name": rule.name, "fired": rule.fired},
+    }
+
   stringify -> string:
     in-str := ""
     inputs.do:
