@@ -1,3 +1,6 @@
-# Toit Package File.
 name: fuzzy_logic
 description: A library for running fuzzy logic algorithms
+dependencies:
+  http:
+    url: github.com/toitlang/pkg-http
+    version: ^2.12.0
