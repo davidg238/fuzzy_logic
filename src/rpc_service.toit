@@ -11,12 +11,13 @@ Opt-in RPC layer over $FuzzyModel. Importing this module pulls in
 http + encoding.json — engine consumers that don't need RPC should
 import only fuzzy-logic.
 
-View-only endpoints (Plan B v1, post-scope-reduction):
+Endpoints (Plan B v1):
 
-| Path     | Method | Response               |
-|----------|--------|------------------------|
-| /model   | GET    | current model topology |
-| /state   | GET    | model.serialize-state  |
+| Path     | Method | Body          | Response               |
+|----------|--------|---------------|------------------------|
+| /model   | GET    |               | current model topology |
+| /state   | GET    |               | model.serialize-state  |
+| /input   | POST   | {var, value}  | { "ok": true }         |
 
 Device + host run the same service; only the net.Interface differs.
 */
@@ -44,7 +45,22 @@ class RpcService:
     if method == "GET" and resource == "/state":
       respond-json_ writer model_.serialize-state
       return
+    if method == "POST" and resource == "/input":
+      handle-input_ request writer
+      return
     respond-error_ writer 404 "unknown route $method $resource"
+
+  handle-input_ request/http.RequestIncoming writer/http.ResponseWriter -> none:
+    body := json.decode-stream request.body
+    var-name := body["var"]
+    value := body["value"]
+    input-names := model_.inputs.map: | v | v.name
+    if not (input-names.contains var-name):
+      respond-error_ writer 404 "unknown var '$var-name'"
+      return
+    model_.crisp-inputs-named var-name value.to-float
+    model_.fuzzify
+    respond-json_ writer {"ok": true}
 
   model-topology_ -> Map:
     inputs := model_.inputs.map: | v | {"name": v.name,

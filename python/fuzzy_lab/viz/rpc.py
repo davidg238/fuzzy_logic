@@ -1,4 +1,4 @@
-"""HTTP client for the Toit RpcService (view-only viz, GET only)."""
+"""HTTP client for the Toit RpcService."""
 
 from __future__ import annotations
 
@@ -8,11 +8,12 @@ import httpx
 
 
 class FuzzyClient:
-    """Synchronous GET-only client for the Toit fuzzy_logic RpcService.
+    """Synchronous client for the Toit fuzzy_logic RpcService.
 
-    Two endpoints are exposed by the service:
-      - GET /model  → topology (one-shot at startup)
-      - GET /state  → runtime state (polled by the viz)
+    Endpoints:
+      - GET  /model  → topology (one-shot at startup)
+      - GET  /state  → runtime state (polled by the viz)
+      - POST /input  → push a crisp input value: {var, value}
     """
 
     def __init__(self, base_url: str, *, timeout: float = 2.0) -> None:
@@ -30,3 +31,8 @@ class FuzzyClient:
             r = h.get(f"{self._base}/state")
             r.raise_for_status()
             return r.json()
+
+    def post_input(self, var: str, value: float) -> None:
+        with httpx.Client(timeout=self._timeout) as h:
+            r = h.post(f"{self._base}/input", json={"var": var, "value": value})
+            r.raise_for_status()
