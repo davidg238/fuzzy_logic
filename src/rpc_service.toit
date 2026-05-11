@@ -5,6 +5,7 @@ import http
 import net
 
 import .fuzzy-model show FuzzyModel
+import .json-loader show load-model
 
 /**
 Opt-in RPC layer over $FuzzyModel. Importing this module pulls in
@@ -16,13 +17,14 @@ Endpoints (Plan B v1):
 | Path     | Method | Body          | Response               |
 |----------|--------|---------------|------------------------|
 | /model   | GET    |               | current model topology |
+| /model   | POST   | full model JSON | { "ok": true }       |
 | /state   | GET    |               | model.serialize-state  |
 | /input   | POST   | {var, value}  | { "ok": true }         |
 
 Device + host run the same service; only the net.Interface differs.
 */
 class RpcService:
-  model_/FuzzyModel
+  model_/FuzzyModel := ?
   net_/net.Interface
   port/int
 
@@ -48,7 +50,15 @@ class RpcService:
     if method == "POST" and resource == "/input":
       handle-input_ request writer
       return
+    if method == "POST" and resource == "/model":
+      handle-model_ request writer
+      return
     respond-error_ writer 404 "unknown route $method $resource"
+
+  handle-model_ request/http.RequestIncoming writer/http.ResponseWriter -> none:
+    body := json.decode-stream request.body
+    model_ = load-model body
+    respond-json_ writer {"ok": true}
 
   handle-input_ request/http.RequestIncoming writer/http.ResponseWriter -> none:
     body := json.decode-stream request.body

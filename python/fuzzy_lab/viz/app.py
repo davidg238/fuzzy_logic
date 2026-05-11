@@ -6,15 +6,21 @@ Per-variable panel layout (inputs):
   [slider]
 
 Outputs are the mirror image: figure on top, 2-column footer below.
+
+Top of page: file picker dropdown — selecting a different .fcl hot-
+swaps the engine's model (POST /model) and reloads the browser.
 """
 
 from __future__ import annotations
 
+import time
 from dataclasses import dataclass
+from pathlib import Path
 
 import dash
-from dash import MATCH, Input, Output, dcc, html
+from dash import MATCH, Input, Output, State, dcc, html
 
+from fuzzy_lab.fcl2json.parser import parse_fcl
 from fuzzy_lab.schema import FuzzyVar, Model
 from fuzzy_lab.viz.plots import membership_figure, output_figure, term_color
 from fuzzy_lab.viz.rpc import FuzzyClient
@@ -34,25 +40,39 @@ HEADER_NAME = {"flex": "0 0 auto", "fontWeight": "bold",
                "fontSize": "16px", "textAlign": "center"}
 HEADER_LEGEND = {"flex": "0 1 auto", "fontSize": "16px",
                  "lineHeight": "1.3", "textAlign": "left"}
+TOP_BAR = {"display": "flex", "alignItems": "center", "gap": "16px",
+           "padding": "8px 0"}
 
 
 @dataclass
 class AppConfig:
     base_url: str
+    fcl_dir: Path
     poll_ms: int = 500
 
 
 def build_app(config: AppConfig, model: Model, initial_state: dict) -> dash.Dash:
     app = dash.Dash(__name__, suppress_callback_exceptions=True)
 
+    fcl_options = _list_fcl_files(config.fcl_dir)
+
     app.layout = html.Div([
-        html.H2(f"{model.name}  (defuzz: {model.defuzz_method})"),
-        html.Div(id="conn-status", children="connected",
-                 style={"color": "green", "fontStyle": "italic"}),
+        html.Div([
+            dcc.Dropdown(
+                id="fcl-picker",
+                options=fcl_options,
+                placeholder="Load model from .fcl…",
+                clearable=False,
+                style={"flex": "0 0 320px"},
+            ),
+            html.Div(id="conn-status", children="connected",
+                     style={"color": "green", "fontStyle": "italic"}),
+        ], style=TOP_BAR),
 
         dcc.Interval(id="tick", interval=config.poll_ms),
         dcc.Store(id="state-store", data=initial_state),
         dcc.Store(id="push-ack", data=0),
+        dcc.Store(id="reload-trigger", data=0),
 
         html.H3("Inputs"),
         html.Div(id="inputs-row", style=INPUTS_ROW, children=[
@@ -94,6 +114,13 @@ def build_app(config: AppConfig, model: Model, initial_state: dict) -> dash.Dash
 
     _register_callbacks(app, config, model)
     return app
+
+
+def _list_fcl_files(fcl_dir: Path) -> list[dict]:
+    if not fcl_dir.is_dir():
+        return []
+    return [{"label": p.name, "value": str(p)}
+            for p in sorted(fcl_dir.glob("*.fcl"))]
 
 
 def _header_row(legend_kind: str, v: FuzzyVar) -> html.Div:
@@ -171,6 +198,29 @@ def _register_callbacks(app: dash.Dash, config: AppConfig, model: Model) -> None
     )
     def render_out_legend(state, comp_id):
         return _legend_children(_var_state(state, "outputs", comp_id["var"]), "centroid")
+
+    @app.callback(
+        Output("reload-trigger", "data"),
+        Input("fcl-picker", "value"),
+        prevent_initial_call=True,
+    )
+    def on_pick(fcl_path):
+        if not fcl_path:
+            return dash.no_update
+        text = Path(fcl_path).read_text()
+        new_model = parse_fcl(text)
+        client.post_model(new_model.to_dict())
+        return int(time.time() * 1000)
+
+    app.clientside_callback(
+        """function(trigger) {
+            if (trigger) { window.location.reload(); }
+            return trigger;
+        }""",
+        Output("reload-trigger", "data", allow_duplicate=True),
+        Input("reload-trigger", "data"),
+        prevent_initial_call=True,
+    )
 
     for v in model.inputs:
         @app.callback(

@@ -36,3 +36,8 @@ class FuzzyClient:
         with httpx.Client(timeout=self._timeout) as h:
             r = h.post(f"{self._base}/input", json={"var": var, "value": value})
             r.raise_for_status()
+
+    def post_model(self, model_dict: dict[str, Any]) -> None:
+        with httpx.Client(timeout=self._timeout) as h:
+            r = h.post(f"{self._base}/model", json=model_dict)
+            r.raise_for_status()
