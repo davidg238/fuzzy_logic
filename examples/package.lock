@@ -1,6 +1,7 @@
 sdk: ^2.0.0-alpha.190
 prefixes:
   fuzzy-logic: ..
+  host: pkg-host
   http: pkg-http-1.9.3
   websocket: pkg-websocket
 packages:
@@ -8,6 +9,11 @@ packages:
     path: ..
     prefixes:
       http: pkg-http-2.12.0
+  pkg-host:
+    url: github.com/toitlang/pkg-host
+    name: host
+    version: 1.17.0
+    hash: 05a26b5fa1cc73dc64a5e9cc16c40ae5aa24e0fb
   pkg-http-1.9.3:
     url: github.com/toitlang/pkg-http
     name: http

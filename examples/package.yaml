@@ -1,6 +1,9 @@
 dependencies:
   fuzzy-logic:
     path: ..
+  host:
+    url: github.com/toitlang/pkg-host
+    version: ^1.17.0
   http:
     url: github.com/toitlang/pkg-http
     version: ^1.9.3
