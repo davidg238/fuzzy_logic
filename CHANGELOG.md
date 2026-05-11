@@ -1,3 +1,25 @@
+## 0.8.0 — 2026-05-10
+
+**Breaking — `fcl2json` is now strict**
+- Declarations the engine cannot honor raise `NotImplementedError` instead of being silently discarded. The previous behavior masked genuine semantic mismatches (e.g. `triage.fcl`'s `METHOD : RM` was treated as `COG`, producing wrong defuzzify outputs).
+- Rejected: non-default `AND` / `OR` / `ACT` / `ACCU` operators, non-`COG`/`COGS` `METHOD`, multiple `RULEBLOCK`s in one `FUNCTION_BLOCK`.
+- Accepted as no-ops (match engine defaults): `AND : MIN`, `OR : MAX`, `ACT : MIN`, `ACCU : MAX`, `METHOD : COG`, `METHOD : COGS`.
+- Still accepted-and-discarded (cosmetic only): `RANGE`, `DEFAULT`.
+
+**Tooling + content**
+- 6 new first-party `.fcl` files in `fcl/` — `driver`, `driver_advanced`, `casco`, `fan-speed`, `air-conditioning`, `lecture_1` — paired with the hand-coded models in `examples/models.toit`. Visualizer's file picker now lists 13 supported FCLs (up from 7).
+- `examples/check_fcl_parity.toit` confirms each FCL produces bit-identical defuzzify outputs to its hand-coded counterpart across fixed input vectors.
+- Five third-party reference samples whose unsupported declarations now raise (`tipping2.fcl`, `triage.fcl`, `qualify.fcl`, `qualify_optimized.fcl`, `membershipFunctionsDemo.fcl`) moved to `fcl/unsupported/`. Viz picker globs `fcl/*.fcl` non-recursively, so they're skipped automatically.
+
+**Engine**
+- `LraTriangularSet` and `RraTriangularSet` gain closed-form centroid test coverage (Plan A reviewer follow-up).
+
+**Docs**
+- New topic-organized docs under `docs/`: `getting-started`, `esp32-deployment`, `engine`, `models`, `fcl`, `rpc-service`, `visualizer`.
+- Root `README.md` trimmed to elevator pitch + links.
+- New `fcl/index.md` catalogues every `.fcl` file by domain.
+- Removed `docs/superpowers/` (4,800 lines of restructure plans + spec) — the timeless content was cherry-picked into the new docs.
+
 ## 0.7.0 — 2026-05-10
 
 **Engine**

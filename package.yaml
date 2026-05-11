@@ -1,6 +1,6 @@
 name: fuzzy_logic
 description: A library for running fuzzy logic algorithms
-version: 0.7.0
+version: 0.8.0
 dependencies:
   http:
     url: github.com/toitlang/pkg-http
