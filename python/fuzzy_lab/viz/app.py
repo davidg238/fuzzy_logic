@@ -20,8 +20,12 @@ from fuzzy_lab.viz.plots import membership_figure, output_figure, term_color
 from fuzzy_lab.viz.rpc import FuzzyClient
 
 
-PANEL = {"width": "32%", "display": "inline-block",
-         "verticalAlign": "top", "padding": "0 8px"}
+PANEL = {"flex": "0 0 32%", "padding": "0 8px",
+         "display": "flex", "flexDirection": "column"}
+INPUTS_ROW = {"display": "flex", "alignItems": "flex-end",
+              "flexWrap": "wrap"}
+OUTPUTS_ROW = {"display": "flex", "alignItems": "flex-start",
+               "flexWrap": "wrap"}
 SLIDER_WRAP = {"paddingLeft": "40px", "paddingRight": "10px"}
 HEADER_ROW = {"display": "flex", "alignItems": "center",
               "justifyContent": "center", "gap": "16px",
@@ -51,7 +55,7 @@ def build_app(config: AppConfig, model: Model, initial_state: dict) -> dash.Dash
         dcc.Store(id="push-ack", data=0),
 
         html.H3("Inputs"),
-        html.Div(id="inputs-row", children=[
+        html.Div(id="inputs-row", style=INPUTS_ROW, children=[
             html.Div([
                 _header_row("in-legend", v),
                 dcc.Graph(id={"type": "in-fig", "var": v.name},
@@ -78,7 +82,7 @@ def build_app(config: AppConfig, model: Model, initial_state: dict) -> dash.Dash
         html.Ul(id="rules-list"),
 
         html.H3("Outputs"),
-        html.Div(id="outputs-row", children=[
+        html.Div(id="outputs-row", style=OUTPUTS_ROW, children=[
             html.Div([
                 dcc.Graph(id={"type": "out-fig", "var": v.name},
                           figure=output_figure(v, _var_state(initial_state, "outputs", v.name))),
