@@ -1,0 +1,493 @@
+{
+  "name": "air_conditioning",
+  "defuzz_method": "COG",
+  "inputs": [
+    {
+      "name": "temperature",
+      "terms": [
+        {
+          "name": "veryLow",
+          "a": 5,
+          "b": 5,
+          "c": 5,
+          "d": 15
+        },
+        {
+          "name": "low",
+          "a": 10,
+          "b": 20,
+          "c": 20,
+          "d": 30
+        },
+        {
+          "name": "high",
+          "a": 25,
+          "b": 30,
+          "c": 30,
+          "d": 35
+        },
+        {
+          "name": "veryHigh",
+          "a": 30,
+          "b": 50,
+          "c": 50,
+          "d": 50
+        }
+      ]
+    },
+    {
+      "name": "humidity",
+      "terms": [
+        {
+          "name": "dry",
+          "a": 5,
+          "b": 5,
+          "c": 5,
+          "d": 30
+        },
+        {
+          "name": "comfortable",
+          "a": 20,
+          "b": 35,
+          "c": 35,
+          "d": 50
+        },
+        {
+          "name": "humid",
+          "a": 40,
+          "b": 55,
+          "c": 55,
+          "d": 70
+        },
+        {
+          "name": "sticky",
+          "a": 60,
+          "b": 100,
+          "c": 100,
+          "d": 100
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "speed",
+      "terms": [
+        {
+          "name": "off",
+          "a": 0,
+          "b": 0,
+          "c": 0,
+          "d": 0
+        },
+        {
+          "name": "lowHumidity",
+          "a": 30,
+          "b": 45,
+          "c": 45,
+          "d": 60
+        },
+        {
+          "name": "medium",
+          "a": 50,
+          "b": 65,
+          "c": 65,
+          "d": 80
+        },
+        {
+          "name": "fast",
+          "a": 70,
+          "b": 90,
+          "c": 95,
+          "d": 95
+        }
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "name": "R1: temperature is veryLow AND humidity is dry \u2192 speed is off",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "temperature",
+            "term": "veryLow"
+          },
+          {
+            "op": "is",
+            "var": "humidity",
+            "term": "dry"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "speed",
+          "term": "off"
+        }
+      ]
+    },
+    {
+      "name": "R2: temperature is veryLow AND humidity is comfortable \u2192 speed is off",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "temperature",
+            "term": "veryLow"
+          },
+          {
+            "op": "is",
+            "var": "humidity",
+            "term": "comfortable"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "speed",
+          "term": "off"
+        }
+      ]
+    },
+    {
+      "name": "R3: temperature is veryLow AND humidity is humid \u2192 speed is off",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "temperature",
+            "term": "veryLow"
+          },
+          {
+            "op": "is",
+            "var": "humidity",
+            "term": "humid"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "speed",
+          "term": "off"
+        }
+      ]
+    },
+    {
+      "name": "R4: temperature is veryLow AND humidity is sticky \u2192 speed is lowHumidity",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "temperature",
+            "term": "veryLow"
+          },
+          {
+            "op": "is",
+            "var": "humidity",
+            "term": "sticky"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "speed",
+          "term": "lowHumidity"
+        }
+      ]
+    },
+    {
+      "name": "R5: temperature is low AND humidity is dry \u2192 speed is off",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "temperature",
+            "term": "low"
+          },
+          {
+            "op": "is",
+            "var": "humidity",
+            "term": "dry"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "speed",
+          "term": "off"
+        }
+      ]
+    },
+    {
+      "name": "R6: temperature is low AND humidity is comfortable \u2192 speed is off",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "temperature",
+            "term": "low"
+          },
+          {
+            "op": "is",
+            "var": "humidity",
+            "term": "comfortable"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "speed",
+          "term": "off"
+        }
+      ]
+    },
+    {
+      "name": "R7: temperature is low AND humidity is humid \u2192 speed is lowHumidity",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "temperature",
+            "term": "low"
+          },
+          {
+            "op": "is",
+            "var": "humidity",
+            "term": "humid"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "speed",
+          "term": "lowHumidity"
+        }
+      ]
+    },
+    {
+      "name": "R8: temperature is low AND humidity is sticky \u2192 speed is medium",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "temperature",
+            "term": "low"
+          },
+          {
+            "op": "is",
+            "var": "humidity",
+            "term": "sticky"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "speed",
+          "term": "medium"
+        }
+      ]
+    },
+    {
+      "name": "R9: temperature is high AND humidity is dry \u2192 speed is lowHumidity",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "temperature",
+            "term": "high"
+          },
+          {
+            "op": "is",
+            "var": "humidity",
+            "term": "dry"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "speed",
+          "term": "lowHumidity"
+        }
+      ]
+    },
+    {
+      "name": "R10: temperature is high AND humidity is comfortable \u2192 speed is medium",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "temperature",
+            "term": "high"
+          },
+          {
+            "op": "is",
+            "var": "humidity",
+            "term": "comfortable"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "speed",
+          "term": "medium"
+        }
+      ]
+    },
+    {
+      "name": "R11: temperature is high AND humidity is humid \u2192 speed is fast",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "temperature",
+            "term": "high"
+          },
+          {
+            "op": "is",
+            "var": "humidity",
+            "term": "humid"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "speed",
+          "term": "fast"
+        }
+      ]
+    },
+    {
+      "name": "R12: temperature is high AND humidity is sticky \u2192 speed is fast",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "temperature",
+            "term": "high"
+          },
+          {
+            "op": "is",
+            "var": "humidity",
+            "term": "sticky"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "speed",
+          "term": "fast"
+        }
+      ]
+    },
+    {
+      "name": "R13: temperature is veryHigh AND humidity is dry \u2192 speed is medium",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "temperature",
+            "term": "veryHigh"
+          },
+          {
+            "op": "is",
+            "var": "humidity",
+            "term": "dry"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "speed",
+          "term": "medium"
+        }
+      ]
+    },
+    {
+      "name": "R14: temperature is veryHigh AND humidity is comfortable \u2192 speed is fast",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "temperature",
+            "term": "veryHigh"
+          },
+          {
+            "op": "is",
+            "var": "humidity",
+            "term": "comfortable"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "speed",
+          "term": "fast"
+        }
+      ]
+    },
+    {
+      "name": "R15: temperature is veryHigh AND humidity is humid \u2192 speed is fast",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "temperature",
+            "term": "veryHigh"
+          },
+          {
+            "op": "is",
+            "var": "humidity",
+            "term": "humid"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "speed",
+          "term": "fast"
+        }
+      ]
+    },
+    {
+      "name": "R16: temperature is veryHigh AND humidity is sticky \u2192 speed is fast",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "temperature",
+            "term": "veryHigh"
+          },
+          {
+            "op": "is",
+            "var": "humidity",
+            "term": "sticky"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "speed",
+          "term": "fast"
+        }
+      ]
+    }
+  ]
+}

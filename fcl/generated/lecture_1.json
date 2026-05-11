@@ -1,0 +1,170 @@
+{
+  "name": "lecture_1",
+  "defuzz_method": "COG",
+  "inputs": [
+    {
+      "name": "size",
+      "terms": [
+        {
+          "name": "smallSize",
+          "a": 0,
+          "b": 0,
+          "c": 0,
+          "d": 10
+        },
+        {
+          "name": "largeSize",
+          "a": 0,
+          "b": 10,
+          "c": 10,
+          "d": 10
+        }
+      ]
+    },
+    {
+      "name": "weight",
+      "terms": [
+        {
+          "name": "smallWeight",
+          "a": 0,
+          "b": 0,
+          "c": 0,
+          "d": 100
+        },
+        {
+          "name": "largeWeight",
+          "a": 0,
+          "b": 100,
+          "c": 100,
+          "d": 100
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "quality",
+      "terms": [
+        {
+          "name": "bad",
+          "a": 0,
+          "b": 0,
+          "c": 0,
+          "d": 0.5
+        },
+        {
+          "name": "medium",
+          "a": 0,
+          "b": 0.5,
+          "c": 0.5,
+          "d": 1
+        },
+        {
+          "name": "good",
+          "a": 0.5,
+          "b": 1,
+          "c": 1,
+          "d": 1
+        }
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "name": "R1: size is smallSize AND weight is smallWeight \u2192 quality is bad",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "size",
+            "term": "smallSize"
+          },
+          {
+            "op": "is",
+            "var": "weight",
+            "term": "smallWeight"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "quality",
+          "term": "bad"
+        }
+      ]
+    },
+    {
+      "name": "R2: size is smallSize AND weight is largeWeight \u2192 quality is medium",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "size",
+            "term": "smallSize"
+          },
+          {
+            "op": "is",
+            "var": "weight",
+            "term": "largeWeight"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "quality",
+          "term": "medium"
+        }
+      ]
+    },
+    {
+      "name": "R3: size is largeSize AND weight is smallWeight \u2192 quality is medium",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "size",
+            "term": "largeSize"
+          },
+          {
+            "op": "is",
+            "var": "weight",
+            "term": "smallWeight"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "quality",
+          "term": "medium"
+        }
+      ]
+    },
+    {
+      "name": "R4: size is largeSize AND weight is largeWeight \u2192 quality is good",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "is",
+            "var": "size",
+            "term": "largeSize"
+          },
+          {
+            "op": "is",
+            "var": "weight",
+            "term": "largeWeight"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "quality",
+          "term": "good"
+        }
+      ]
+    }
+  ]
+}

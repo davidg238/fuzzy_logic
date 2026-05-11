@@ -1,0 +1,70 @@
+// Hand-coded counterpart in examples/models.toit (get-fan-speed).
+// NOTE: examples/models.toit declares the input variable name as "termperature"
+// (typo). This FCL uses the corrected "temperature" — variable names are
+// display-only, the model behavior is unchanged.
+
+FUNCTION_BLOCK fan_speed
+VAR_INPUT
+  temperature: REAL;
+  humidity:    REAL;
+END_VAR
+
+VAR_OUTPUT
+  speed: REAL;
+END_VAR
+
+FUZZIFY temperature
+  // veryLow:  FuzzySet -5 -5  0 15 (LTrap: a==b<c<d)
+  // low:      FuzzySet 10 20 20 30 (trian)
+  // high:     FuzzySet 25 30 30 35 (trian)
+  // veryHigh: FuzzySet 30 45 50 50 (RTrap: a<b<c==d)
+  TERM veryLow  := (-5, 1) ( 0, 1) (15, 0);
+  TERM low      := trian 10 20 30;
+  TERM high     := trian 25 30 35;
+  TERM veryHigh := (30, 0) (45, 1) (50, 1);
+END_FUZZIFY
+
+FUZZIFY humidity
+  // dry:         FuzzySet -5 -5  0 30 (LTrap)
+  // comfortable: FuzzySet 20 35 35 50 (trian)
+  // humid:       FuzzySet 40 55 55 70 (trian)
+  // sticky:      FuzzySet 60 100 105 105 (RTrap)
+  TERM dry         := ( -5, 1) (  0, 1) ( 30, 0);
+  TERM comfortable := trian  20  35  50;
+  TERM humid       := trian  40  55  70;
+  TERM sticky      := ( 60, 0) (100, 1) (105, 1);
+END_FUZZIFY
+
+DEFUZZIFY speed
+  // off:         FuzzySet 0 0 0 0 (singleton at 0)
+  // lowHumidity: FuzzySet 30 45 45 60 (trian)
+  // medium:      FuzzySet 50 65 65 80 (trian)
+  // fast:        FuzzySet 70 90 95 95 (RTrap)
+  TERM off         := 0;
+  TERM lowHumidity := trian 30 45 60;
+  TERM medium      := trian 50 65 80;
+  TERM fast        := (70, 0) (90, 1) (95, 1);
+  METHOD: COG;
+  DEFAULT := 0;
+END_DEFUZZIFY
+
+RULEBLOCK No1
+  AND : MIN;
+  RULE  1: IF temperature IS veryLow  AND humidity IS dry         THEN speed IS off;
+  RULE  2: IF temperature IS veryLow  AND humidity IS comfortable THEN speed IS off;
+  RULE  3: IF temperature IS veryLow  AND humidity IS humid       THEN speed IS off;
+  RULE  4: IF temperature IS veryLow  AND humidity IS sticky      THEN speed IS lowHumidity;
+  RULE  5: IF temperature IS low      AND humidity IS dry         THEN speed IS off;
+  RULE  6: IF temperature IS low      AND humidity IS comfortable THEN speed IS off;
+  RULE  7: IF temperature IS low      AND humidity IS humid       THEN speed IS lowHumidity;
+  RULE  8: IF temperature IS low      AND humidity IS sticky      THEN speed IS medium;
+  RULE  9: IF temperature IS high     AND humidity IS dry         THEN speed IS lowHumidity;
+  RULE 10: IF temperature IS high     AND humidity IS comfortable THEN speed IS medium;
+  RULE 11: IF temperature IS high     AND humidity IS humid       THEN speed IS fast;
+  RULE 12: IF temperature IS high     AND humidity IS sticky      THEN speed IS fast;
+  RULE 13: IF temperature IS veryHigh AND humidity IS dry         THEN speed IS medium;
+  RULE 14: IF temperature IS veryHigh AND humidity IS comfortable THEN speed IS fast;
+  RULE 15: IF temperature IS veryHigh AND humidity IS humid       THEN speed IS fast;
+  RULE 16: IF temperature IS veryHigh AND humidity IS sticky      THEN speed IS fast;
+END_RULEBLOCK
+END_FUNCTION_BLOCK

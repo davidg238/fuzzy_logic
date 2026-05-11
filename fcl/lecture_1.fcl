@@ -1,0 +1,44 @@
+// From: https://www.massey.ac.nz/~nhreyes/MASSEY/159741/Lectures/Lec2012-3-159741-FuzzyLogic-v.2.pdf
+// Pinned by tests/test_lecture_1.toit (defuzzify quality at size=2, weight=25 -> 0.4051688).
+
+FUNCTION_BLOCK lecture_1
+VAR_INPUT
+  size:   REAL;
+  weight: REAL;
+END_VAR
+
+VAR_OUTPUT
+  quality: REAL;
+END_VAR
+
+FUZZIFY size
+  // smallSize: FuzzySet 0 0 0 10 (LRA: a==b==c<d) -> 2-pt falling shoulder
+  TERM smallSize := ( 0, 1) (10, 0);
+  // largeSize: FuzzySet 0 10 10 10 (RRA: a<b==c==d) -> 2-pt rising shoulder
+  TERM largeSize := ( 0, 0) (10, 1);
+END_FUZZIFY
+
+FUZZIFY weight
+  TERM smallWeight := (  0, 1) (100, 0);
+  TERM largeWeight := (  0, 0) (100, 1);
+END_FUZZIFY
+
+DEFUZZIFY quality
+  // bad:    FuzzySet 0 0 0 0.5 (LRA)
+  // medium: FuzzySet 0 0.5 0.5 1.0 (trian)
+  // good:   FuzzySet 0.5 1 1 1 (RRA)
+  TERM bad    := (0,   1)   (0.5, 0);
+  TERM medium := trian 0    0.5 1;
+  TERM good   := (0.5, 0)   (1,   1);
+  METHOD: COG;
+  DEFAULT := 0;
+END_DEFUZZIFY
+
+RULEBLOCK No1
+  AND : MIN;
+  RULE 1: IF size IS smallSize AND weight IS smallWeight THEN quality IS bad;
+  RULE 2: IF size IS smallSize AND weight IS largeWeight THEN quality IS medium;
+  RULE 3: IF size IS largeSize AND weight IS smallWeight THEN quality IS medium;
+  RULE 4: IF size IS largeSize AND weight IS largeWeight THEN quality IS good;
+END_RULEBLOCK
+END_FUNCTION_BLOCK

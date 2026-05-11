@@ -1,0 +1,102 @@
+// Hand-coded counterpart in examples/models.toit (get-casco).
+// 3-input AND chains: humidity AND temperature AND season -> weather.
+
+FUNCTION_BLOCK casco
+VAR_INPUT
+  humidity:    REAL;
+  temperature: REAL;
+  season:      REAL;
+END_VAR
+
+VAR_OUTPUT
+  weather: REAL;
+END_VAR
+
+FUZZIFY humidity
+  // dry:     FuzzySet  0   0   0  42.5 (LRA)
+  // wet:     FuzzySet 37.5 60 60 82.5 (trian)
+  // puddled: FuzzySet 77.5 100 100 100 (RRA)
+  TERM dry     := (   0, 1) ( 42.5, 0);
+  TERM wet     := trian 37.5 60 82.5;
+  TERM puddled := ( 77.5, 0) (100, 1);
+END_FUZZIFY
+
+FUZZIFY temperature
+  // cold:     FuzzySet -5 -5 -5 12.5 (LRA)
+  // tempered: FuzzySet 7.5 17.5 17.5 27.5 (trian)
+  // heat:     FuzzySet 22.5 45 45 45 (RRA)
+  TERM cold     := (-5, 1) (12.5, 0);
+  TERM tempered := trian 7.5 17.5 27.5;
+  TERM heat     := (22.5, 0) (45, 1);
+END_FUZZIFY
+
+FUZZIFY season
+  // summer: FuzzySet 0 0 0 3.5 (LRA)
+  // fall:   FuzzySet 2.5 4.5 4.5 6.5 (trian)
+  // winter: FuzzySet 5.5 7.5 7.5 9.5 (trian)
+  // spring: FuzzySet 8.5 12 12 12 (RRA)
+  TERM summer := (  0, 1) ( 3.5, 0);
+  TERM fall   := trian 2.5 4.5 6.5;
+  TERM winter := trian 5.5 7.5 9.5;
+  TERM spring := (8.5, 0) (12, 1);
+END_FUZZIFY
+
+DEFUZZIFY weather
+  // anys:        singleton 0
+  // very_little: FuzzySet 0 0 0 5.5 (LRA)
+  // little_bit:  trian 4.5 7.5 10.5
+  // medium:      trian 9.5 12.5 15.5
+  // quite:       trian 14.5 17.5 20.5
+  // much:        trian 19.5 22.5 25.5
+  // very_much:   FuzzySet 24.5 30 30 30 (RRA)
+  TERM anys        := 0;
+  TERM very_little := (   0, 1) ( 5.5, 0);
+  TERM little_bit  := trian  4.5  7.5 10.5;
+  TERM medium      := trian  9.5 12.5 15.5;
+  TERM quite       := trian 14.5 17.5 20.5;
+  TERM much        := trian 19.5 22.5 25.5;
+  TERM very_much   := (24.5, 0) (30, 1);
+  METHOD: COG;
+  DEFAULT := 0;
+END_DEFUZZIFY
+
+RULEBLOCK No1
+  AND : MIN;
+  RULE  1: IF humidity IS dry     AND temperature IS cold     AND season IS summer THEN weather IS medium;
+  RULE  2: IF humidity IS dry     AND temperature IS cold     AND season IS fall   THEN weather IS very_little;
+  RULE  3: IF humidity IS dry     AND temperature IS cold     AND season IS winter THEN weather IS very_little;
+  RULE  4: IF humidity IS dry     AND temperature IS cold     AND season IS spring THEN weather IS very_little;
+  RULE  5: IF humidity IS wet     AND temperature IS cold     AND season IS summer THEN weather IS very_little;
+  RULE  6: IF humidity IS wet     AND temperature IS cold     AND season IS fall   THEN weather IS very_little;
+  RULE  7: IF humidity IS wet     AND temperature IS cold     AND season IS winter THEN weather IS very_little;
+  RULE  8: IF humidity IS wet     AND temperature IS cold     AND season IS spring THEN weather IS very_little;
+  RULE  9: IF humidity IS puddled AND temperature IS cold     AND season IS spring THEN weather IS anys;
+  RULE 10: IF humidity IS puddled AND temperature IS cold     AND season IS fall   THEN weather IS anys;
+  RULE 11: IF humidity IS puddled AND temperature IS cold     AND season IS winter THEN weather IS anys;
+  RULE 12: IF humidity IS puddled AND temperature IS cold     AND season IS spring THEN weather IS anys;
+  RULE 13: IF humidity IS dry     AND temperature IS tempered AND season IS summer THEN weather IS quite;
+  RULE 14: IF humidity IS dry     AND temperature IS tempered AND season IS fall   THEN weather IS medium;
+  RULE 15: IF humidity IS dry     AND temperature IS tempered AND season IS winter THEN weather IS little_bit;
+  RULE 16: IF humidity IS dry     AND temperature IS tempered AND season IS spring THEN weather IS quite;
+  RULE 17: IF humidity IS wet     AND temperature IS tempered AND season IS summer THEN weather IS medium;
+  RULE 18: IF humidity IS wet     AND temperature IS tempered AND season IS fall   THEN weather IS little_bit;
+  RULE 19: IF humidity IS wet     AND temperature IS tempered AND season IS winter THEN weather IS little_bit;
+  RULE 20: IF humidity IS wet     AND temperature IS tempered AND season IS spring THEN weather IS medium;
+  RULE 21: IF humidity IS puddled AND temperature IS tempered AND season IS spring THEN weather IS very_little;
+  RULE 22: IF humidity IS puddled AND temperature IS tempered AND season IS fall   THEN weather IS anys;
+  RULE 23: IF humidity IS puddled AND temperature IS tempered AND season IS winter THEN weather IS anys;
+  RULE 24: IF humidity IS puddled AND temperature IS tempered AND season IS spring THEN weather IS very_little;
+  RULE 25: IF humidity IS dry     AND temperature IS heat     AND season IS summer THEN weather IS much;
+  RULE 26: IF humidity IS dry     AND temperature IS heat     AND season IS fall   THEN weather IS medium;
+  RULE 27: IF humidity IS dry     AND temperature IS heat     AND season IS winter THEN weather IS medium;
+  RULE 28: IF humidity IS dry     AND temperature IS heat     AND season IS spring THEN weather IS much;
+  RULE 29: IF humidity IS wet     AND temperature IS heat     AND season IS summer THEN weather IS quite;
+  RULE 30: IF humidity IS wet     AND temperature IS heat     AND season IS fall   THEN weather IS quite;
+  RULE 31: IF humidity IS wet     AND temperature IS heat     AND season IS winter THEN weather IS quite;
+  RULE 32: IF humidity IS wet     AND temperature IS heat     AND season IS spring THEN weather IS medium;
+  RULE 33: IF humidity IS puddled AND temperature IS heat     AND season IS summer THEN weather IS very_little;
+  RULE 34: IF humidity IS puddled AND temperature IS heat     AND season IS fall   THEN weather IS anys;
+  RULE 35: IF humidity IS puddled AND temperature IS heat     AND season IS winter THEN weather IS anys;
+  RULE 36: IF humidity IS puddled AND temperature IS heat     AND season IS spring THEN weather IS very_little;
+END_RULEBLOCK
+END_FUNCTION_BLOCK

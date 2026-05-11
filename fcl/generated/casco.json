@@ -1,0 +1,1373 @@
+{
+  "name": "casco",
+  "defuzz_method": "COG",
+  "inputs": [
+    {
+      "name": "humidity",
+      "terms": [
+        {
+          "name": "dry",
+          "a": 0,
+          "b": 0,
+          "c": 0,
+          "d": 42.5
+        },
+        {
+          "name": "wet",
+          "a": 37.5,
+          "b": 60,
+          "c": 60,
+          "d": 82.5
+        },
+        {
+          "name": "puddled",
+          "a": 77.5,
+          "b": 100,
+          "c": 100,
+          "d": 100
+        }
+      ]
+    },
+    {
+      "name": "temperature",
+      "terms": [
+        {
+          "name": "cold",
+          "a": -5,
+          "b": -5,
+          "c": -5,
+          "d": 12.5
+        },
+        {
+          "name": "tempered",
+          "a": 7.5,
+          "b": 17.5,
+          "c": 17.5,
+          "d": 27.5
+        },
+        {
+          "name": "heat",
+          "a": 22.5,
+          "b": 45,
+          "c": 45,
+          "d": 45
+        }
+      ]
+    },
+    {
+      "name": "season",
+      "terms": [
+        {
+          "name": "summer",
+          "a": 0,
+          "b": 0,
+          "c": 0,
+          "d": 3.5
+        },
+        {
+          "name": "fall",
+          "a": 2.5,
+          "b": 4.5,
+          "c": 4.5,
+          "d": 6.5
+        },
+        {
+          "name": "winter",
+          "a": 5.5,
+          "b": 7.5,
+          "c": 7.5,
+          "d": 9.5
+        },
+        {
+          "name": "spring",
+          "a": 8.5,
+          "b": 12,
+          "c": 12,
+          "d": 12
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "weather",
+      "terms": [
+        {
+          "name": "anys",
+          "a": 0,
+          "b": 0,
+          "c": 0,
+          "d": 0
+        },
+        {
+          "name": "very_little",
+          "a": 0,
+          "b": 0,
+          "c": 0,
+          "d": 5.5
+        },
+        {
+          "name": "little_bit",
+          "a": 4.5,
+          "b": 7.5,
+          "c": 7.5,
+          "d": 10.5
+        },
+        {
+          "name": "medium",
+          "a": 9.5,
+          "b": 12.5,
+          "c": 12.5,
+          "d": 15.5
+        },
+        {
+          "name": "quite",
+          "a": 14.5,
+          "b": 17.5,
+          "c": 17.5,
+          "d": 20.5
+        },
+        {
+          "name": "much",
+          "a": 19.5,
+          "b": 22.5,
+          "c": 22.5,
+          "d": 25.5
+        },
+        {
+          "name": "very_much",
+          "a": 24.5,
+          "b": 30,
+          "c": 30,
+          "d": 30
+        }
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "name": "R1: humidity is dry AND temperature is cold AND season is summer \u2192 weather is medium",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "and",
+            "args": [
+              {
+                "op": "is",
+                "var": "humidity",
+                "term": "dry"
+              },
+              {
+                "op": "is",
+                "var": "temperature",
+                "term": "cold"
+              }
+            ]
+          },
+          {
+            "op": "is",
+            "var": "season",
+            "term": "summer"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "weather",
+          "term": "medium"
+        }
+      ]
+    },
+    {
+      "name": "R2: humidity is dry AND temperature is cold AND season is fall \u2192 weather is very_little",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "and",
+            "args": [
+              {
+                "op": "is",
+                "var": "humidity",
+                "term": "dry"
+              },
+              {
+                "op": "is",
+                "var": "temperature",
+                "term": "cold"
+              }
+            ]
+          },
+          {
+            "op": "is",
+            "var": "season",
+            "term": "fall"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "weather",
+          "term": "very_little"
+        }
+      ]
+    },
+    {
+      "name": "R3: humidity is dry AND temperature is cold AND season is winter \u2192 weather is very_little",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "and",
+            "args": [
+              {
+                "op": "is",
+                "var": "humidity",
+                "term": "dry"
+              },
+              {
+                "op": "is",
+                "var": "temperature",
+                "term": "cold"
+              }
+            ]
+          },
+          {
+            "op": "is",
+            "var": "season",
+            "term": "winter"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "weather",
+          "term": "very_little"
+        }
+      ]
+    },
+    {
+      "name": "R4: humidity is dry AND temperature is cold AND season is spring \u2192 weather is very_little",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "and",
+            "args": [
+              {
+                "op": "is",
+                "var": "humidity",
+                "term": "dry"
+              },
+              {
+                "op": "is",
+                "var": "temperature",
+                "term": "cold"
+              }
+            ]
+          },
+          {
+            "op": "is",
+            "var": "season",
+            "term": "spring"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "weather",
+          "term": "very_little"
+        }
+      ]
+    },
+    {
+      "name": "R5: humidity is wet AND temperature is cold AND season is summer \u2192 weather is very_little",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "and",
+            "args": [
+              {
+                "op": "is",
+                "var": "humidity",
+                "term": "wet"
+              },
+              {
+                "op": "is",
+                "var": "temperature",
+                "term": "cold"
+              }
+            ]
+          },
+          {
+            "op": "is",
+            "var": "season",
+            "term": "summer"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "weather",
+          "term": "very_little"
+        }
+      ]
+    },
+    {
+      "name": "R6: humidity is wet AND temperature is cold AND season is fall \u2192 weather is very_little",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "and",
+            "args": [
+              {
+                "op": "is",
+                "var": "humidity",
+                "term": "wet"
+              },
+              {
+                "op": "is",
+                "var": "temperature",
+                "term": "cold"
+              }
+            ]
+          },
+          {
+            "op": "is",
+            "var": "season",
+            "term": "fall"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "weather",
+          "term": "very_little"
+        }
+      ]
+    },
+    {
+      "name": "R7: humidity is wet AND temperature is cold AND season is winter \u2192 weather is very_little",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "and",
+            "args": [
+              {
+                "op": "is",
+                "var": "humidity",
+                "term": "wet"
+              },
+              {
+                "op": "is",
+                "var": "temperature",
+                "term": "cold"
+              }
+            ]
+          },
+          {
+            "op": "is",
+            "var": "season",
+            "term": "winter"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "weather",
+          "term": "very_little"
+        }
+      ]
+    },
+    {
+      "name": "R8: humidity is wet AND temperature is cold AND season is spring \u2192 weather is very_little",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "and",
+            "args": [
+              {
+                "op": "is",
+                "var": "humidity",
+                "term": "wet"
+              },
+              {
+                "op": "is",
+                "var": "temperature",
+                "term": "cold"
+              }
+            ]
+          },
+          {
+            "op": "is",
+            "var": "season",
+            "term": "spring"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "weather",
+          "term": "very_little"
+        }
+      ]
+    },
+    {
+      "name": "R9: humidity is puddled AND temperature is cold AND season is spring \u2192 weather is anys",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "and",
+            "args": [
+              {
+                "op": "is",
+                "var": "humidity",
+                "term": "puddled"
+              },
+              {
+                "op": "is",
+                "var": "temperature",
+                "term": "cold"
+              }
+            ]
+          },
+          {
+            "op": "is",
+            "var": "season",
+            "term": "spring"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "weather",
+          "term": "anys"
+        }
+      ]
+    },
+    {
+      "name": "R10: humidity is puddled AND temperature is cold AND season is fall \u2192 weather is anys",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "and",
+            "args": [
+              {
+                "op": "is",
+                "var": "humidity",
+                "term": "puddled"
+              },
+              {
+                "op": "is",
+                "var": "temperature",
+                "term": "cold"
+              }
+            ]
+          },
+          {
+            "op": "is",
+            "var": "season",
+            "term": "fall"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "weather",
+          "term": "anys"
+        }
+      ]
+    },
+    {
+      "name": "R11: humidity is puddled AND temperature is cold AND season is winter \u2192 weather is anys",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "and",
+            "args": [
+              {
+                "op": "is",
+                "var": "humidity",
+                "term": "puddled"
+              },
+              {
+                "op": "is",
+                "var": "temperature",
+                "term": "cold"
+              }
+            ]
+          },
+          {
+            "op": "is",
+            "var": "season",
+            "term": "winter"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "weather",
+          "term": "anys"
+        }
+      ]
+    },
+    {
+      "name": "R12: humidity is puddled AND temperature is cold AND season is spring \u2192 weather is anys",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "and",
+            "args": [
+              {
+                "op": "is",
+                "var": "humidity",
+                "term": "puddled"
+              },
+              {
+                "op": "is",
+                "var": "temperature",
+                "term": "cold"
+              }
+            ]
+          },
+          {
+            "op": "is",
+            "var": "season",
+            "term": "spring"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "weather",
+          "term": "anys"
+        }
+      ]
+    },
+    {
+      "name": "R13: humidity is dry AND temperature is tempered AND season is summer \u2192 weather is quite",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "and",
+            "args": [
+              {
+                "op": "is",
+                "var": "humidity",
+                "term": "dry"
+              },
+              {
+                "op": "is",
+                "var": "temperature",
+                "term": "tempered"
+              }
+            ]
+          },
+          {
+            "op": "is",
+            "var": "season",
+            "term": "summer"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "weather",
+          "term": "quite"
+        }
+      ]
+    },
+    {
+      "name": "R14: humidity is dry AND temperature is tempered AND season is fall \u2192 weather is medium",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "and",
+            "args": [
+              {
+                "op": "is",
+                "var": "humidity",
+                "term": "dry"
+              },
+              {
+                "op": "is",
+                "var": "temperature",
+                "term": "tempered"
+              }
+            ]
+          },
+          {
+            "op": "is",
+            "var": "season",
+            "term": "fall"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "weather",
+          "term": "medium"
+        }
+      ]
+    },
+    {
+      "name": "R15: humidity is dry AND temperature is tempered AND season is winter \u2192 weather is little_bit",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "and",
+            "args": [
+              {
+                "op": "is",
+                "var": "humidity",
+                "term": "dry"
+              },
+              {
+                "op": "is",
+                "var": "temperature",
+                "term": "tempered"
+              }
+            ]
+          },
+          {
+            "op": "is",
+            "var": "season",
+            "term": "winter"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "weather",
+          "term": "little_bit"
+        }
+      ]
+    },
+    {
+      "name": "R16: humidity is dry AND temperature is tempered AND season is spring \u2192 weather is quite",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "and",
+            "args": [
+              {
+                "op": "is",
+                "var": "humidity",
+                "term": "dry"
+              },
+              {
+                "op": "is",
+                "var": "temperature",
+                "term": "tempered"
+              }
+            ]
+          },
+          {
+            "op": "is",
+            "var": "season",
+            "term": "spring"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "weather",
+          "term": "quite"
+        }
+      ]
+    },
+    {
+      "name": "R17: humidity is wet AND temperature is tempered AND season is summer \u2192 weather is medium",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "and",
+            "args": [
+              {
+                "op": "is",
+                "var": "humidity",
+                "term": "wet"
+              },
+              {
+                "op": "is",
+                "var": "temperature",
+                "term": "tempered"
+              }
+            ]
+          },
+          {
+            "op": "is",
+            "var": "season",
+            "term": "summer"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "weather",
+          "term": "medium"
+        }
+      ]
+    },
+    {
+      "name": "R18: humidity is wet AND temperature is tempered AND season is fall \u2192 weather is little_bit",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "and",
+            "args": [
+              {
+                "op": "is",
+                "var": "humidity",
+                "term": "wet"
+              },
+              {
+                "op": "is",
+                "var": "temperature",
+                "term": "tempered"
+              }
+            ]
+          },
+          {
+            "op": "is",
+            "var": "season",
+            "term": "fall"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "weather",
+          "term": "little_bit"
+        }
+      ]
+    },
+    {
+      "name": "R19: humidity is wet AND temperature is tempered AND season is winter \u2192 weather is little_bit",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "and",
+            "args": [
+              {
+                "op": "is",
+                "var": "humidity",
+                "term": "wet"
+              },
+              {
+                "op": "is",
+                "var": "temperature",
+                "term": "tempered"
+              }
+            ]
+          },
+          {
+            "op": "is",
+            "var": "season",
+            "term": "winter"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "weather",
+          "term": "little_bit"
+        }
+      ]
+    },
+    {
+      "name": "R20: humidity is wet AND temperature is tempered AND season is spring \u2192 weather is medium",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "and",
+            "args": [
+              {
+                "op": "is",
+                "var": "humidity",
+                "term": "wet"
+              },
+              {
+                "op": "is",
+                "var": "temperature",
+                "term": "tempered"
+              }
+            ]
+          },
+          {
+            "op": "is",
+            "var": "season",
+            "term": "spring"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "weather",
+          "term": "medium"
+        }
+      ]
+    },
+    {
+      "name": "R21: humidity is puddled AND temperature is tempered AND season is spring \u2192 weather is very_little",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "and",
+            "args": [
+              {
+                "op": "is",
+                "var": "humidity",
+                "term": "puddled"
+              },
+              {
+                "op": "is",
+                "var": "temperature",
+                "term": "tempered"
+              }
+            ]
+          },
+          {
+            "op": "is",
+            "var": "season",
+            "term": "spring"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "weather",
+          "term": "very_little"
+        }
+      ]
+    },
+    {
+      "name": "R22: humidity is puddled AND temperature is tempered AND season is fall \u2192 weather is anys",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "and",
+            "args": [
+              {
+                "op": "is",
+                "var": "humidity",
+                "term": "puddled"
+              },
+              {
+                "op": "is",
+                "var": "temperature",
+                "term": "tempered"
+              }
+            ]
+          },
+          {
+            "op": "is",
+            "var": "season",
+            "term": "fall"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "weather",
+          "term": "anys"
+        }
+      ]
+    },
+    {
+      "name": "R23: humidity is puddled AND temperature is tempered AND season is winter \u2192 weather is anys",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "and",
+            "args": [
+              {
+                "op": "is",
+                "var": "humidity",
+                "term": "puddled"
+              },
+              {
+                "op": "is",
+                "var": "temperature",
+                "term": "tempered"
+              }
+            ]
+          },
+          {
+            "op": "is",
+            "var": "season",
+            "term": "winter"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "weather",
+          "term": "anys"
+        }
+      ]
+    },
+    {
+      "name": "R24: humidity is puddled AND temperature is tempered AND season is spring \u2192 weather is very_little",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "and",
+            "args": [
+              {
+                "op": "is",
+                "var": "humidity",
+                "term": "puddled"
+              },
+              {
+                "op": "is",
+                "var": "temperature",
+                "term": "tempered"
+              }
+            ]
+          },
+          {
+            "op": "is",
+            "var": "season",
+            "term": "spring"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "weather",
+          "term": "very_little"
+        }
+      ]
+    },
+    {
+      "name": "R25: humidity is dry AND temperature is heat AND season is summer \u2192 weather is much",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "and",
+            "args": [
+              {
+                "op": "is",
+                "var": "humidity",
+                "term": "dry"
+              },
+              {
+                "op": "is",
+                "var": "temperature",
+                "term": "heat"
+              }
+            ]
+          },
+          {
+            "op": "is",
+            "var": "season",
+            "term": "summer"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "weather",
+          "term": "much"
+        }
+      ]
+    },
+    {
+      "name": "R26: humidity is dry AND temperature is heat AND season is fall \u2192 weather is medium",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "and",
+            "args": [
+              {
+                "op": "is",
+                "var": "humidity",
+                "term": "dry"
+              },
+              {
+                "op": "is",
+                "var": "temperature",
+                "term": "heat"
+              }
+            ]
+          },
+          {
+            "op": "is",
+            "var": "season",
+            "term": "fall"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "weather",
+          "term": "medium"
+        }
+      ]
+    },
+    {
+      "name": "R27: humidity is dry AND temperature is heat AND season is winter \u2192 weather is medium",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "and",
+            "args": [
+              {
+                "op": "is",
+                "var": "humidity",
+                "term": "dry"
+              },
+              {
+                "op": "is",
+                "var": "temperature",
+                "term": "heat"
+              }
+            ]
+          },
+          {
+            "op": "is",
+            "var": "season",
+            "term": "winter"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "weather",
+          "term": "medium"
+        }
+      ]
+    },
+    {
+      "name": "R28: humidity is dry AND temperature is heat AND season is spring \u2192 weather is much",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "and",
+            "args": [
+              {
+                "op": "is",
+                "var": "humidity",
+                "term": "dry"
+              },
+              {
+                "op": "is",
+                "var": "temperature",
+                "term": "heat"
+              }
+            ]
+          },
+          {
+            "op": "is",
+            "var": "season",
+            "term": "spring"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "weather",
+          "term": "much"
+        }
+      ]
+    },
+    {
+      "name": "R29: humidity is wet AND temperature is heat AND season is summer \u2192 weather is quite",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "and",
+            "args": [
+              {
+                "op": "is",
+                "var": "humidity",
+                "term": "wet"
+              },
+              {
+                "op": "is",
+                "var": "temperature",
+                "term": "heat"
+              }
+            ]
+          },
+          {
+            "op": "is",
+            "var": "season",
+            "term": "summer"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "weather",
+          "term": "quite"
+        }
+      ]
+    },
+    {
+      "name": "R30: humidity is wet AND temperature is heat AND season is fall \u2192 weather is quite",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "and",
+            "args": [
+              {
+                "op": "is",
+                "var": "humidity",
+                "term": "wet"
+              },
+              {
+                "op": "is",
+                "var": "temperature",
+                "term": "heat"
+              }
+            ]
+          },
+          {
+            "op": "is",
+            "var": "season",
+            "term": "fall"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "weather",
+          "term": "quite"
+        }
+      ]
+    },
+    {
+      "name": "R31: humidity is wet AND temperature is heat AND season is winter \u2192 weather is quite",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "and",
+            "args": [
+              {
+                "op": "is",
+                "var": "humidity",
+                "term": "wet"
+              },
+              {
+                "op": "is",
+                "var": "temperature",
+                "term": "heat"
+              }
+            ]
+          },
+          {
+            "op": "is",
+            "var": "season",
+            "term": "winter"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "weather",
+          "term": "quite"
+        }
+      ]
+    },
+    {
+      "name": "R32: humidity is wet AND temperature is heat AND season is spring \u2192 weather is medium",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "and",
+            "args": [
+              {
+                "op": "is",
+                "var": "humidity",
+                "term": "wet"
+              },
+              {
+                "op": "is",
+                "var": "temperature",
+                "term": "heat"
+              }
+            ]
+          },
+          {
+            "op": "is",
+            "var": "season",
+            "term": "spring"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "weather",
+          "term": "medium"
+        }
+      ]
+    },
+    {
+      "name": "R33: humidity is puddled AND temperature is heat AND season is summer \u2192 weather is very_little",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "and",
+            "args": [
+              {
+                "op": "is",
+                "var": "humidity",
+                "term": "puddled"
+              },
+              {
+                "op": "is",
+                "var": "temperature",
+                "term": "heat"
+              }
+            ]
+          },
+          {
+            "op": "is",
+            "var": "season",
+            "term": "summer"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "weather",
+          "term": "very_little"
+        }
+      ]
+    },
+    {
+      "name": "R34: humidity is puddled AND temperature is heat AND season is fall \u2192 weather is anys",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "and",
+            "args": [
+              {
+                "op": "is",
+                "var": "humidity",
+                "term": "puddled"
+              },
+              {
+                "op": "is",
+                "var": "temperature",
+                "term": "heat"
+              }
+            ]
+          },
+          {
+            "op": "is",
+            "var": "season",
+            "term": "fall"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "weather",
+          "term": "anys"
+        }
+      ]
+    },
+    {
+      "name": "R35: humidity is puddled AND temperature is heat AND season is winter \u2192 weather is anys",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "and",
+            "args": [
+              {
+                "op": "is",
+                "var": "humidity",
+                "term": "puddled"
+              },
+              {
+                "op": "is",
+                "var": "temperature",
+                "term": "heat"
+              }
+            ]
+          },
+          {
+            "op": "is",
+            "var": "season",
+            "term": "winter"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "weather",
+          "term": "anys"
+        }
+      ]
+    },
+    {
+      "name": "R36: humidity is puddled AND temperature is heat AND season is spring \u2192 weather is very_little",
+      "if": {
+        "op": "and",
+        "args": [
+          {
+            "op": "and",
+            "args": [
+              {
+                "op": "is",
+                "var": "humidity",
+                "term": "puddled"
+              },
+              {
+                "op": "is",
+                "var": "temperature",
+                "term": "heat"
+              }
+            ]
+          },
+          {
+            "op": "is",
+            "var": "season",
+            "term": "spring"
+          }
+        ]
+      },
+      "then": [
+        {
+          "var": "weather",
+          "term": "very_little"
+        }
+      ]
+    }
+  ]
+}
