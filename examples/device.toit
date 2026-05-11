@@ -1,5 +1,5 @@
 // Copyright (c) 2026 Ekorau LLC
-// Loads a JSON model from disk, starts RpcService on :8080, and drives the
+// Loads a JSON model from disk, starts RpcService on :8090, and drives the
 // model's two inputs through a slow triangle-wave sweep so the Plotly Dash
 // viz shows live term pertinences and centroid motion.
 // On device: replace host.file with assets/ and provide a wifi net.Interface.
@@ -17,8 +17,8 @@ main:
   text := (file.read-contents MODEL-PATH).to-string
   model := load-model (json.parse text)
   network := net.open
-  service := RpcService model network --port=8080
-  print "fuzzy_logic RpcService listening on :8080 (model=$model.name)"
+  service := RpcService model network --port=8090
+  print "fuzzy_logic RpcService listening on :8090 (model=$model.name)"
   task:: service.start
   drive-inputs model
 
