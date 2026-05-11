@@ -66,8 +66,8 @@ class Rule:
     @classmethod
     def from_dict(cls, d: dict) -> "Rule":
         return cls(
-            if_=d["if"],
-            then=[Consequent.from_dict(c) for c in d["then"]],
+            if_=d.get("if", {}),
+            then=[Consequent.from_dict(c) for c in d.get("then", [])],
             name=d.get("name", ""),
             weight=float(d.get("weight", 1.0)),
         )
