@@ -27,7 +27,7 @@ def membership_figure(var: FuzzyVar, state: dict) -> go.Figure:
         name=f"crisp = {crisp:.2f}",
         line=dict(dash="dash", width=2),
     ))
-    fig.update_layout(title=var.name, height=260, margin=dict(l=40, r=10, t=30, b=30),
+    fig.update_layout(height=260, margin=dict(l=40, r=10, t=10, b=30),
                       yaxis=dict(range=[0, 1.05]))
     return fig
 
@@ -64,6 +64,6 @@ def output_figure(var: FuzzyVar, state: dict) -> go.Figure:
         name=f"centroid = {crisp:.2f}",
         line=dict(dash="dash", width=2, color="red"),
     ))
-    fig.update_layout(title=var.name, height=260, margin=dict(l=40, r=10, t=30, b=30),
+    fig.update_layout(height=260, margin=dict(l=40, r=10, t=10, b=30),
                       yaxis=dict(range=[0, 1.05]))
     return fig

@@ -2,10 +2,9 @@
 
 Layout (top to bottom):
   - Header: model name + defuzz method + connection status
-  - Inputs row: one membership figure per input, with a slider that POSTs
-    the crisp value to the engine
+  - Inputs row: variable name above each panel; figure; slider
   - Rules list: one bullet per rule; fired rules bold
-  - Outputs row: one output figure per output
+  - Outputs row: figure on top, variable name below each panel
 """
 
 from __future__ import annotations
@@ -15,9 +14,15 @@ from dataclasses import dataclass
 import dash
 from dash import Input, Output, dcc, html
 
-from fuzzy_lab.schema import Model
+from fuzzy_lab.schema import FuzzyVar, Model
 from fuzzy_lab.viz.plots import membership_figure, output_figure
 from fuzzy_lab.viz.rpc import FuzzyClient
+
+
+CENTER_LABEL = {"textAlign": "center", "margin": "4px 0", "fontWeight": "bold"}
+PANEL = {"width": "32%", "display": "inline-block",
+         "verticalAlign": "top", "padding": "0 8px"}
+SLIDER_WRAP = {"paddingLeft": "40px", "paddingRight": "10px"}
 
 
 @dataclass
@@ -41,19 +46,23 @@ def build_app(config: AppConfig, model: Model, initial_state: dict) -> dash.Dash
         html.H3("Inputs"),
         html.Div(id="inputs-row", children=[
             html.Div([
+                html.Div(v.name, style=CENTER_LABEL),
                 dcc.Graph(id={"type": "in-fig", "var": v.name},
                           figure=membership_figure(v, _var_state(initial_state, "inputs", v.name))),
-                dcc.Slider(
-                    id={"type": "in-slider", "var": v.name},
-                    min=min(t.a for t in v.terms),
-                    max=max(t.d for t in v.terms),
-                    step=0.1,
-                    value=_var_state(initial_state, "inputs", v.name).get("crisp", 0.0),
-                    tooltip={"placement": "bottom", "always_visible": True},
-                    updatemode="drag",
+                html.Div(
+                    dcc.Slider(
+                        id={"type": "in-slider", "var": v.name},
+                        min=min(t.a for t in v.terms),
+                        max=max(t.d for t in v.terms),
+                        step=0.1,
+                        value=_var_state(initial_state, "inputs", v.name).get("crisp", 0.0),
+                        marks={int(m): str(int(m)) for m in _slider_mark_ints(v)},
+                        tooltip={"placement": "bottom", "always_visible": True},
+                        updatemode="drag",
+                    ),
+                    style=SLIDER_WRAP,
                 ),
-            ], style={"width": "32%", "display": "inline-block",
-                      "verticalAlign": "top", "padding": "0 8px"})
+            ], style=PANEL)
             for v in model.inputs
         ]),
 
@@ -65,8 +74,8 @@ def build_app(config: AppConfig, model: Model, initial_state: dict) -> dash.Dash
             html.Div([
                 dcc.Graph(id={"type": "out-fig", "var": v.name},
                           figure=output_figure(v, _var_state(initial_state, "outputs", v.name))),
-            ], style={"width": "32%", "display": "inline-block",
-                      "verticalAlign": "top", "padding": "0 8px"})
+                html.Div(v.name, style=CENTER_LABEL),
+            ], style=PANEL)
             for v in model.outputs
         ]),
     ])
@@ -80,6 +89,12 @@ def _var_state(state: dict, kind: str, name: str) -> dict:
         if v["name"] == name:
             return v
     return {"name": name, "crisp": 0.0, "terms": []}
+
+
+def _slider_mark_ints(v: FuzzyVar) -> list[int]:
+    lo = min(t.a for t in v.terms)
+    hi = max(t.d for t in v.terms)
+    return list(range(int(lo), int(hi) + 1))
 
 
 def _register_callbacks(app: dash.Dash, config: AppConfig, model: Model) -> None:
