@@ -104,7 +104,7 @@
   ],
   "rules": [
     {
-      "name": "1",
+      "name": "R1: service is poor OR food is rancid \u2192 mTip is cheap",
       "if": {
         "op": "or",
         "args": [
@@ -128,7 +128,7 @@
       ]
     },
     {
-      "name": "2",
+      "name": "R2: service is good \u2192 mTip is average",
       "if": {
         "op": "is",
         "var": "service",
@@ -142,7 +142,7 @@
       ]
     },
     {
-      "name": "3",
+      "name": "R3: service is excellent OR food is delicious \u2192 mTip is generous",
       "weight": 0.5,
       "if": {
         "op": "or",
@@ -167,7 +167,7 @@
       ]
     },
     {
-      "name": "4",
+      "name": "R4: service is excellent AND food is delicious \u2192 mTip is generous",
       "if": {
         "op": "and",
         "args": [
@@ -191,7 +191,7 @@
       ]
     },
     {
-      "name": "1",
+      "name": "R5: service is poor OR food is rancid \u2192 tsTip is cheap",
       "if": {
         "op": "or",
         "args": [
@@ -215,7 +215,7 @@
       ]
     },
     {
-      "name": "2",
+      "name": "R6: service is good \u2192 tsTip is average",
       "if": {
         "op": "is",
         "var": "service",
@@ -229,7 +229,7 @@
       ]
     },
     {
-      "name": "3",
+      "name": "R7: service is excellent OR food is delicious \u2192 tsTip is generous",
       "weight": 0.5,
       "if": {
         "op": "or",
@@ -254,7 +254,7 @@
       ]
     },
     {
-      "name": "4",
+      "name": "R8: service is excellent AND food is delicious \u2192 tsTip is generous",
       "if": {
         "op": "and",
         "args": [

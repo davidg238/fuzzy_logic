@@ -99,7 +99,7 @@
   ],
   "rules": [
     {
-      "name": "1",
+      "name": "R1: x is right AND NOT dxdt is tooLeft \u2192 force is left",
       "if": {
         "op": "and",
         "args": [
@@ -126,7 +126,7 @@
       ]
     },
     {
-      "name": "2",
+      "name": "R2: x is left AND NOT dxdt is tooRight \u2192 force is right",
       "if": {
         "op": "and",
         "args": [
@@ -153,7 +153,7 @@
       ]
     },
     {
-      "name": "3",
+      "name": "R3: x is ok AND dxdt is right \u2192 force is left",
       "if": {
         "op": "and",
         "args": [
@@ -177,7 +177,7 @@
       ]
     },
     {
-      "name": "4",
+      "name": "R4: x is ok AND dxdt is left \u2192 force is right",
       "if": {
         "op": "and",
         "args": [
@@ -201,7 +201,7 @@
       ]
     },
     {
-      "name": "5",
+      "name": "R5: x is ok AND dxdt is ok \u2192 force is zero",
       "if": {
         "op": "and",
         "args": [

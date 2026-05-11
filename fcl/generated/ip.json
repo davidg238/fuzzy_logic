@@ -137,7 +137,7 @@
   ],
   "rules": [
     {
-      "name": "1",
+      "name": "R1: phi is right AND dphidt is right \u2192 force is right",
       "if": {
         "op": "and",
         "args": [
@@ -161,7 +161,7 @@
       ]
     },
     {
-      "name": "2",
+      "name": "R2: phi is left AND dphidt is left \u2192 force is left",
       "if": {
         "op": "and",
         "args": [
@@ -185,7 +185,7 @@
       ]
     },
     {
-      "name": "3",
+      "name": "R3: phi is ok AND dphidt is ok \u2192 force is zero",
       "if": {
         "op": "and",
         "args": [

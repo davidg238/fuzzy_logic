@@ -230,6 +230,10 @@ class _ToModel(Transformer):
             elif isinstance(child, list) and (not child or isinstance(child[0], Rule)):
                 rules.extend(child)
 
+        for idx, r in enumerate(rules, start=1):
+            if not r.name or r.name.isdigit():
+                r.name = f"R{idx}: {_expr_str(r.if_)} → {_then_str(r.then)}"
+
         if defuzz_method != "COG":
             print(f"warning: defuzz method '{defuzz_method}' is recorded but only COG is honored",
                   file=sys.stderr)
@@ -245,3 +249,20 @@ def _fold(op: str, args: list[Any]) -> Any:
     for right in args[1:]:
         left = {"op": op, "args": [left, right]}
     return left
+
+
+def _expr_str(expr: Any) -> str:
+    if not isinstance(expr, dict):
+        return str(expr)
+    op = expr.get("op")
+    if op == "is":
+        return f"{expr['var']} is {expr['term']}"
+    if op == "not":
+        return f"NOT {_expr_str(expr['arg'])}"
+    if op in ("and", "or"):
+        return f" {op.upper()} ".join(_expr_str(a) for a in expr["args"])
+    return str(expr)
+
+
+def _then_str(consequents: list[Consequent]) -> str:
+    return ", ".join(f"{c.var} is {c.term}" for c in consequents)

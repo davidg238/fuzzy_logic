@@ -127,7 +127,7 @@
   ],
   "rules": [
     {
-      "name": "1",
+      "name": "R1: phi is PS AND dphidt is PS OR dphidt is Z \u2192 force is PS",
       "if": {
         "op": "and",
         "args": [
@@ -161,7 +161,7 @@
       ]
     },
     {
-      "name": "2",
+      "name": "R2: phi is PS AND dphidt is PB \u2192 force is PB",
       "if": {
         "op": "and",
         "args": [
@@ -185,7 +185,7 @@
       ]
     },
     {
-      "name": "3",
+      "name": "R3: phi is NS AND dphidt is NS OR dphidt is Z \u2192 force is NS",
       "if": {
         "op": "and",
         "args": [
@@ -219,7 +219,7 @@
       ]
     },
     {
-      "name": "4",
+      "name": "R4: phi is NS AND dphidt is NB \u2192 force is NB",
       "if": {
         "op": "and",
         "args": [
@@ -243,7 +243,7 @@
       ]
     },
     {
-      "name": "5",
+      "name": "R5: phi is PB AND NOT dphidt is NB AND NOT dphidt is NS \u2192 force is PB",
       "if": {
         "op": "and",
         "args": [
@@ -283,7 +283,7 @@
       ]
     },
     {
-      "name": "6",
+      "name": "R6: phi is NB AND NOT dphidt is PB AND NOT dphidt is PS \u2192 force is NB",
       "if": {
         "op": "and",
         "args": [
@@ -323,7 +323,7 @@
       ]
     },
     {
-      "name": "7",
+      "name": "R7: phi is Z AND dphidt is Z \u2192 force is Z",
       "if": {
         "op": "and",
         "args": [

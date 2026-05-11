@@ -576,7 +576,7 @@
   ],
   "rules": [
     {
-      "name": "1",
+      "name": "R1: NOT airway is maintained \u2192 situation is immediate",
       "if": {
         "op": "not",
         "arg": {
@@ -593,7 +593,7 @@
       ]
     },
     {
-      "name": "2",
+      "name": "R2: oxygenation is inadequate \u2192 situation is immediate",
       "if": {
         "op": "is",
         "var": "oxygenation",
@@ -607,7 +607,7 @@
       ]
     },
     {
-      "name": "3",
+      "name": "R3: sweating is significant OR sweating is exceptional AND color is pale AND heart_rate is vigorous OR heart_rate is very_vigorous AND blood_pressure is low AND conscious_level is reduced OR conscious_level is unresponsive \u2192 situation is immediate",
       "if": {
         "op": "and",
         "args": [
@@ -691,7 +691,7 @@
       ]
     },
     {
-      "name": "4",
+      "name": "R4: pain is severe \u2192 situation is very_urgent",
       "weight": 0.8,
       "if": {
         "op": "is",
@@ -706,7 +706,7 @@
       ]
     },
     {
-      "name": "5",
+      "name": "R5: mechanism_of_injury is significant \u2192 situation is very_urgent",
       "weight": 0.8,
       "if": {
         "op": "is",
@@ -721,7 +721,7 @@
       ]
     },
     {
-      "name": "6",
+      "name": "R6: neurological_deficit is present AND onset is abrupt OR onset is rapid OR onset is acute \u2192 situation is very_urgent",
       "weight": 0.8,
       "if": {
         "op": "and",
@@ -766,7 +766,7 @@
       ]
     },
     {
-      "name": "7",
+      "name": "R7: life_stage is infant OR life_stage is toddler OR life_stage is child AND skin_temperature is hot OR skin_temperature is very_hot \u2192 situation is very_urgent",
       "weight": 0.8,
       "if": {
         "op": "and",
@@ -821,7 +821,7 @@
       ]
     },
     {
-      "name": "8",
+      "name": "R8: life_stage is adult AND skin_temperature is very_hot \u2192 situation is very_urgent",
       "weight": 0.8,
       "if": {
         "op": "and",
@@ -846,7 +846,7 @@
       ]
     },
     {
-      "name": "9",
+      "name": "R9: abdominal_pain is present \u2192 situation is very_urgent",
       "weight": 0.8,
       "if": {
         "op": "is",
@@ -861,7 +861,7 @@
       ]
     },
     {
-      "name": "10",
+      "name": "R10: neurological_deficit is present AND onset is recent \u2192 situation is urgent",
       "weight": 0.6,
       "if": {
         "op": "and",
@@ -886,7 +886,7 @@
       ]
     },
     {
-      "name": "11",
+      "name": "R11: untruthful_story is present \u2192 situation is urgent",
       "weight": 0.6,
       "if": {
         "op": "is",
@@ -901,7 +901,7 @@
       ]
     },
     {
-      "name": "12",
+      "name": "R12: unable_to_walk is present \u2192 situation is urgent",
       "weight": 0.6,
       "if": {
         "op": "is",
@@ -916,7 +916,7 @@
       ]
     },
     {
-      "name": "13",
+      "name": "R13: skin_temperature is hot AND life_stage is adult \u2192 situation is urgent",
       "weight": 0.6,
       "if": {
         "op": "and",
@@ -941,7 +941,7 @@
       ]
     },
     {
-      "name": "14",
+      "name": "R14: pain is moderate \u2192 situation is urgent",
       "weight": 0.6,
       "if": {
         "op": "is",
@@ -956,7 +956,7 @@
       ]
     },
     {
-      "name": "15",
+      "name": "R15: colicky_pain is present \u2192 situation is urgent",
       "weight": 0.6,
       "if": {
         "op": "is",
@@ -971,7 +971,7 @@
       ]
     },
     {
-      "name": "16",
+      "name": "R16: direct_trauma is present \u2192 situation is urgent",
       "weight": 0.6,
       "if": {
         "op": "is",
@@ -986,7 +986,7 @@
       ]
     },
     {
-      "name": "17",
+      "name": "R17: pain is mild \u2192 situation is standard",
       "weight": 0.4,
       "if": {
         "op": "is",
@@ -1001,7 +1001,7 @@
       ]
     },
     {
-      "name": "18",
+      "name": "R18: onset_of_symptoms is recent \u2192 situation is standard",
       "weight": 0.4,
       "if": {
         "op": "is",

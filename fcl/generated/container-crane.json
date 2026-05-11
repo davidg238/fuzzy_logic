@@ -127,7 +127,7 @@
   ],
   "rules": [
     {
-      "name": "1",
+      "name": "R1: distance is far AND angle is zero \u2192 power is pos_medium",
       "if": {
         "op": "and",
         "args": [
@@ -151,7 +151,7 @@
       ]
     },
     {
-      "name": "2",
+      "name": "R2: distance is far AND angle is neg_small \u2192 power is pos_high",
       "if": {
         "op": "and",
         "args": [
@@ -175,7 +175,7 @@
       ]
     },
     {
-      "name": "3",
+      "name": "R3: distance is far AND angle is neg_big \u2192 power is pos_medium",
       "if": {
         "op": "and",
         "args": [
@@ -199,7 +199,7 @@
       ]
     },
     {
-      "name": "4",
+      "name": "R4: distance is medium AND angle is neg_small \u2192 power is neg_medium",
       "if": {
         "op": "and",
         "args": [
@@ -223,7 +223,7 @@
       ]
     },
     {
-      "name": "5",
+      "name": "R5: distance is close AND angle is pos_small \u2192 power is pos_medium",
       "if": {
         "op": "and",
         "args": [
@@ -247,7 +247,7 @@
       ]
     },
     {
-      "name": "6",
+      "name": "R6: distance is zero AND angle is zero \u2192 power is zero",
       "if": {
         "op": "and",
         "args": [
