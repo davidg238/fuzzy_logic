@@ -39,6 +39,28 @@ main:
     expect-near 7.5 set.truncated-area
     expect-near 6.1111111 (set.truncated-weighted-centroid / set.truncated-area)
 
+  test "ClosedForm" "LraTriangularSet at h=1.0":
+    set := FuzzySet 0.0 0.0 0.0 10.0 "lra"
+    set.max 1.0
+    // right triangle (0,0)-(10,0)-(0,1): area = 10*1/2 = 5.0; centroid x = (2a+d)/3 = 10/3
+    expect-near 5.0 set.truncated-area
+    expect-near 3.3333333 (set.truncated-weighted-centroid / set.truncated-area)
+
+  test "ClosedForm" "LraTriangularSet at h=0.5":
+    set := FuzzySet 0.0 0.0 0.0 10.0 "lra"
+    set.max 0.5
+    // truncated trapezoid: bases (d-a)=10 and (1-h)(d-a)=5, height 0.5 -> area = 15/2 * 0.5 = 3.75
+    // centroid: rect (b2=5, h=0.5, cx=2.5) + triangle (a=1.25, cx=20/3) -> (6.25 + 25/3)/3.75 = 35/9
+    expect-near 3.75 set.truncated-area
+    expect-near 3.8888888 (set.truncated-weighted-centroid / set.truncated-area)
+
+  test "ClosedForm" "RraTriangularSet at h=1.0":
+    set := FuzzySet 0.0 10.0 10.0 10.0 "rra"
+    set.max 1.0
+    // right triangle (0,0)-(10,0)-(10,1): area = 5.0; centroid x = (a+2d)/3 = 20/3 (mirror of LRA)
+    expect-near 5.0 set.truncated-area
+    expect-near 6.6666666 (set.truncated-weighted-centroid / set.truncated-area)
+
   test "ClosedForm" "SingletonSet area is pertinence, weighted centroid is a*pertinence":
     set := FuzzySet 7.0 7.0 7.0 7.0 "sing"
     set.max 1.0
