@@ -36,6 +36,32 @@
 
 ---
 
+## Scope reduction — 2026-05-10 (view-only viz)
+
+Plan amended after Tasks 1–7 committed. Visualizer becomes **view-only**: MF shapes are static, live state (crisp values + per-term pertinence + rule-fired flags) refreshes by HTTP polling. No interactive term editing, no WebSocket. This removes the FuzzySet shape-validation problem entirely.
+
+**Dropped tasks (do not implement):**
+- **Task 8** (`FuzzyModel.update-term`) — no engine-side mutation needed. Uncommitted work discarded 2026-05-10.
+- **Task 10** (WebSocket `/ws` push) — Dash polls `GET /state` instead (~500 ms cadence).
+- **Task 17** (WS reconnect + drag handles) — both eliminated by the drop above.
+
+**Simplified tasks:**
+- **Task 9** (`RpcService`) — keep only `GET /model` and `GET /state`. Drop `POST /model`, `POST /input`, `POST /term`. No mutation surface at all.
+- **Task 13** (`device.toit` + cleanup) — keep `examples/models.toit` (four tests import it, including the 31/0 regression net `test_models_via_json.toit` via `get-container-crane`). Only delete `examples/simple_01.toit` (unused). Skip Task-13 Steps 3-4 (casco refactor, `examples/models.toit` deletion) entirely. The Step-2 smoke test's POST /input curl line is also dropped (POST routes don't exist).
+- **Task 14** (`viz/rpc.py`) — HTTP polling client only. Drop `dash_extensions[websocket]` dep and any WS code; `httpx` (or `requests`) is sufficient.
+- **Task 16** (Dash app) — drop the WS subscribe layer; use `dcc.Interval` to poll `/state` and update figure overlays. No edit textarea/button.
+- **Task 18** (README) — describe view-only viz; remove mentions of WS/editing.
+- **Task 19** (CHANGELOG) — same.
+
+**Schema/file-list deltas:**
+- Remove `tests/test_update_term.toit` from "Files created (Toit side)".
+- Remove `update-term` from `src/fuzzy_model.toit` "Files modified" line (only `serialize-state` lands).
+- Tech-stack line: drop `dash_extensions[websocket]`.
+
+**Remaining task count:** 13 of original 20 (Tasks 1–7 done, Tasks 9, 11–16, 18–20 remaining; Tasks 8, 10, 17 dropped).
+
+---
+
 ## File structure
 
 **Files created (Python side):**
@@ -1293,7 +1319,7 @@ unchanging topology)."
 
 ---
 
-### Task 8: Add `FuzzyModel.update-term`
+### Task 8: ~~Add `FuzzyModel.update-term`~~ [DROPPED 2026-05-10 — view-only viz, no mutation API]
 
 **Files:** Modify `src/fuzzy_model.toit`. Create `tests/test_update_term.toit`.
 
@@ -1429,7 +1455,9 @@ layer's /term endpoint to support drag-edit handles in the viz."
 
 ---
 
-### Task 9: New module `src/rpc_service.toit` — HTTP routes
+### Task 9: New module `src/rpc_service.toit` — HTTP routes [SIMPLIFIED 2026-05-10]
+
+> **Scope-reduction note:** Implement **only** `GET /model` and `GET /state`. Skip the three POST routes (`POST /model`, `POST /input`, `POST /term`) and their body-parsing blocks. View-only viz never calls them; dropping them removes the mutation-validation surface entirely.
 
 **Files:** Create `src/rpc_service.toit`. Verify `examples/package.yaml` already has http+websocket (it does, per current state).
 
@@ -1581,7 +1609,7 @@ GET+POST, /input POST, /term POST, /state GET. Errors return JSON
 
 ---
 
-### Task 10: Extend `RpcService` with WebSocket `/ws` push
+### Task 10: ~~Extend `RpcService` with WebSocket `/ws` push~~ [DROPPED 2026-05-10 — Dash polls `GET /state` instead]
 
 **Files:** Modify `src/rpc_service.toit`.
 
@@ -1832,7 +1860,9 @@ http/websocket dependencies pulled in."
 
 ---
 
-### Task 13: New example `examples/device.toit` + cleanup
+### Task 13: New example `examples/device.toit` + cleanup [SIMPLIFIED 2026-05-10]
+
+> **Scope-reduction note:** Keep `examples/models.toit` — four tests import it (`test_casco.toit`, `test_casco_runtime.toit`, `test_lecture_2.toit`, and the 31/0 regression net `test_models_via_json.toit` via `get-container-crane`). Only delete `examples/simple_01.toit` (no references). **Skip Steps 3, 4, and the second commit of Step 6.** Step-2 smoke test: drop the `curl -X POST /input` line — POST routes were removed in the simplified Task 9. Replace it with two `curl /state` calls bracketing a `model.fuzzify` invocation if you want to show state change (or just remove the POST line and verify `/model` + `/state` GET work).
 
 **Files:** Create `examples/device.toit`. Delete `examples/simple_01.toit` and `examples/models.toit`.
 
@@ -1944,7 +1974,9 @@ examples; this test now loads fcl/generated/casco.json."
 
 ## Phase 8 — Plotly Dash visualizer + docs
 
-### Task 14: `python/fuzzy_lab/viz/rpc.py` — HTTP+WS client
+### Task 14: `python/fuzzy_lab/viz/rpc.py` — HTTP client [SIMPLIFIED 2026-05-10]
+
+> **Scope-reduction note:** HTTP polling only. Skip every WebSocket section and the `dash_extensions[websocket]` dep. The client surface is two methods: `get_model()` and `get_state()` — both plain `httpx.get` calls. No subscribe/reconnect logic. The original Task body's WS code blocks should be ignored entirely.
 
 **Files:** Create `python/fuzzy_lab/viz/rpc.py`, `python/tests/test_viz_rpc.py`.
 
@@ -2253,7 +2285,9 @@ the centroid) on the term outlines and marks the centroid in red."
 
 ---
 
-### Task 16: `python/fuzzy_lab/viz/app.py` + `__main__.py` — Dash layout
+### Task 16: `python/fuzzy_lab/viz/app.py` + `__main__.py` — Dash layout [SIMPLIFIED 2026-05-10]
+
+> **Scope-reduction note:** View-only layout. Use `dcc.Interval` (~500 ms) to poll `GET /state` and refresh figure overlays (crisp markers + per-term pertinence). Drop: edit textarea, "apply" button, `POST /term` calls, WebSocket subscribe component, drag-handle wiring. MF curves come from `GET /model` (fetched once on load, or whenever `/state` shows a model-revision change — simplest: once on load).
 
 **Files:** Create `python/fuzzy_lab/viz/app.py`, `python/fuzzy_lab/viz/__main__.py`.
 
@@ -2476,7 +2510,7 @@ slider moves POST /input. Drag-edit lands in the next commit."
 
 ---
 
-### Task 17: WebSocket reconnect with backoff + drag-handle support
+### Task 17: ~~WebSocket reconnect with backoff + drag-handle support~~ [DROPPED 2026-05-10 — neither WS nor editing in scope]
 
 **Files:** Modify `python/fuzzy_lab/viz/app.py`.
 
