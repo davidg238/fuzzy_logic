@@ -1,0 +1,104 @@
+{
+  "name": "driver",
+  "defuzz_method": "COG",
+  "inputs": [
+    {
+      "name": "distance",
+      "terms": [
+        {
+          "name": "small",
+          "a": 0,
+          "b": 20,
+          "c": 20,
+          "d": 40
+        },
+        {
+          "name": "safe",
+          "a": 30,
+          "b": 50,
+          "c": 50,
+          "d": 70
+        },
+        {
+          "name": "big",
+          "a": 60,
+          "b": 80,
+          "c": 100,
+          "d": 100
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "name": "speed",
+      "terms": [
+        {
+          "name": "slow",
+          "a": 0,
+          "b": 10,
+          "c": 10,
+          "d": 20
+        },
+        {
+          "name": "average",
+          "a": 10,
+          "b": 20,
+          "c": 30,
+          "d": 40
+        },
+        {
+          "name": "fast",
+          "a": 30,
+          "b": 40,
+          "c": 40,
+          "d": 50
+        }
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "name": "R1: distance is small \u2192 speed is slow",
+      "if": {
+        "op": "is",
+        "var": "distance",
+        "term": "small"
+      },
+      "then": [
+        {
+          "var": "speed",
+          "term": "slow"
+        }
+      ]
+    },
+    {
+      "name": "R2: distance is safe \u2192 speed is average",
+      "if": {
+        "op": "is",
+        "var": "distance",
+        "term": "safe"
+      },
+      "then": [
+        {
+          "var": "speed",
+          "term": "average"
+        }
+      ]
+    },
+    {
+      "name": "R3: distance is big \u2192 speed is fast",
+      "if": {
+        "op": "is",
+        "var": "distance",
+        "term": "big"
+      },
+      "then": [
+        {
+          "var": "speed",
+          "term": "fast"
+        }
+      ]
+    }
+  ]
+}

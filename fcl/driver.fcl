@@ -1,0 +1,30 @@
+FUNCTION_BLOCK driver
+VAR_INPUT
+  distance: REAL;
+END_VAR
+
+VAR_OUTPUT
+  speed: REAL;
+END_VAR
+
+FUZZIFY distance
+  TERM small := trian  0 20 40;
+  TERM safe  := trian 30 50 70;
+  TERM big   := trape 60 80 100 100;
+END_FUZZIFY
+
+DEFUZZIFY speed
+  TERM slow    := trian  0 10 20;
+  TERM average := trape 10 20 30 40;
+  TERM fast    := trian 30 40 50;
+  METHOD: COG;
+  DEFAULT := 0;
+END_DEFUZZIFY
+
+RULEBLOCK No1
+  AND : MIN;
+  RULE 1: IF distance IS small THEN speed IS slow;
+  RULE 2: IF distance IS safe  THEN speed IS average;
+  RULE 3: IF distance IS big   THEN speed IS fast;
+END_RULEBLOCK
+END_FUNCTION_BLOCK
