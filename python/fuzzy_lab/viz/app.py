@@ -16,7 +16,7 @@ import dash
 from dash import MATCH, Input, Output, dcc, html
 
 from fuzzy_lab.schema import FuzzyVar, Model
-from fuzzy_lab.viz.plots import membership_figure, output_figure
+from fuzzy_lab.viz.plots import membership_figure, output_figure, term_color
 from fuzzy_lab.viz.rpc import FuzzyClient
 
 
@@ -28,7 +28,7 @@ HEADER_ROW = {"display": "flex", "alignItems": "center",
               "padding": "4px 40px 4px 40px"}
 HEADER_NAME = {"flex": "0 0 auto", "fontWeight": "bold",
                "fontSize": "16px", "textAlign": "center"}
-HEADER_LEGEND = {"flex": "0 1 auto", "fontSize": "12px",
+HEADER_LEGEND = {"flex": "0 1 auto", "fontSize": "16px",
                  "lineHeight": "1.3", "textAlign": "left"}
 
 
@@ -114,8 +114,12 @@ def _slider_mark_ints(v: FuzzyVar) -> list[int]:
 
 
 def _legend_children(vstate: dict, crisp_label: str) -> list:
-    rows = [html.Div(f"{t['name']} ({t['pertinence']:.2f})")
-            for t in vstate.get("terms", [])]
+    rows = []
+    for i, t in enumerate(vstate.get("terms", [])):
+        rows.append(html.Div([
+            html.Span(t["name"], style={"color": term_color(i), "fontWeight": "bold"}),
+            html.Span(f" ({t['pertinence']:.2f})"),
+        ]))
     rows.append(html.Div(f"{crisp_label} = {vstate.get('crisp', 0.0):.2f}",
                          style={"fontStyle": "italic"}))
     return rows
