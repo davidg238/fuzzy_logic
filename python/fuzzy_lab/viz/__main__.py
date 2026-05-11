@@ -39,7 +39,7 @@ def main(argv=None) -> int:
     model = Model.from_dict(model_dict)
     config = AppConfig(base_url=args.connect, fcl_dir=Path(args.fcl_dir),
                        poll_ms=args.poll_ms)
-    app = build_app(config, model, state)
+    app = build_app(config, model, state, model_dict)
     app.run(debug=False, host="127.0.0.1", port=args.port)
     return 0
 

@@ -8,12 +8,14 @@ Per-variable panel layout (inputs):
 Outputs are the mirror image: figure on top, 2-column footer below.
 
 Top of page: file picker dropdown — selecting a different .fcl hot-
-swaps the engine's model (POST /model) and reloads the browser.
+swaps the engine's model (POST /model). The topology store updates,
+which causes the inputs/outputs panels to rebuild in place; no
+browser reload required. Pattern-matching callbacks pick up the new
+var names automatically.
 """
 
 from __future__ import annotations
 
-import time
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -42,6 +44,9 @@ HEADER_LEGEND = {"flex": "0 1 auto", "fontSize": "16px",
                  "lineHeight": "1.3", "textAlign": "left"}
 TOP_BAR = {"display": "flex", "alignItems": "center", "gap": "16px",
            "padding": "8px 0"}
+ERROR_VISIBLE = {"color": "red", "fontWeight": "bold",
+                 "padding": "6px 0", "whiteSpace": "pre-wrap"}
+ERROR_HIDDEN = {"display": "none"}
 
 
 @dataclass
@@ -51,7 +56,8 @@ class AppConfig:
     poll_ms: int = 500
 
 
-def build_app(config: AppConfig, model: Model, initial_state: dict) -> dash.Dash:
+def build_app(config: AppConfig, model: Model, initial_state: dict,
+              initial_topology: dict) -> dash.Dash:
     app = dash.Dash(__name__, suppress_callback_exceptions=True)
 
     fcl_options = _list_fcl_files(config.fcl_dir)
@@ -69,50 +75,24 @@ def build_app(config: AppConfig, model: Model, initial_state: dict) -> dash.Dash
                      style={"color": "green", "fontStyle": "italic"}),
         ], style=TOP_BAR),
 
+        html.Div(id="error-text", style=ERROR_HIDDEN),
+
         dcc.Interval(id="tick", interval=config.poll_ms),
         dcc.Store(id="state-store", data=initial_state),
+        dcc.Store(id="topology-store", data=initial_topology),
         dcc.Store(id="push-ack", data=0),
-        dcc.Store(id="reload-trigger", data=0),
 
         html.H3("Inputs"),
-        html.Div(id="inputs-row", style=INPUTS_ROW, children=[
-            html.Div([
-                _header_row("in-legend", v),
-                dcc.Graph(id={"type": "in-fig", "var": v.name},
-                          figure=membership_figure(v, _var_state(initial_state, "inputs", v.name))),
-                html.Div(
-                    dcc.Slider(
-                        id={"type": "in-slider", "var": v.name},
-                        min=min(t.a for t in v.terms),
-                        max=max(t.d for t in v.terms),
-                        step=0.1,
-                        value=_var_state(initial_state, "inputs", v.name).get("crisp", 0.0),
-                        marks={int(m): str(int(m)) for m in _slider_mark_ints(v)},
-                        tooltip={"placement": "bottom", "always_visible": True},
-                        updatemode="drag",
-                        allow_direct_input=False,
-                    ),
-                    style=SLIDER_WRAP,
-                ),
-            ], style=PANEL)
-            for v in model.inputs
-        ]),
+        html.Div(id="inputs-row", style=INPUTS_ROW),
 
         html.H3("Rules"),
         html.Ul(id="rules-list"),
 
         html.H3("Outputs"),
-        html.Div(id="outputs-row", style=OUTPUTS_ROW, children=[
-            html.Div([
-                dcc.Graph(id={"type": "out-fig", "var": v.name},
-                          figure=output_figure(v, _var_state(initial_state, "outputs", v.name))),
-                _header_row("out-legend", v),
-            ], style=PANEL)
-            for v in model.outputs
-        ]),
+        html.Div(id="outputs-row", style=OUTPUTS_ROW),
     ])
 
-    _register_callbacks(app, config, model)
+    _register_callbacks(app, config)
     return app
 
 
@@ -124,18 +104,56 @@ def _list_fcl_files(fcl_dir: Path) -> list[dict]:
 
 
 def _header_row(legend_kind: str, v: FuzzyVar) -> html.Div:
-    """2-column [var-name | term-state list] row used above inputs / below outputs."""
     return html.Div([
         html.Div(v.name, style=HEADER_NAME),
         html.Div(id={"type": legend_kind, "var": v.name}, style=HEADER_LEGEND),
     ], style=HEADER_ROW)
 
 
+def _input_panel(v_dict: dict, vstate: dict) -> html.Div:
+    v = FuzzyVar.from_dict(v_dict)
+    return html.Div([
+        _header_row("in-legend", v),
+        dcc.Graph(id={"type": "in-fig", "var": v.name},
+                  figure=membership_figure(v, vstate)),
+        html.Div(
+            dcc.Slider(
+                id={"type": "in-slider", "var": v.name},
+                min=min(t.a for t in v.terms),
+                max=max(t.d for t in v.terms),
+                step=0.1,
+                value=vstate.get("crisp", 0.0),
+                marks={int(m): str(int(m)) for m in _slider_mark_ints(v)},
+                tooltip={"placement": "bottom", "always_visible": True},
+                updatemode="drag",
+                allow_direct_input=False,
+            ),
+            style=SLIDER_WRAP,
+        ),
+    ], style=PANEL)
+
+
+def _output_panel(v_dict: dict, vstate: dict) -> html.Div:
+    v = FuzzyVar.from_dict(v_dict)
+    return html.Div([
+        dcc.Graph(id={"type": "out-fig", "var": v.name},
+                  figure=output_figure(v, vstate)),
+        _header_row("out-legend", v),
+    ], style=PANEL)
+
+
 def _var_state(state: dict, kind: str, name: str) -> dict:
-    for v in state.get(kind, []):
+    for v in (state or {}).get(kind, []):
         if v["name"] == name:
             return v
     return {"name": name, "crisp": 0.0, "terms": []}
+
+
+def _find_var_dict(topology: dict, kind: str, name: str) -> dict | None:
+    for v_dict in (topology or {}).get(kind, []):
+        if v_dict["name"] == name:
+            return v_dict
+    return None
 
 
 def _slider_mark_ints(v: FuzzyVar) -> list[int]:
@@ -156,7 +174,7 @@ def _legend_children(vstate: dict, crisp_label: str) -> list:
     return rows
 
 
-def _register_callbacks(app: dash.Dash, config: AppConfig, model: Model) -> None:
+def _register_callbacks(app: dash.Dash, config: AppConfig) -> None:
     client = FuzzyClient(config.base_url)
 
     @app.callback(
@@ -178,15 +196,31 @@ def _register_callbacks(app: dash.Dash, config: AppConfig, model: Model) -> None
     )
     def render_rules(state):
         items = []
-        for r in state.get("rules", []):
+        for r in (state or {}).get("rules", []):
             style = {"fontWeight": "bold"} if r.get("fired") else {}
             items.append(html.Li(r.get("name", "?"), style=style))
         return items
 
     @app.callback(
+        Output("inputs-row", "children"),
+        Output("outputs-row", "children"),
+        Input("topology-store", "data"),
+        State("state-store", "data"),
+    )
+    def rebuild_panels(topology, state):
+        if not topology:
+            return [], []
+        return (
+            [_input_panel(v, _var_state(state, "inputs", v["name"]))
+             for v in topology.get("inputs", [])],
+            [_output_panel(v, _var_state(state, "outputs", v["name"]))
+             for v in topology.get("outputs", [])],
+        )
+
+    @app.callback(
         Output({"type": "in-legend", "var": MATCH}, "children"),
         Input("state-store", "data"),
-        Input({"type": "in-legend", "var": MATCH}, "id"),
+        State({"type": "in-legend", "var": MATCH}, "id"),
     )
     def render_in_legend(state, comp_id):
         return _legend_children(_var_state(state, "inputs", comp_id["var"]), "crisp")
@@ -194,58 +228,67 @@ def _register_callbacks(app: dash.Dash, config: AppConfig, model: Model) -> None
     @app.callback(
         Output({"type": "out-legend", "var": MATCH}, "children"),
         Input("state-store", "data"),
-        Input({"type": "out-legend", "var": MATCH}, "id"),
+        State({"type": "out-legend", "var": MATCH}, "id"),
     )
     def render_out_legend(state, comp_id):
         return _legend_children(_var_state(state, "outputs", comp_id["var"]), "centroid")
 
     @app.callback(
-        Output("reload-trigger", "data"),
+        Output({"type": "in-fig", "var": MATCH}, "figure"),
+        Input("state-store", "data"),
+        State({"type": "in-fig", "var": MATCH}, "id"),
+        State("topology-store", "data"),
+    )
+    def update_in_fig(state, comp_id, topology):
+        v_dict = _find_var_dict(topology, "inputs", comp_id["var"])
+        if v_dict is None:
+            return dash.no_update
+        return membership_figure(FuzzyVar.from_dict(v_dict),
+                                 _var_state(state, "inputs", comp_id["var"]))
+
+    @app.callback(
+        Output({"type": "out-fig", "var": MATCH}, "figure"),
+        Input("state-store", "data"),
+        State({"type": "out-fig", "var": MATCH}, "id"),
+        State("topology-store", "data"),
+    )
+    def update_out_fig(state, comp_id, topology):
+        v_dict = _find_var_dict(topology, "outputs", comp_id["var"])
+        if v_dict is None:
+            return dash.no_update
+        return output_figure(FuzzyVar.from_dict(v_dict),
+                             _var_state(state, "outputs", comp_id["var"]))
+
+    @app.callback(
+        Output("push-ack", "data", allow_duplicate=True),
+        Input({"type": "in-slider", "var": MATCH}, "value"),
+        State({"type": "in-slider", "var": MATCH}, "id"),
+        prevent_initial_call=True,
+    )
+    def push_input(value, comp_id):
+        try:
+            client.post_input(comp_id["var"], float(value))
+        except Exception:
+            pass
+        return dash.no_update
+
+    @app.callback(
+        Output("topology-store", "data"),
+        Output("error-text", "children"),
+        Output("error-text", "style"),
         Input("fcl-picker", "value"),
         prevent_initial_call=True,
     )
     def on_pick(fcl_path):
         if not fcl_path:
-            return dash.no_update
-        text = Path(fcl_path).read_text()
-        new_model = parse_fcl(text)
-        client.post_model(new_model.to_dict())
-        return int(time.time() * 1000)
-
-    app.clientside_callback(
-        """function(trigger) {
-            if (trigger) { window.location.reload(); }
-            return trigger;
-        }""",
-        Output("reload-trigger", "data", allow_duplicate=True),
-        Input("reload-trigger", "data"),
-        prevent_initial_call=True,
-    )
-
-    for v in model.inputs:
-        @app.callback(
-            Output({"type": "in-fig", "var": v.name}, "figure"),
-            Input("state-store", "data"),
-        )
-        def update_input(state, _v=v):
-            return membership_figure(_v, _var_state(state, "inputs", _v.name))
-
-        @app.callback(
-            Output("push-ack", "data", allow_duplicate=True),
-            Input({"type": "in-slider", "var": v.name}, "value"),
-            prevent_initial_call=True,
-        )
-        def push_input(value, _v=v):
-            try:
-                client.post_input(_v.name, float(value))
-            except Exception:
-                pass
-            return dash.no_update
-
-    for v in model.outputs:
-        @app.callback(
-            Output({"type": "out-fig", "var": v.name}, "figure"),
-            Input("state-store", "data"),
-        )
-        def update_output(state, _v=v):
-            return output_figure(_v, _var_state(state, "outputs", _v.name))
+            return dash.no_update, "", ERROR_HIDDEN
+        fname = Path(fcl_path).name
+        try:
+            text = Path(fcl_path).read_text()
+            new_model = parse_fcl(text)
+            client.post_model(new_model.to_dict())
+            new_topology = client.get_model()
+            return new_topology, "", ERROR_HIDDEN
+        except Exception as exc:
+            msg = f"Error loading {fname}: {type(exc).__name__}: {exc}"
+            return dash.no_update, msg, ERROR_VISIBLE
