@@ -9,7 +9,6 @@ the engine schema is (a, b, c, d) only.
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 from typing import Any
 
@@ -139,11 +138,52 @@ class _ToModel(Transformer):
     def var_output(self, items):
         return ("outputs", list(items))
 
-    # Accept-and-discard metadata.
+    # Accept-and-discard cosmetic metadata.
     def range_decl(self, _):
+        # RANGE is variable-display metadata only; the engine has no notion of it.
         return None
 
-    def accu_decl(self, _):
+    def default_decl(self, _):
+        # DEFAULT applies only if no rule fires; engine returns 0/NaN regardless.
+        # Tracked as a known cosmetic gap (see README known-limitations).
+        return None
+
+    # Engine-honored operators: error if a non-default value is requested.
+    # The engine hardcodes MIN for AND / activation, MAX for OR / accumulation.
+    def and_decl(self, items):
+        if items[0].upper() != "MIN":
+            raise NotImplementedError(
+                f"fcl2json: 'AND : {items[0]}' is not supported; the engine "
+                f"uses MIN as the T-norm. Remove the line or change it to "
+                f"'AND : MIN'. See README 'Known limitations'."
+            )
+        return None
+
+    def or_decl(self, items):
+        if items[0].upper() != "MAX":
+            raise NotImplementedError(
+                f"fcl2json: 'OR : {items[0]}' is not supported; the engine "
+                f"uses MAX as the S-norm. Remove the line or change it to "
+                f"'OR : MAX'. See README 'Known limitations'."
+            )
+        return None
+
+    def act_decl(self, items):
+        if items[0].upper() != "MIN":
+            raise NotImplementedError(
+                f"fcl2json: 'ACT : {items[0]}' is not supported; the engine "
+                f"uses MIN as the activation method (truncate-to-height). "
+                f"Remove the line or change it to 'ACT : MIN'."
+            )
+        return None
+
+    def accu_decl(self, items):
+        if items[0].upper() != "MAX":
+            raise NotImplementedError(
+                f"fcl2json: 'ACCU : {items[0]}' is not supported; the engine "
+                f"uses MAX as the accumulation method. Remove the line or "
+                f"change it to 'ACCU : MAX'."
+            )
         return None
 
     # Fuzzify / Defuzzify.
@@ -162,10 +202,17 @@ class _ToModel(Transformer):
         return ("defuzzify", FuzzyVar(name=name, terms=terms), method)
 
     def method_decl(self, items):
-        return {"method": items[0]}
-
-    def default_decl(self, items):
-        return None
+        method = items[0].upper()
+        # COGS (Center of Gravity for Singletons) is math-equivalent to COG
+        # when every output term is a singleton; the engine's general COG
+        # formula handles both. Anything else changes the algorithm.
+        if method not in ("COG", "COGS"):
+            raise NotImplementedError(
+                f"fcl2json: 'METHOD : {items[0]}' is not supported; only "
+                f"COG (center of gravity) and the COGS alias are implemented. "
+                f"See README 'Known limitations'."
+            )
+        return {"method": method}
 
     def defuzzify_extra(self, items):
         return items[0]
@@ -204,9 +251,6 @@ class _ToModel(Transformer):
             weight = 1.0
         return Rule(if_=expr, then=list(then), name=str(name), weight=float(weight))
 
-    def op_decl(self, items):
-        return None
-
     def ruleblock_extra(self, items):
         return items[0]
 
@@ -218,6 +262,7 @@ class _ToModel(Transformer):
         inputs: list[FuzzyVar] = []
         outputs: list[FuzzyVar] = []
         rules: list[Rule] = []
+        ruleblock_count = 0
         defuzz_method = "COG"
         for child in items[1:]:
             if isinstance(child, tuple):
@@ -228,15 +273,20 @@ class _ToModel(Transformer):
                     outputs.append(child[1])
                     defuzz_method = child[2]
             elif isinstance(child, list) and (not child or isinstance(child[0], Rule)):
+                ruleblock_count += 1
                 rules.extend(child)
+
+        if ruleblock_count > 1:
+            raise NotImplementedError(
+                f"fcl2json: function block '{name}' has {ruleblock_count} "
+                f"RULEBLOCKs; only one is supported. Per-block AND/OR/ACT/ACCU "
+                f"operators are not honored by the engine, so merging multiple "
+                f"blocks would silently lose semantics. See README 'Known limitations'."
+            )
 
         for idx, r in enumerate(rules, start=1):
             if not r.name or r.name.isdigit():
                 r.name = f"R{idx}: {_expr_str(r.if_)} → {_then_str(r.then)}"
-
-        if defuzz_method != "COG":
-            print(f"warning: defuzz method '{defuzz_method}' is recorded but only COG is honored",
-                  file=sys.stderr)
 
         return Model(name=name, inputs=inputs, outputs=outputs,
                      rules=rules, defuzz_method=defuzz_method)

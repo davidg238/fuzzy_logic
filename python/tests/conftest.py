@@ -10,6 +10,11 @@ def fcl_dir() -> Path:
 
 
 @pytest.fixture
+def unsupported_fcl_dir() -> Path:
+    return REPO_ROOT / "fcl" / "unsupported"
+
+
+@pytest.fixture
 def sample_tipper_dict() -> dict:
     return {
         "name": "tipper",

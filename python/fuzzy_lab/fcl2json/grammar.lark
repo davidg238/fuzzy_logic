@@ -1,6 +1,8 @@
 // FCL grammar — covers the subset used by every .fcl file in fcl/.
-// Out-of-scope directives (AND/OR/ACT/ACCU/DEFAULT/RANGE) are accepted and
-// discarded; the shapes we care about are TERMs and RULEs.
+// Engine-honored operators (AND/OR/ACT/ACCU/METHOD) are parsed into their own
+// rules so parse_fcl can raise on non-default values rather than silently
+// discarding them. Cosmetic metadata (RANGE/DEFAULT) is still accepted and
+// discarded — neither affects the math the engine runs.
 //
 // Extensions beyond the plan template (found by surveying all 12 .fcl files):
 //   - Trapezoid / Triangle: case-insensitive full-word aliases for trape/trian
@@ -28,10 +30,9 @@ var_decl: NAME ":" "REAL"i ";"
 fuzzify:   "FUZZIFY"i   NAME (term_decl | range_decl)* "END_FUZZIFY"i
 defuzzify: "DEFUZZIFY"i NAME (term_decl | defuzzify_extra | range_decl)* "END_DEFUZZIFY"i
 
-defuzzify_extra: method_decl | default_decl | accu_decl
+defuzzify_extra: method_decl | default_decl | act_decl | accu_decl
 method_decl:  "METHOD"i  ":" NAME ";"
 default_decl: "DEFAULT"i ":=" (SIGNED_NUMBER | "nan"i) ";"
-accu_decl:    ("ACCU"i | "ACT"i) ":" NAME ";"
 
 // range_decl: accept-and-discard metadata (e.g. "RANGE := (0.0 .. 10.0);")
 range_decl: "RANGE"i ":=" "(" SIGNED_NUMBER ".." SIGNED_NUMBER ")" ";"
@@ -57,8 +58,11 @@ term_singleton: SIGNED_NUMBER
 point: "(" SIGNED_NUMBER "," SIGNED_NUMBER ")"
 
 ruleblock: "RULEBLOCK"i NAME ruleblock_extra* rule* "END_RULEBLOCK"i
-ruleblock_extra: op_decl
-op_decl: ("AND"i | "OR"i | "ACT"i | "ACCU"i) ":" NAME ";"
+ruleblock_extra: and_decl | or_decl | act_decl | accu_decl
+and_decl:  "AND"i  ":" NAME ";"
+or_decl:   "OR"i   ":" NAME ";"
+act_decl:  "ACT"i  ":" NAME ";"
+accu_decl: "ACCU"i ":" NAME ";"
 
 // RULE keyword is matched case-insensitively (some files use "Rule").
 // Trailing ";" is optional (tipping2.fcl omits it).

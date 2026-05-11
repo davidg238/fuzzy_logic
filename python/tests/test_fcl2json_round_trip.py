@@ -22,8 +22,9 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 PYTHON_DIR = REPO_ROOT / "python"
 FCL_DIR = REPO_ROOT / "fcl"
 
-UNSUPPORTED = {"membershipFunctionsDemo", "qualify", "qualify_optimized"}
-SUPPORTED_FCL = sorted(p for p in FCL_DIR.glob("*.fcl") if p.stem not in UNSUPPORTED)
+# fcl/unsupported/ is excluded by non-recursive glob; every .fcl directly under
+# fcl/ is round-trip-convertible to JSON.
+SUPPORTED_FCL = sorted(FCL_DIR.glob("*.fcl"))
 
 
 @pytest.fixture(scope="module")

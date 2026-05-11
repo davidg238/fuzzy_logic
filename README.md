@@ -83,8 +83,9 @@ The RPC surface is HTTP-only, four routes: `GET /model`, `POST /model`, `GET /st
 
 ```
 src/                 Toit engine modules (closed-form centroid math, JSON loader, RPC service)
-fcl/                 Hand-written FCL source files
+fcl/                 Hand-written FCL source files (see fcl/index.md)
 fcl/generated/       Generated JSON artifacts (committed)
+fcl/unsupported/     FCL samples that exceed the v1 engine — fcl2json errors on these
 examples/            simple.toit, embedded.toit, device.toit (models.toit is a shared test fixture)
 tests/               Toit test suite (btest)
 python/              fuzzy_lab — fcl2json + Plotly Dash viz
@@ -93,9 +94,14 @@ docs/superpowers/    Specs and implementation plans
 
 ## Known limitations (v1)
 
-- Three `.fcl` files in `fcl/` use shapes outside the supported subset (`membershipFunctionsDemo.fcl`: irregular point-list shapes; `qualify.fcl`/`qualify_optimized.fcl`: `sigm` MFs and degenerate flat lines). Picking any of them in the visualizer renders an inline error and preserves the current model. The other 9 round-trip cleanly.
-- Defuzzification is COG only. Other `METHOD:` values are accepted by the parser and recorded in the JSON's `defuzz_method` field for forward compatibility, but are not honored at run time.
-- One `RULEBLOCK` per `FUNCTION_BLOCK`. Per-rule `ACT` and per-block `AND`/`OR` operator overrides are accepted-and-discarded by `fcl2json`.
+`fcl2json` errors with `NotImplementedError` on FCL features that would silently produce wrong results, rather than discarding them. The reference samples that hit each limit are kept under `fcl/unsupported/` (see `fcl/index.md`).
+
+- **Membership functions:** only `trape` / `trian` / point-list / singleton are supported. `gbell`, `gauss`, and `sigm` raise.
+- **Point-list shapes:** must be one of the canonical 2/3/4-point shoulder/triangle/trapezoid forms. Arbitrary polygons raise.
+- **Defuzzification:** only `METHOD : COG` (and the math-equivalent `COGS` alias for singleton-only outputs) is accepted. Anything else (`RM`, `BISECT`, `MOM`, etc.) raises.
+- **RULEBLOCK operators:** the engine hardcodes `MIN` for `AND` / activation and `MAX` for `OR` / accumulation. Declarations matching those defaults are accepted as no-ops; any other value (`PROD`, `ASUM`, `SUM`, etc.) raises.
+- **One `RULEBLOCK` per `FUNCTION_BLOCK`.** Multiple blocks raise, because their per-block operator overrides would be silently lost.
+- **Cosmetic metadata (`RANGE`, `DEFAULT`)** is accepted and discarded — neither affects the math the engine runs.
 
 ## Versioning
 

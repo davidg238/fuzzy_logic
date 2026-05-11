@@ -21,17 +21,27 @@ def test_parses_container_crane(parser, fcl_dir):
     assert tree.data == "function_block"
 
 
-def test_parses_triage_with_not_and_weight(parser, fcl_dir):
-    tree = parser.parse((fcl_dir / "triage.fcl").read_text())
+def test_parses_triage_with_not_and_weight(parser, unsupported_fcl_dir):
+    # triage.fcl lives in fcl/unsupported/ because it declares METHOD: RM,
+    # but the grammar itself accepts it — only parse_fcl rejects the value.
+    tree = parser.parse((unsupported_fcl_dir / "triage.fcl").read_text())
     assert tree.data == "function_block"
 
 
 @pytest.mark.parametrize("fcl_name", [
-    "block.fcl", "ip.fcl", "ip2.fcl", "membershipFunctionsDemo.fcl",
-    "qualify.fcl", "qualify_optimized.fcl", "tipping.fcl", "tipping2.fcl", "z.fcl",
+    "block.fcl", "ip.fcl", "ip2.fcl", "tipping.fcl", "z.fcl",
 ])
 def test_parses_all_other_fcl(parser, fcl_dir, fcl_name):
     parser.parse((fcl_dir / fcl_name).read_text())
+
+
+@pytest.mark.parametrize("fcl_name", [
+    "membershipFunctionsDemo.fcl", "qualify.fcl", "qualify_optimized.fcl", "tipping2.fcl",
+])
+def test_parses_unsupported_fcl_files_at_grammar_level(parser, unsupported_fcl_dir, fcl_name):
+    # Grammar accepts them; the parse_fcl transformer is what enforces the
+    # engine-supported subset and raises NotImplementedError.
+    parser.parse((unsupported_fcl_dir / fcl_name).read_text())
 
 
 def test_tipper_to_model(fcl_dir):
@@ -50,12 +60,35 @@ def test_tipper_to_model(fcl_dir):
     assert model.rules[0].if_["op"] == "or"
 
 
-def test_triage_handles_not_and_weight(fcl_dir):
-    model = parse_fcl((fcl_dir / "triage.fcl").read_text())
+# Inline fixture exercising NOT + weight (WITH) without depending on triage.fcl,
+# which now errors on METHOD: RM and lives in fcl/unsupported/.
+_FCL_NOT_AND_WEIGHT = """
+FUNCTION_BLOCK demo
+VAR_INPUT  x: REAL; END_VAR
+VAR_OUTPUT y: REAL; END_VAR
+FUZZIFY x
+  TERM lo := trian 0 1 2;
+  TERM hi := trian 2 3 4;
+END_FUZZIFY
+DEFUZZIFY y
+  TERM out := trian 0 1 2;
+  METHOD: COG;
+END_DEFUZZIFY
+RULEBLOCK No1
+  AND : MIN;
+  RULE 1: IF x IS NOT lo THEN y IS out;
+  RULE 2: IF x IS hi THEN y IS out WITH 0.5;
+END_RULEBLOCK
+END_FUNCTION_BLOCK
+"""
+
+
+def test_parser_handles_not_and_weight():
+    model = parse_fcl(_FCL_NOT_AND_WEIGHT)
     rules_with_not = [r for r in model.rules if _has_op(r.if_, "not")]
-    assert rules_with_not, "expected at least one IS NOT rule in triage.fcl"
+    assert rules_with_not, "expected at least one IS NOT rule"
     rules_with_weight = [r for r in model.rules if r.weight != 1.0]
-    assert rules_with_weight, "expected at least one WITH-weighted rule in triage.fcl"
+    assert rules_with_weight, "expected at least one WITH-weighted rule"
 
 
 def test_singleton_term_is_a_b_c_d_equal(fcl_dir):
@@ -90,16 +123,110 @@ def _has_op(node: dict, op: str) -> bool:
     return False
 
 
-def test_unsupported_membership_function_raises(fcl_dir):
+def test_unsupported_membership_function_raises(unsupported_fcl_dir):
     """gbell/gauss/sigm are not in the engine schema (a, b, c, d). The parser
     must refuse them with a clear error, not silently produce garbage."""
     for name in ["membershipFunctionsDemo.fcl", "qualify.fcl", "qualify_optimized.fcl"]:
-        text = (fcl_dir / name).read_text()
+        text = (unsupported_fcl_dir / name).read_text()
         if any(kw in text for kw in (" gbell ", " gauss ", " sigm ")):
             with pytest.raises(NotImplementedError):
                 parse_fcl(text)
             return
     pytest.skip("no .fcl uses gbell/gauss/sigm")
+
+
+# Each file in fcl/unsupported/ must fail parse_fcl with NotImplementedError
+# — that's the contract the directory documents.
+@pytest.mark.parametrize("fcl_name", [
+    "membershipFunctionsDemo.fcl",  # gbell/gauss/sigm MFs + irregular point list
+    "qualify.fcl",                  # sigm MFs (plus ACCU : SUM)
+    "qualify_optimized.fcl",        # sigm MFs (plus ACCU : SUM, degenerate point list)
+    "tipping2.fcl",                 # AND : PROD + OR : ASUM + multi-RULEBLOCK
+    "triage.fcl",                   # METHOD : RM
+])
+def test_unsupported_fcl_files_raise(unsupported_fcl_dir, fcl_name):
+    with pytest.raises(NotImplementedError):
+        parse_fcl((unsupported_fcl_dir / fcl_name).read_text())
+
+
+# Inline fixtures for the strict-error paths, so each kind has a focused test
+# independent of any particular .fcl in the repo.
+def _wrap_ruleblock(extra_line: str) -> str:
+    return f"""
+FUNCTION_BLOCK demo
+VAR_INPUT  x: REAL; END_VAR
+VAR_OUTPUT y: REAL; END_VAR
+FUZZIFY x   TERM lo := trian 0 1 2; END_FUZZIFY
+DEFUZZIFY y TERM out := trian 0 1 2; METHOD: COG; END_DEFUZZIFY
+RULEBLOCK No1
+  {extra_line}
+  RULE 1: IF x IS lo THEN y IS out;
+END_RULEBLOCK
+END_FUNCTION_BLOCK
+"""
+
+
+@pytest.mark.parametrize("decl,fragment", [
+    ("AND : PROD;",  "AND : PROD"),
+    ("OR : ASUM;",   "OR : ASUM"),
+    ("ACT : PROD;",  "ACT : PROD"),
+    ("ACCU : SUM;",  "ACCU : SUM"),
+])
+def test_non_default_operator_raises(decl, fragment):
+    with pytest.raises(NotImplementedError, match=fragment):
+        parse_fcl(_wrap_ruleblock(decl))
+
+
+@pytest.mark.parametrize("decl", ["AND : MIN;", "OR : MAX;", "ACT : MIN;", "ACCU : MAX;"])
+def test_default_operator_accepted(decl):
+    # No-ops that match the engine's hardcoded behavior must still parse.
+    model = parse_fcl(_wrap_ruleblock(decl))
+    assert model.name == "demo"
+
+
+def test_non_cog_method_raises():
+    fcl_text = """
+FUNCTION_BLOCK demo
+VAR_INPUT  x: REAL; END_VAR
+VAR_OUTPUT y: REAL; END_VAR
+FUZZIFY x   TERM lo := trian 0 1 2; END_FUZZIFY
+DEFUZZIFY y TERM out := trian 0 1 2; METHOD: RM; END_DEFUZZIFY
+RULEBLOCK No1 RULE 1: IF x IS lo THEN y IS out; END_RULEBLOCK
+END_FUNCTION_BLOCK
+"""
+    with pytest.raises(NotImplementedError, match="METHOD : RM"):
+        parse_fcl(fcl_text)
+
+
+def test_cogs_method_accepted():
+    # COGS is mathematically equivalent to COG when all output terms are
+    # singletons (container-crane.fcl relies on this).
+    fcl_text = """
+FUNCTION_BLOCK demo
+VAR_INPUT  x: REAL; END_VAR
+VAR_OUTPUT y: REAL; END_VAR
+FUZZIFY x   TERM lo := trian 0 1 2; END_FUZZIFY
+DEFUZZIFY y TERM out := 5; METHOD: COGS; END_DEFUZZIFY
+RULEBLOCK No1 RULE 1: IF x IS lo THEN y IS out; END_RULEBLOCK
+END_FUNCTION_BLOCK
+"""
+    model = parse_fcl(fcl_text)
+    assert model.defuzz_method == "COGS"
+
+
+def test_multiple_ruleblocks_raise():
+    fcl_text = """
+FUNCTION_BLOCK demo
+VAR_INPUT  x: REAL; END_VAR
+VAR_OUTPUT y: REAL; END_VAR
+FUZZIFY x   TERM lo := trian 0 1 2; END_FUZZIFY
+DEFUZZIFY y TERM out := trian 0 1 2; METHOD: COG; END_DEFUZZIFY
+RULEBLOCK A RULE 1: IF x IS lo THEN y IS out; END_RULEBLOCK
+RULEBLOCK B RULE 2: IF x IS lo THEN y IS out; END_RULEBLOCK
+END_FUNCTION_BLOCK
+"""
+    with pytest.raises(NotImplementedError, match="RULEBLOCKs"):
+        parse_fcl(fcl_text)
 
 
 import subprocess
@@ -126,12 +253,12 @@ def test_cli_all_option(fcl_dir, tmp_path):
         cwd=Path(__file__).resolve().parents[1],
         capture_output=True, text=True,
     )
-    # --all may exit non-zero if some .fcl uses unsupported MFs; the test
-    # accepts that, but we want to confirm it produces .json for the supported
-    # files. Don't assert returncode=0; assert at least the supported subset
+    # --all globs fcl_dir/*.fcl non-recursively, so fcl/unsupported/ is skipped.
+    # All files in fcl_dir/ are convertible by construction; assert each one
     # produced output.
-    supported = {"tipper", "container-crane", "triage", "block", "ip", "ip2",
-                 "tipping", "tipping2", "z"}
+    supported = {"tipper", "container-crane", "block", "ip", "ip2",
+                 "tipping", "z", "driver", "driver_advanced", "casco",
+                 "fan-speed", "air-conditioning", "lecture_1"}
     jsons = sorted(p.stem for p in tmp_path.glob("*.json"))
     for name in supported:
         if (fcl_dir / f"{name}.fcl").exists():
