@@ -1,10 +1,11 @@
 """Plotly Dash app that visualises a running FuzzyModel.
 
-Layout (top to bottom):
-  - Header: model name + defuzz method + connection status
-  - Inputs row: variable name above each panel; figure; slider
-  - Rules list: one bullet per rule; fired rules bold
-  - Outputs row: figure on top, variable name below each panel
+Per-variable panel layout (inputs):
+  [var name | term-state list]   ← 2-column header above the graph
+  [figure]                       ← Plotly legend hidden; states live in header
+  [slider]
+
+Outputs are the mirror image: figure on top, 2-column footer below.
 """
 
 from __future__ import annotations
@@ -12,17 +13,23 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import dash
-from dash import Input, Output, dcc, html
+from dash import MATCH, Input, Output, dcc, html
 
 from fuzzy_lab.schema import FuzzyVar, Model
 from fuzzy_lab.viz.plots import membership_figure, output_figure
 from fuzzy_lab.viz.rpc import FuzzyClient
 
 
-CENTER_LABEL = {"textAlign": "center", "margin": "4px 0", "fontWeight": "bold"}
 PANEL = {"width": "32%", "display": "inline-block",
          "verticalAlign": "top", "padding": "0 8px"}
 SLIDER_WRAP = {"paddingLeft": "40px", "paddingRight": "10px"}
+HEADER_ROW = {"display": "flex", "alignItems": "center",
+              "justifyContent": "center", "gap": "16px",
+              "padding": "4px 40px 4px 40px"}
+HEADER_NAME = {"flex": "0 0 auto", "fontWeight": "bold",
+               "fontSize": "16px", "textAlign": "center"}
+HEADER_LEGEND = {"flex": "0 1 auto", "fontSize": "12px",
+                 "lineHeight": "1.3", "textAlign": "left"}
 
 
 @dataclass
@@ -46,7 +53,7 @@ def build_app(config: AppConfig, model: Model, initial_state: dict) -> dash.Dash
         html.H3("Inputs"),
         html.Div(id="inputs-row", children=[
             html.Div([
-                html.Div(v.name, style=CENTER_LABEL),
+                _header_row("in-legend", v),
                 dcc.Graph(id={"type": "in-fig", "var": v.name},
                           figure=membership_figure(v, _var_state(initial_state, "inputs", v.name))),
                 html.Div(
@@ -59,6 +66,7 @@ def build_app(config: AppConfig, model: Model, initial_state: dict) -> dash.Dash
                         marks={int(m): str(int(m)) for m in _slider_mark_ints(v)},
                         tooltip={"placement": "bottom", "always_visible": True},
                         updatemode="drag",
+                        allow_direct_input=False,
                     ),
                     style=SLIDER_WRAP,
                 ),
@@ -74,7 +82,7 @@ def build_app(config: AppConfig, model: Model, initial_state: dict) -> dash.Dash
             html.Div([
                 dcc.Graph(id={"type": "out-fig", "var": v.name},
                           figure=output_figure(v, _var_state(initial_state, "outputs", v.name))),
-                html.Div(v.name, style=CENTER_LABEL),
+                _header_row("out-legend", v),
             ], style=PANEL)
             for v in model.outputs
         ]),
@@ -82,6 +90,14 @@ def build_app(config: AppConfig, model: Model, initial_state: dict) -> dash.Dash
 
     _register_callbacks(app, config, model)
     return app
+
+
+def _header_row(legend_kind: str, v: FuzzyVar) -> html.Div:
+    """2-column [var-name | term-state list] row used above inputs / below outputs."""
+    return html.Div([
+        html.Div(v.name, style=HEADER_NAME),
+        html.Div(id={"type": legend_kind, "var": v.name}, style=HEADER_LEGEND),
+    ], style=HEADER_ROW)
 
 
 def _var_state(state: dict, kind: str, name: str) -> dict:
@@ -95,6 +111,14 @@ def _slider_mark_ints(v: FuzzyVar) -> list[int]:
     lo = min(t.a for t in v.terms)
     hi = max(t.d for t in v.terms)
     return list(range(int(lo), int(hi) + 1))
+
+
+def _legend_children(vstate: dict, crisp_label: str) -> list:
+    rows = [html.Div(f"{t['name']} ({t['pertinence']:.2f})")
+            for t in vstate.get("terms", [])]
+    rows.append(html.Div(f"{crisp_label} = {vstate.get('crisp', 0.0):.2f}",
+                         style={"fontStyle": "italic"}))
+    return rows
 
 
 def _register_callbacks(app: dash.Dash, config: AppConfig, model: Model) -> None:
@@ -123,6 +147,22 @@ def _register_callbacks(app: dash.Dash, config: AppConfig, model: Model) -> None
             style = {"fontWeight": "bold"} if r.get("fired") else {}
             items.append(html.Li(r.get("name", "?"), style=style))
         return items
+
+    @app.callback(
+        Output({"type": "in-legend", "var": MATCH}, "children"),
+        Input("state-store", "data"),
+        Input({"type": "in-legend", "var": MATCH}, "id"),
+    )
+    def render_in_legend(state, comp_id):
+        return _legend_children(_var_state(state, "inputs", comp_id["var"]), "crisp")
+
+    @app.callback(
+        Output({"type": "out-legend", "var": MATCH}, "children"),
+        Input("state-store", "data"),
+        Input({"type": "out-legend", "var": MATCH}, "id"),
+    )
+    def render_out_legend(state, comp_id):
+        return _legend_children(_var_state(state, "outputs", comp_id["var"]), "centroid")
 
     for v in model.inputs:
         @app.callback(

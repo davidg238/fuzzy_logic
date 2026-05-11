@@ -28,7 +28,7 @@ def membership_figure(var: FuzzyVar, state: dict) -> go.Figure:
         line=dict(dash="dash", width=2),
     ))
     fig.update_layout(height=260, margin=dict(l=40, r=10, t=10, b=30),
-                      yaxis=dict(range=[0, 1.05]))
+                      yaxis=dict(range=[0, 1.05]), showlegend=False)
     return fig
 
 
@@ -65,5 +65,5 @@ def output_figure(var: FuzzyVar, state: dict) -> go.Figure:
         line=dict(dash="dash", width=2, color="red"),
     ))
     fig.update_layout(height=260, margin=dict(l=40, r=10, t=10, b=30),
-                      yaxis=dict(range=[0, 1.05]))
+                      yaxis=dict(range=[0, 1.05]), showlegend=False)
     return fig
