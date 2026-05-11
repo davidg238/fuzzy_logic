@@ -1,7 +1,6 @@
 // Copyright (c) 2021, 2026 Ekorau LLC
 
 import .fuzzy_in_out show FuzzyOutput
-import .fuzzy_set show SingletonSet
 
 /*
 A composition aggregates the truncated areas of every pertinent set
@@ -31,11 +30,9 @@ class Composition:
     return subset
 
   centroid-x subset/List -> float:
-    if subset.size == 1 and subset[0] is SingletonSet:
-      return subset[0].truncated-weighted-centroid
     weighted := 0.0
     tot-area := 0.0
     subset.do:
       tot-area += it.truncated-area
       weighted += it.truncated-weighted-centroid
-    return weighted / tot-area
+    return tot-area == 0.0 ? 0.0 : weighted / tot-area

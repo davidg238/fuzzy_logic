@@ -156,10 +156,17 @@ def _find_var_dict(topology: dict, kind: str, name: str) -> dict | None:
     return None
 
 
-def _slider_mark_ints(v: FuzzyVar) -> list[int]:
-    lo = min(t.a for t in v.terms)
-    hi = max(t.d for t in v.terms)
-    return list(range(int(lo), int(hi) + 1))
+def _slider_mark_ints(v: FuzzyVar, target: int = 10) -> list[int]:
+    lo = int(min(t.a for t in v.terms))
+    hi = int(max(t.d for t in v.terms))
+    span = hi - lo
+    if span <= 0:
+        return [lo]
+    stride = max(1, span // target)
+    marks = list(range(lo, hi + 1, stride))
+    if marks[-1] != hi:
+        marks.append(hi)
+    return marks
 
 
 def _legend_children(vstate: dict, crisp_label: str) -> list:

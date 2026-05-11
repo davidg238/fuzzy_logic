@@ -39,11 +39,15 @@ main:
     expect-near 7.5 set.truncated-area
     expect-near 6.1111111 (set.truncated-weighted-centroid / set.truncated-area)
 
-  test "ClosedForm" "SingletonSet area is zero, weighted centroid is a":
+  test "ClosedForm" "SingletonSet area is pertinence, weighted centroid is a*pertinence":
     set := FuzzySet 7.0 7.0 7.0 7.0 "sing"
     set.max 1.0
-    expect-near 0.0 set.truncated-area
+    expect-near 1.0 set.truncated-area
     expect-near 7.0 set.truncated-weighted-centroid
+    set.clear
+    set.max 0.5
+    expect-near 0.5 set.truncated-area
+    expect-near 3.5 set.truncated-weighted-centroid
 
   test "ClosedForm" "untruncated set has zero area":
     set := FuzzySet 0.0 5.0 5.0 10.0 "tri"

@@ -105,10 +105,12 @@ class SingletonSet extends FuzzySet:
     return (a_ - cVal).abs < F-error3 ? 1.0 : 0.0
 
   truncated-weighted-centroid -> float:
-    return a_
+    // Treat the singleton as a unit-width spike whose "area" is its
+    // pertinence; the weighted centroid is position * height.
+    return a_ * pertinence_
 
   truncated-area -> float:
-    return 0.0
+    return pertinence_
 
 
 class LTrapezoidalSet extends FuzzySet:
